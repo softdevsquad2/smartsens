@@ -87,8 +87,8 @@ class PiketController extends Controller
             ->orderBy('tbl_kelas.nama_kelas', 'asc')
             ->orderBy('tbl_siswa.nama', 'asc')
             ->select('tbl_siswa.*'); // penting agar pagination tidak error
-
-        $siswa = $query->paginate(10)->withQueryString();
+        $perpage = $request->get('per_page', 10);
+        $siswa = $query->paginate($perpage)->withQueryString();
         $kelas = Kelas::all();
         $jurusan = Jurusan::all();
 
@@ -99,17 +99,17 @@ class PiketController extends Controller
     /**
      * List izin pulang
      */
-    public function izinPulang()
+    public function izinPulang(Request $request)
     {
         $siswa = Siswa::with('kelas.jurusan')->get();
-
+        $perpage = $request->get('per_page', 10);
         $izin = KunjunganUks::with(['siswa.kelas.jurusan'])
             ->where('jenis_kunjungan', 'izin_pulang')
             ->orderByDesc('tanggal')
             ->orderByDesc('waktu')
-            ->paginate(20);
+            ->paginate($perpage);
 
-        return view('piket.izin-pulang.index', compact('siswa', 'izin'));
+        return view('piket.izin-pulang.index', compact('siswa', 'izin', 'perpage'));
     }
 
     /**
@@ -244,13 +244,13 @@ class PiketController extends Controller
         if ($request->filled('tanggal')) {
             $query->whereDate('tanggal', $request->tanggal);
         }
-
-        $absensi = $query->orderBy('tanggal', 'desc')->latest()->paginate(15)->withQueryString();
+        $perpage = $request->get('per_page', 10);
+        $absensi = $query->orderBy('tanggal', 'desc')->latest()->paginate($perpage)->withQueryString();
 
         $kelas = Kelas::all();
         $jurusan = Jurusan::all();
 
-        return view('piket.riwayat', compact('absensi', 'kelas', 'jurusan'));
+        return view('piket.riwayat', compact('absensi', 'kelas', 'jurusan', 'perpage'));
     }
     public function laporan(Request $request)
     {
@@ -285,12 +285,12 @@ class PiketController extends Controller
                 ->whereMonth('tanggal', $month);
         }
 
-
-        $absensi = $query->orderBy('tanggal', 'desc')->paginate(15);
+        $perpage = $request->get('per_page', 10);
+        $absensi = $query->orderBy('tanggal', 'desc')->paginate($perpage);
         $kelas = Kelas::all();
         $jurusan = Jurusan::all();
 
-        return view('piket.laporan', compact('absensi', 'kelas', 'jurusan', 'request'));
+        return view('piket.laporan', compact('absensi', 'kelas', 'jurusan', 'request', 'perpage'));
     }
 
 

@@ -76,17 +76,17 @@ class WaliKelasController extends Controller
         ));
     }
 
-    public function daftarSiswa()
+    public function daftarSiswa(Request $request)
     {
         $user = Auth::user();
         $waliKelas = $user->waliKelas;
         $kelas = $waliKelas->kelas;
-
+        $perpage = $request->get('per_page', 10);
         $siswa = Siswa::where('id_kelas', $kelas->id_kelas)
             ->with('user')
-            ->paginate(10);
+            ->paginate($perpage);
 
-        return view('guru.siswa.index', compact('waliKelas', 'kelas', 'siswa'));
+        return view('guru.siswa.index', compact('waliKelas', 'kelas', 'siswa', 'perpage'));
     }
 
     public function absensiHariIni()

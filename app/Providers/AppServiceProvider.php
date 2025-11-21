@@ -27,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
         // Custom middleware untuk role-based access
         Route::aliasMiddleware('role', \App\Http\Middleware\CheckRole::class);
 
-        // Model::automaticallyEagerLoadRelationships();
+        Model::automaticallyEagerLoadRelationships();
     }
 }

@@ -69,6 +69,17 @@
 
 
     <div class="bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
+        <form method="GET" class="p-4">
+            <label for="per_page" class="text-sm text-gray-700 mr-2">Tampilkan</label>
+            <select name="per_page" id="per_page" onchange="this.form.submit()"
+                class="border border-gray-300 px-2 py-1 rounded">
+                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+            </select>
+            <span class="text-sm text-gray-700 ml-2">data per halaman</span>
+        </form>
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>

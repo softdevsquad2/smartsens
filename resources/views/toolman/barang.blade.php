@@ -11,7 +11,8 @@
             <input type="text" id="searchInput" placeholder="Cari barang..."
                 class="border p-2 rounded w-1/3 focus:ring focus:ring-blue-300">
 
-            <button class="btn bg-blue-500 border border-blue-200 p-2 text-white shadow-lg rounded-xl hover:bg-blue-700" onclick="openModal()">
+            <button class="btn bg-blue-500 border border-blue-200 p-2 text-white shadow-lg rounded-xl hover:bg-blue-700"
+                onclick="openModal()">
                 Tambah Barang
             </button>
         </div>
@@ -28,7 +29,16 @@
                 {{ session('error') }}
             </div>
         @endif
-
+        <div class="flex items-center space-x-2 py-3">
+            <label class="text-sm text-gray-700">Tampilkan</label>
+            <select id="perPageSelect" class="border p-2 rounded">
+                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+            </select>
+            <span class="text-sm text-gray-700">data</span>
+        </div>
         <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
             <thead class="bg-gray-100">
                 <tr>
@@ -78,16 +88,7 @@
                 @endforeach
             </tbody>
         </table>
-        <div class="flex items-center space-x-2 py-3">
-            <label class="text-sm text-gray-700">Tampilkan</label>
-            <select id="perPageSelect" class="border p-2 rounded">
-                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-            </select>
-            <span class="text-sm text-gray-700">data</span>
-        </div>
+
         <div class="m-2">
             {{ $barangs->links() }}
         </div>

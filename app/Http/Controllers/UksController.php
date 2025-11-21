@@ -29,11 +29,12 @@ class UksController extends Controller
     /* =======================
        DASHBOARD
     ======================= */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
+        $perpage = $request->get('per_page', 10);
         $totalKunjungan = KunjunganUks::count();
         $kunjunganHariIni = KunjunganUks::where('tanggal', Carbon::today())->count();
-        $kunjunganTerbaru = KunjunganUks::with(['siswa.kelas'])->latest()->paginate(5);
+        $kunjunganTerbaru = KunjunganUks::with(['siswa.kelas'])->latest()->paginate($perpage);
         $totalObat = Obat::count();
         $totalStok = StokObat::sum('jumlah');
         $stokMenipis = DB::table('tbl_obat as o')
@@ -72,7 +73,8 @@ class UksController extends Controller
             'totalStok',
             'stokHabis',
             'stokMenipis',
-            'daftarStokObat'
+            'daftarStokObat',
+            'perpage'
         ));
     }
 
@@ -93,8 +95,8 @@ class UksController extends Controller
         if ($kategori = $request->get('kategori')) {
             $query->where('kategori', $kategori);
         }
-
-        $obat = $query->paginate(20)->appends($request->query());
+        $perpage = $request->get('per_page', 10);
+        $obat = $query->paginate($perpage)->appends($request->query());
 
         $totalObat = Obat::count();
         $stokMenipis = DB::table('tbl_obat as o')
@@ -112,8 +114,8 @@ class UksController extends Controller
             ->having('total_stok', '=', 0)
             ->count();
 
-
-        $obat = Obat::with('stokObat')->paginate(10);
+        // $perpage = $request->get('per_page', 10);
+        $obat = Obat::with('stokObat')->paginate($perpage);
 
         // dd($obat);
 
@@ -121,7 +123,7 @@ class UksController extends Controller
 
         $totalKategori = Obat::distinct('kategori')->count('kategori');
 
-        return view('uks.obat.index', compact('obat', 'stokHabis', 'totalObat', 'totalKategori', 'stokMenipis'));
+        return view('uks.obat.index', compact('obat', 'perpage', 'stokHabis', 'totalObat', 'totalKategori', 'stokMenipis'));
     }
 
     public function obatCreate()
@@ -161,11 +163,12 @@ class UksController extends Controller
     /* =======================
        STOK OBAT
     ======================= */
-    public function stokIndex()
+    public function stokIndex(Request $request)
     {
-        $stok = StokObat::with('obat')->paginate(20);
+        $perpage = $request->get('per_page', 10);
+        $stok = StokObat::with('obat')->paginate($perpage);
 
-        return view('uks.stok.index', compact('stok'));
+        return view('uks.stok.index', compact('stok', 'perpage'));
     }
 
     public function stokCreate()
@@ -219,10 +222,10 @@ class UksController extends Controller
                     ->orWhere('nisn', 'LIKE', "%{$q}%");
             });
         }
+        $perpage = $request->get('per_page', 10);
+        $rekamMedis = $rekamMedisQuery->paginate($perpage)->appends($request->only('q'));
 
-        $rekamMedis = $rekamMedisQuery->paginate(20)->appends($request->only('q'));
-
-        return view('uks.rekam-medis.index', compact('rekamMedis', 'q'));
+        return view('uks.rekam-medis.index', compact('rekamMedis', 'q', 'perpage'));
     }
 
     public function rekamMedisCreate(Request $request)
@@ -352,11 +355,12 @@ class UksController extends Controller
     /* =======================
        KUNJUNGAN UKS
     ======================= */
-    public function kunjunganIndex()
+    public function kunjunganIndex(Request $request)
     {
-        $kunjungan = KunjunganUks::with('siswa.kelas.jurusan', 'petugasUks', 'rekamMedis')->paginate(20);
+        $perpage = $request->get('per_page', 10);
+        $kunjungan = KunjunganUks::with('siswa.kelas.jurusan', 'petugasUks', 'rekamMedis')->paginate($perpage);
 
-        return view('uks.kunjungan.index', compact('kunjungan'));
+        return view('uks.kunjungan.index', compact('kunjungan', 'perpage'));
     }
 
     public function kunjunganCreate()
@@ -432,16 +436,17 @@ class UksController extends Controller
     /* =======================
        IZIN PULANG
     ======================= */
-    public function izinPulang()
+    public function izinPulang(Request $request)
     {
+        $perpage = $request->get('per_page', 10);
         $siswa = Siswa::with('kelas.jurusan')->get();
         $izin = KunjunganUks::with(['siswa.kelas.jurusan'])
             ->where('jenis_kunjungan', 'izin_pulang')
             ->latest('tanggal')
             ->latest('waktu')
-            ->paginate(20);
+            ->paginate($perpage);
 
-        return view('uks.izin-pulang.index', compact('siswa', 'izin'));
+        return view('uks.izin-pulang.index', compact('siswa', 'izin', 'perpage'));
     }
 
     public function createIzinPulang(Request $request)

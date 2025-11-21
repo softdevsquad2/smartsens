@@ -8,11 +8,12 @@ use Illuminate\Http\Request;
 
 class KelasManageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kelas = Kelas::with('jurusan')->paginate(10);
+        $perpage = $request->get('per_page', 10);
+        $kelas = Kelas::with('jurusan')->paginate($perpage);
 
-        return view('admin.kelas.index', compact('kelas'));
+        return view('admin.kelas.index', compact('kelas', 'perpage'));
     }
 
     public function create()

@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Hash;
 
 class UserManageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with(['siswa.kelas.jurusan', 'waliKelas.kelas.jurusan'])->paginate(10);
+        $perpage = $request->get('per_page', 10);
+        $users = User::with(['siswa.kelas.jurusan', 'waliKelas.kelas.jurusan'])->paginate($perpage);
 
-        return view('admin.user.index', compact('users'));
+        return view('admin.user.index', compact('users', 'perpage'));
     }
 
     public function create()
@@ -57,12 +58,12 @@ class UserManageController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'username' => 'required|string|max:255|unique:tbl_user,username,'.$user->id_user.',id_user',
+            'username' => 'required|string|max:255|unique:tbl_user,username,' . $user->id_user . ',id_user',
             'password' => 'nullable|string|min:6',
             'role' => 'required|in:admin,guru,operator,siswa,ketua',
             'id_siswa' => 'nullable|exists:tbl_siswa,id_siswa',
             'id_wali_kelas' => 'nullable|exists:tbl_wali_kelas,id_wali_kelas',
-            'card_code' => 'nullable|numeric|unique:tbl_user,card_code,'.$user->id_user.',id_user',
+            'card_code' => 'nullable|numeric|unique:tbl_user,card_code,' . $user->id_user . ',id_user',
         ]);
 
         $userData = $request->only(['username', 'role', 'id_siswa', 'id_wali_kelas', 'card_code']);

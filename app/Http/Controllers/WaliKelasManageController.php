@@ -9,11 +9,12 @@ use Illuminate\Http\Request;
 
 class WaliKelasManageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $waliKelas = WaliKelas::with(['kelas.jurusan', 'user'])->paginate(10);
+        $perpage = $request->get('per_page', 10);
+        $waliKelas = WaliKelas::with(['kelas.jurusan', 'user'])->paginate($perpage);
 
-        return view('admin.walikelas.index', compact('waliKelas'));
+        return view('admin.walikelas.index', compact('waliKelas', 'perpage'));
     }
 
     public function create()
@@ -37,13 +38,13 @@ class WaliKelasManageController extends Controller
 
         try {
             $waliKelas = WaliKelas::create($request->all());
-            \Log::info('WaliKelas berhasil dibuat dengan ID: '.$waliKelas->id_wali_kelas);
+            \Log::info('WaliKelas berhasil dibuat dengan ID: ' . $waliKelas->id_wali_kelas);
 
             return redirect()->route('walikelas.index')->with('success', 'Wali kelas berhasil ditambahkan');
         } catch (\Exception $e) {
-            \Log::error('Error creating wali kelas: '.$e->getMessage());
+            \Log::error('Error creating wali kelas: ' . $e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -66,19 +67,19 @@ class WaliKelasManageController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'id_kelas' => 'required|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,'.$walikelas->id_wali_kelas.',id_wali_kelas',
+            'id_kelas' => 'required|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,' . $walikelas->id_wali_kelas . ',id_wali_kelas',
             'id_user' => 'nullable|exists:tbl_user,id_user',
         ]);
 
         try {
             $walikelas->update($request->all());
-            \Log::info('WaliKelas berhasil diupdate dengan ID: '.$walikelas->id_wali_kelas);
+            \Log::info('WaliKelas berhasil diupdate dengan ID: ' . $walikelas->id_wali_kelas);
 
             return redirect()->route('walikelas.index')->with('success', 'Wali kelas berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Error updating wali kelas: '.$e->getMessage());
+            \Log::error('Error updating wali kelas: ' . $e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -86,13 +87,13 @@ class WaliKelasManageController extends Controller
     {
         try {
             $walikelas->delete();
-            \Log::info('WaliKelas berhasil dihapus dengan ID: '.$walikelas->id_wali_kelas);
+            \Log::info('WaliKelas berhasil dihapus dengan ID: ' . $walikelas->id_wali_kelas);
 
             return redirect()->route('walikelas.index')->with('success', 'Wali kelas berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Error deleting wali kelas: '.$e->getMessage());
+            \Log::error('Error deleting wali kelas: ' . $e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }
