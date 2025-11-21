@@ -1,0 +1,199 @@
+/* Responsive Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background: #2c3e50;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+
+/* Hamburger Button */
+.hamburger {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: #2c3e50;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none;
+}
+
+.hamburger:hover {
+    background: #34495e;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.main-content.sidebar-collapsed {
+    margin-left: 0;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .hamburger {
+        display: block;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        width: 100%;
+    }
+    
+    .main-content {
+        padding: 10px;
+    }
+    
+    .table-responsive {
+        font-size: 14px;
+    }
+    
+    .btn-group .btn {
+        padding: 2px 6px;
+        font-size: 12px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-toolbar {
+        width: 100%;
+    }
+    
+    .btn-toolbar .btn {
+        width: 100%;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    .badge {
+        font-size: 10px;
+    }
+}
+
+/* Form Responsive */
+@media (max-width: 768px) {
+    .form-control,
+    .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .row .col-md-6 {
+        margin-bottom: 15px;
+    }
+}
+
+/* Login Page Responsive */
+@media (max-width: 768px) {
+    .login-card {
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .login-header {
+        padding: 1rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Dashboard Cards Responsive */
+@media (max-width: 768px) {
+    .col-md-3,
+    .col-lg-3 {
+        margin-bottom: 15px;
+    }
+    
+    .card-stat {
+        margin-bottom: 15px;
+    }
+}
+
+/* Navigation Responsive */
+@media (max-width: 768px) {
+    .nav-link {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .nav-link i {
+        margin-right: 8px;
+    }
+}
+
+/* Button Responsive */
+@media (max-width: 576px) {
+    .btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}

@@ -1,0 +1,500 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Exports\AbsensiExport;
+use App\Models\Absensi;
+use App\Models\Setting;
+use App\Models\Sholat;
+use App\Models\Siswa;
+use App\Services\WhatsAppService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Excel;
+
+class AbsensiController extends Controller
+{
+    public function index()
+    {
+        $absensi = Absensi::with('siswa.kelas.jurusan')->orderBy('tanggal', 'desc')->paginate(20);
+
+        return view('admin.absensi.index', compact('absensi'));
+    }
+
+    public function show($id)
+    {
+        $absensi = Absensi::with('siswa.kelas.jurusan')->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $absensi,
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $absensi = Absensi::findOrFail($id);
+
+        // Hapus foto jika ada
+        if ($absensi->photo_path && Storage::disk('public')->exists($absensi->photo_path)) {
+            Storage::disk('public')->delete($absensi->photo_path);
+        }
+
+        $absensi->delete();
+
+        return redirect()->route('admin.absensi')->with('success', 'Data absensi berhasil dihapus');
+    }
+
+    public function absenMasuk(Request $request)
+    {
+        // Log the request for debugging
+        Log::info('AbsenMasuk request received:', [
+            'id_siswa' => $request->id_siswa,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'has_photo' => $request->hasFile('photo'),
+            'user_id' => Auth::id(),
+            'user_role' => Auth::user()->role ?? 'not_authenticated',
+        ]);
+
+        try {
+            // Cek apakah siswa ada
+            $siswa = Siswa::find($request->id_siswa);
+            if (! $siswa) {
+                Log::error('Siswa not found:', ['id_siswa' => $request->id_siswa]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Siswa tidak ditemukan',
+                ], 404);
+            }
+
+            $request->validate([
+                'id_siswa' => 'required|exists:tbl_siswa,id_siswa',
+                'longitude' => 'required|numeric',
+                'latitude' => 'required|numeric',
+                'photo' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:10240',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed in absenMasuk:', $e->errors());
+            $errors = $e->errors();
+            $errorMessages = [];
+            foreach ($errors as $field => $messages) {
+                $errorMessages[] = $field . ': ' . implode(', ', $messages);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal: ' . implode('; ', $errorMessages),
+            ], 422);
+        }
+
+        try {
+            // Cek apakah sudah absen masuk hari ini
+            $absensiHariIni = Absensi::where('id_siswa', $request->id_siswa)
+                ->where('tanggal', Carbon::today())
+                ->first();
+
+            if ($absensiHariIni && $absensiHariIni->waktu_masuk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah melakukan absensi masuk hari ini',
+                ]);
+            }
+
+            // Validasi GPS - cek apakah dalam radius sekolah
+            $schoolLat = Setting::getSetting('school_latitude');
+            $schoolLng = Setting::getSetting('school_longitude');
+            $radius = Setting::getSetting('attendance_radius') ?? 100; // default 100 meter
+
+            Log::info('GPS Settings:', [
+                'school_lat' => $schoolLat,
+                'school_lng' => $schoolLng,
+                'radius' => $radius,
+                'user_lat' => $request->latitude,
+                'user_lng' => $request->longitude,
+            ]);
+
+            $isWithinRadius = $this->isWithinRadius($request->latitude, $request->longitude, $schoolLat, $schoolLng, $radius);
+
+            // Foto selalu diperlukan untuk semua absensi
+            if (! $request->hasFile('photo') || ! $request->file('photo')->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Silakan upload foto untuk absensi.',
+                ]);
+            }
+
+            // Cek waktu absensi
+            $jamMasuk = Setting::getSetting('jam_masuk') ?? '06:00';
+            $jamTerlambat = Setting::getSetting('jam_terlambat') ?? '06:30';
+
+            $waktuSekarang = Carbon::now();
+            $waktuSekarangStr = $waktuSekarang->format('H:i');
+            $statusMasuk = 'hadir';
+            $photoPath = null;
+
+            // Cek apakah terlambat
+            if ($waktuSekarangStr > $jamTerlambat) {
+                $statusMasuk = 'terlambat';
+            }
+
+            // Handle photo upload for all attendance
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                try {
+                    $photo = $request->file('photo');
+                    $photoName = time() . '_' . $request->id_siswa . '_masuk.' . $photo->getClientOriginalExtension();
+                    $photoPath = $photo->storeAs('attendance_photos', $photoName, 'public');
+                    Log::info('Photo uploaded successfully:', ['path' => $photoPath]);
+                } catch (\Exception $e) {
+                    Log::error('Photo upload failed:', ['error' => $e->getMessage()]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mengupload foto: ' . $e->getMessage(),
+                    ], 500);
+                }
+            }
+
+            // Jika di luar radius, set status sakit/izin
+            if (! $isWithinRadius) {
+                $attendanceType = $request->input('attendance_type', 'sakit_izin');
+                if ($attendanceType === 'sakit') {
+                    $statusMasuk = 'sakit';
+                } elseif ($attendanceType === 'izin') {
+                    $statusMasuk = 'izin';
+                } else {
+                    $statusMasuk = 'sakit_izin';
+                }
+            }
+
+            // Simpan absensi
+            try {
+                if ($absensiHariIni) {
+                    $absensiHariIni->update([
+                        'waktu_masuk' => Carbon::now()->format('H:i:s'),
+                        'longitude_masuk' => $request->longitude,
+                        'latitude_masuk' => $request->latitude,
+                        'status_masuk' => $statusMasuk,
+                        'foto_masuk' => $photoPath,
+                    ]);
+                    Log::info('Absensi updated successfully');
+                } else {
+                    Absensi::create([
+                        'id_siswa' => $request->id_siswa,
+                        'tanggal' => Carbon::today(),
+                        'waktu_masuk' => Carbon::now()->format('H:i:s'),
+                        'longitude_masuk' => $request->longitude,
+                        'latitude_masuk' => $request->latitude,
+                        'status_masuk' => $statusMasuk,
+                        'foto_masuk' => $photoPath,
+                    ]);
+                    Log::info('Absensi created successfully');
+                }
+            } catch (\Exception $e) {
+                Log::error('Database error in absenMasuk:', ['error' => $e->getMessage()]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan absensi: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            // Send WhatsApp notification to parent
+            try {
+                $siswa = Siswa::find($request->id_siswa);
+                if ($siswa && $siswa->no_hp_ortu) {
+                    $whatsappService = new WhatsAppService;
+
+                    $result = $whatsappService->sendAttendanceNotification(
+                        $siswa->no_hp_ortu,
+                        $siswa->nama,
+                        'masuk',
+                        Carbon::now()->format('H:i'),
+                        Carbon::today()->format('d/m/Y'),
+                        $photoPath
+                    );
+
+                    if ($result['success']) {
+                        Log::info('WhatsApp notification sent successfully for absen masuk', [
+                            'siswa_id' => $request->id_siswa,
+                            'phone' => $siswa->no_hp_ortu,
+                        ]);
+                    } else {
+                        Log::warning('Failed to send WhatsApp notification for absen masuk', [
+                            'siswa_id' => $request->id_siswa,
+                            'phone' => $siswa->no_hp_ortu,
+                            'error' => $result['message'],
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Error sending WhatsApp notification for absen masuk', [
+                    'siswa_id' => $request->id_siswa,
+                    'error' => $e->getMessage(),
+                ]);
+                // Don't fail the attendance process if WhatsApp fails
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Absensi masuk berhasil',
+                'status' => $statusMasuk,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in absenMasuk: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function absenPulang(Request $request)
+    {
+        try {
+            // 1. Validasi request
+            $request->validate([
+                'id_siswa' => 'required|exists:tbl_siswa,id_siswa',
+                'longitude' => 'required|numeric',
+                'latitude' => 'required|numeric',
+                'photo' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:10240',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed in absenPulang:', $e->errors());
+            $errors = $e->errors();
+            $errorMessages = [];
+            foreach ($errors as $field => $messages) {
+                $errorMessages[] = $field . ': ' . implode(', ', $messages);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal: ' . implode('; ', $errorMessages),
+            ], 422);
+        }
+
+        try {
+            // 2. Cek jam pulang
+            $jamPulang = Setting::getSetting('jam_pulang') ?? '15:00';
+            $waktuSekarang = Carbon::now();
+            $waktuSekarangStr = $waktuSekarang->format('H:i');
+
+            if ($waktuSekarangStr < $jamPulang) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Belum jam pulang. Absen pulang hanya bisa dilakukan setelah jam {$jamPulang}",
+                ], 400);
+            }
+
+            // 3. Cek absensi masuk hari ini
+            $absensiHariIni = Absensi::where('id_siswa', $request->id_siswa)
+                ->where('tanggal', Carbon::today())
+                ->first();
+
+            if (!$absensiHariIni || !$absensiHariIni->waktu_masuk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda belum melakukan absensi masuk hari ini',
+                ]);
+            }
+
+            if ($absensiHariIni->waktu_pulang) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah melakukan absensi pulang hari ini',
+                ]);
+            }
+
+            // 4. Cek sholat Dzuhur & Ashar
+            $sholatHariIni = Sholat::where('id_siswa', $request->id_siswa)
+                ->whereDate('tanggal', Carbon::today())
+                ->first();
+
+            if (
+                !$sholatHariIni ||
+                !$sholatHariIni->dzuhur_masuk ||
+                !$sholatHariIni->dzuhur_keluar ||
+                !$sholatHariIni->ashar_masuk ||
+                !$sholatHariIni->ashar_keluar
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda belum melakukan sholat Dzuhur/Ashar. Harus sholat dulu sebelum absen pulang.',
+                ], 400);
+            }
+
+            // 5. Validasi GPS (apakah dalam radius sekolah)
+            $schoolLat = Setting::getSetting('school_latitude');
+            $schoolLng = Setting::getSetting('school_longitude');
+            $radius = Setting::getSetting('attendance_radius') ?? 100;
+
+            $isWithinRadius = $this->isWithinRadius(
+                $request->latitude,
+                $request->longitude,
+                $schoolLat,
+                $schoolLng,
+                $radius
+            );
+
+            if (!$isWithinRadius) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda berada di luar radius sekolah. Absen pulang tidak diperbolehkan.',
+                ], 400);
+            }
+
+            // 6. Upload foto
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                $photoName = time() . '_' . $request->id_siswa . '_pulang.' . $photo->getClientOriginalExtension();
+                $photoPath = $photo->storeAs('attendance_photos', $photoName, 'public');
+            }
+
+            // 7. Update absensi pulang
+            $absensiHariIni->update([
+                'waktu_pulang' => Carbon::now()->format('H:i:s'),
+                'longitude_pulang' => $request->longitude,
+                'latitude_pulang' => $request->latitude,
+                'status_pulang' => 'pulang',
+                'foto_pulang' => $photoPath,
+            ]);
+
+            // 8. Kirim notifikasi WhatsApp ke orang tua
+            try {
+                $siswa = Siswa::find($request->id_siswa);
+                if ($siswa && $siswa->no_hp_ortu) {
+                    $whatsappService = new WhatsAppService;
+                    $whatsappService->sendAttendanceNotification(
+                        $siswa->no_hp_ortu,
+                        $siswa->nama,
+                        'pulang',
+                        Carbon::now()->format('H:i'),
+                        Carbon::today()->format('d/m/Y'),
+                        $photoPath
+                    );
+                }
+            } catch (\Exception $e) {
+                Log::error('Error sending WhatsApp notification', [
+                    'siswa_id' => $request->id_siswa,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Absensi pulang berhasil',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in absenPulang: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function markAbsentStudents()
+    {
+        // Fungsi untuk menandai siswa yang tidak absen sama sekali sebagai alfa
+        $jamPulang = Setting::getSetting('jam_pulang') ?? '15:00';
+        $waktuSekarang = Carbon::now();
+
+        // Cek apakah sudah lewat jam pulang
+        if ($waktuSekarang->format('H:i') >= $jamPulang) {
+            // Cari siswa yang belum absen masuk hari ini
+            $siswaBelumAbsen = Siswa::whereDoesntHave('absensi', function ($query) {
+                $query->where('tanggal', Carbon::today())
+                    ->whereNotNull('waktu_masuk');
+            })->get();
+
+            foreach ($siswaBelumAbsen as $siswa) {
+                // Cek apakah sudah ada record absensi untuk hari ini
+                $absensiHariIni = Absensi::where('id_siswa', $siswa->id_siswa)
+                    ->where('tanggal', Carbon::today())
+                    ->first();
+
+                if (! $absensiHariIni) {
+                    // Buat record absensi dengan status alfa
+                    Absensi::create([
+                        'id_siswa' => $siswa->id_siswa,
+                        'tanggal' => Carbon::today(),
+                        'status_masuk' => 'alfa',
+                    ]);
+                }
+            }
+        }
+    }
+
+    private function isWithinRadius($lat1, $lng1, $lat2, $lng2, $radius)
+    {
+        if (! $lat2 || ! $lng2) {
+            return true; // Jika setting GPS belum ada, izinkan absensi
+        }
+
+        $earthRadius = 6371000; // Radius bumi dalam meter
+
+        $lat1Rad = deg2rad($lat1);
+        $lng1Rad = deg2rad($lng1);
+        $lat2Rad = deg2rad($lat2);
+        $lng2Rad = deg2rad($lng2);
+
+        $deltaLat = $lat2Rad - $lat1Rad;
+        $deltaLng = $lng2Rad - $lng1Rad;
+
+        $a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($lat1Rad) * cos($lat2Rad) * sin($deltaLng / 2) * sin($deltaLng / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $distance = $earthRadius * $c;
+
+        return $distance <= $radius;
+    }
+    public function showDetail($id)
+    {
+        $absen = Absensi::with(['siswa.kelas.jurusan'])->findOrFail($id);
+
+        // Ambil setting lokasi sekolah & radius
+        $schoolLat = Setting::getSetting('school_latitude');
+        $schoolLng = Setting::getSetting('school_longitude');
+        $radius = Setting::getSetting('attendance_radius') ?? 100; // default 100 meter
+
+        // Default lokasi
+        $lokasi = '-';
+
+        // Jika ada koordinat absensi
+        if ($absen->latitude_masuk && $absen->longitude_masuk) {
+            $isWithin = $this->isWithinRadius(
+                $absen->latitude_masuk,
+                $absen->longitude_masuk,
+                $schoolLat,
+                $schoolLng,
+                $radius
+            );
+
+            if ($isWithin) {
+                $lokasi = 'SMK Negeri 2 Tasikmalaya';
+            } else {
+                $lokasi = 'Absen di luar radius';
+            }
+        }
+
+        return response()->json([
+            'nama_siswa' => $absen->siswa->nama ?? '-',
+            'statusMasuk' => $absen->status_masuk ?? '-',
+            'kelas' => $absen->siswa->kelas->nama_kelas ?? '-',
+            'jurusan' => $absen->siswa->kelas->jurusan->nama_jurusan ?? '-',
+            'tanggal' => \Carbon\Carbon::parse($absen->tanggal)->format('d M Y'),
+            'waktu_masuk' => $absen->waktu_masuk ?? '-',
+            'photo_path' => $absen->foto_masuk ? asset('storage/' . $absen->foto_masuk) : null,
+            'photo_path_pulang' => $absen->foto_pulang ? asset('storage/' . $absen->foto_pulang) : null,
+            'lokasi' => $lokasi,
+        ]);
+    }
+}

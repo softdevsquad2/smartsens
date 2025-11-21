@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Worksheet ss:Name="Template">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">nama</Data></Cell>
+        <Cell><Data ss:Type="String">nisn</Data></Cell>
+        <Cell><Data ss:Type="String">jenis_kelamin</Data></Cell>
+        <Cell><Data ss:Type="String">kelas</Data></Cell>
+        <Cell><Data ss:Type="String">jurusan</Data></Cell>
+        <Cell><Data ss:Type="String">card_code</Data></Cell>
+      </Row>
+      <Row>
+        <Cell><Data ss:Type="String">Budi Santoso</Data></Cell>
+        <Cell><Data ss:Type="Number">1234567890</Data></Cell>
+        <Cell><Data ss:Type="String">L</Data></Cell>
+        <Cell><Data ss:Type="String">X IPA 1</Data></Cell>
+        <Cell><Data ss:Type="String">IPA</Data></Cell>
+        <Cell><Data ss:Type="Number">987654321</Data></Cell>
+      </Row>
+      <Row>
+        <Cell><Data ss:Type="String">Siti Aminah</Data></Cell>
+        <Cell><Data ss:Type="Number">2345678901</Data></Cell>
+        <Cell><Data ss:Type="String">P</Data></Cell>
+        <Cell><Data ss:Type="String">XI IPS 2</Data></Cell>
+        <Cell><Data ss:Type="String">IPS</Data></Cell>
+        <Cell><Data ss:Type="String"></Data></Cell>
+      </Row>
+    </Table>
+  </Worksheet>
+</Workbook>

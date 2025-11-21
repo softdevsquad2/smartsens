@@ -1,0 +1,352 @@
+/* SmartSens Application Theme */
+/* Background Colors */
+.app-bg-primary {
+    background-color: #f8f9fa !important;
+}
+
+.app-bg-secondary {
+    background-color: #e9ecef !important;
+}
+
+
+/* Text Colors */
+.app-text-primary {
+    color: #198754 !important;
+}
+
+.text-app-primary {
+    color: #198754 !important;
+}
+.bg-app-primary {
+    background-color: #f8f9fa !important;
+}
+
+.bg-app-secondary {
+    background-color: #e9ecef !important;
+}
+
+/* Override default backgrounds */
+body {
+    background-color: #f8f9fa !important;
+}
+
+.main-content {
+    background-color: #f8f9fa !important;
+}
+
+/* Table headers */
+.table thead th,
+thead {
+    background-color: #e9ecef !important;
+}
+
+/* Card backgrounds */
+.card-info,
+.info-section {
+    background-color: #e9ecef !important;
+}
+
+/* Form sections */
+.form-section,
+.upload-section {
+    background-color: #e9ecef !important;
+}
+
+/* Status indicators */
+.status-info {
+    background-color: #e9ecef !important;
+}
+
+/* Override Tailwind classes */
+.bg-gray-50 {
+    background-color: #f8f9fa !important;
+}
+
+.bg-blue-50 {
+    background-color: #e9ecef !important;
+}
+
+.bg-green-50 {
+    background-color: #e9ecef !important;
+}
+
+/* NOTE: Avoid broad global overrides of Tailwind utility classes or element selectors
+   which can unexpectedly change colors (for example `.text-white`).
+   Use scoped utility classes instead (e.g. `.app-heading`, `.app-link`). */
+
+/* App-specific heading color (use .app-heading on headings you want green) */
+.app-heading {
+    color: #198754;
+}
+
+/* App-specific link color (use .app-link on anchors you want themed) */
+.app-link {
+    color: #198754;
+}
+
+.app-link:hover {
+    color: #146c43;
+}
+
+/* Focus states */
+.form-control:focus,
+.form-select:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+}
+
+/* Custom utility classes */
+.text-app-primary {
+    color: #198754 !important;
+}
+
+.bg-app-primary {
+    background-color: #f8f9fa !important;
+}
+
+.bg-app-secondary {
+    background-color: #e9ecef !important;
+}
+
+.border-app-primary {
+    border-color: #198754 !important;
+}
+
+/* Sidebar Theme */
+.sidebar {
+    background: linear-gradient(to bottom, #2c3e50, #34495e) !important;
+}
+
+.sidebar .nav-link {
+    color: #e9ecef !important;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 2px 0;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #198754 !important;
+    color: white !important;
+    transform: translateX(4px);
+}
+
+.sidebar .nav-link.active,
+.sidebar a.bg-blue-600 {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+/* Override Tailwind sidebar classes */
+.sidebar a.text-white.bg-blue-600 {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+.sidebar .logo-section {
+    background-color: #34495e !important;
+    border-bottom: 2px solid #198754;
+}
+
+.sidebar .logout-section {
+    border-top: 2px solid #198754;
+}
+
+.sidebar .logout-section button {
+    color: #e9ecef !important;
+    transition: all 0.3s ease;
+}
+
+.sidebar .logout-section button:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Sidebar toggle button */
+#sidebar-toggle {
+    color: #198754 !important;
+    transition: all 0.3s ease;
+}
+
+#sidebar-toggle:hover {
+    background-color: #e9ecef !important;
+    color: #198754 !important;
+}
+
+/* Main content transitions */
+#main-content {
+    transition: margin-left 0.3s ease;
+}
+
+.main-content-expanded {
+    margin-left: 0;
+}
+
+.main-content-collapsed {
+    margin-left: 0;
+}
+
+@media (min-width: 768px) {
+    .main-content-expanded {
+        margin-left: 256px; /* w-64 = 256px */
+    }
+    .main-content-collapsed {
+        margin-left: 0;
+    }
+}
+
+/* Override specific components */
+.page-title {
+    color: #198754 !important;
+}
+
+.page-description {
+    color: #198754 !important;
+}
+
+.welcome-title {
+    color: #198754 !important;
+}
+
+.welcome-description {
+    color: #198754 !important;
+}
+
+/* Card backgrounds */
+.bg-white {
+    background-color: #e9ecef !important;
+}
+
+.card,
+.rounded-xl {
+    background-color: #e9ecef !important;
+}
+
+/* Info cards */
+.info-card {
+    background-color: #e9ecef !important;
+    border: 1px solid #198754;
+}
+
+/* Quick action buttons */
+.quick-action {
+    background-color: #e9ecef !important;
+    border: 1px solid #198754;
+    transition: all 0.3s ease;
+}
+
+.quick-action:hover {
+    background-color: #198754 !important;
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+/* Status indicators */
+.status-active {
+    color: #198754 !important;
+}
+
+.status-pending {
+    color: #f59e0b !important;
+}
+
+/* Table headers */
+.table thead th {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+}
+
+.btn-primary:hover {
+    background-color: #146c43 !important;
+    border-color: #146c43 !important;
+}
+
+/* Form elements */
+.form-control:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+}
+
+/* Badges */
+.badge-success {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+.badge-warning {
+    background-color: #f59e0b !important;
+    color: white !important;
+}
+
+.badge-info {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
+/* Icons */
+.icon-primary {
+    color: #198754 !important;
+}
+
+.icon-secondary {
+    color: #e9ecef !important;
+}
+
+/* Links */
+/* a {
+    color: #198754 !important;
+}
+
+a:hover {
+    color: #146c43 !important;
+} */
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+    color: #198754 !important;
+}
+
+/* Text colors */
+.text-primary {
+    color: #198754 !important;
+}
+
+.text-secondary {
+    color: #6c757d !important;
+}
+
+/* Background utilities */
+.bg-light {
+    background-color: #e9ecef !important;
+}
+
+.bg-primary {
+    background-color: #198754 !important;
+}
+
+/* Border colors */
+.border-primary {
+    border-color: #198754 !important;
+}
+
+/* Shadow effects */
+.shadow-primary {
+    box-shadow: 0 0.125rem 0.25rem rgba(25, 135, 84, 0.075) !important;
+}
+
+/* Hover effects */
+.hover-primary:hover {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+/* Focus states */
+.focus-primary:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+}

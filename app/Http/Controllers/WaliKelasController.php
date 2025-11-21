@@ -1,0 +1,148 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Exports\AbsensiReportExport;
+use App\Models\Absensi;
+use App\Models\Siswa;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+
+class WaliKelasController extends Controller
+{
+    public function dashboard()
+    {
+        $user = Auth::user();
+        $waliKelas = $user->waliKelas;
+
+        if (! $waliKelas) {
+            return redirect()->route('login')->with('error', 'Anda tidak memiliki akses sebagai wali kelas.');
+        }
+
+        $kelas = $waliKelas->kelas;
+
+        // Statistik siswa
+        $totalSiswa = Siswa::where('id_kelas', $kelas->id_kelas)->count();
+
+        // Statistik absensi hari ini
+        $today = Carbon::today();
+        $absensiHariIni = Absensi::where('tanggal', $today)
+            ->whereHas('siswa', function ($query) use ($kelas) {
+                $query->where('id_kelas', $kelas->id_kelas);
+            })
+            ->get();
+
+        $hadirHariIni = $absensiHariIni->where('status', 'hadir')->count();
+        $izinHariIni = $absensiHariIni->where('status', 'izin')->count();
+        $sakitHariIni = $absensiHariIni->where('status', 'sakit')->count();
+        $alphaHariIni = $absensiHariIni->where('status', 'alpha')->count();
+
+        // Statistik absensi bulan ini
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $absensiBulanIni = Absensi::whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->whereHas('siswa', function ($query) use ($kelas) {
+                $query->where('id_kelas', $kelas->id_kelas);
+            })
+            ->get();
+
+        $totalAbsensiBulanIni = $absensiBulanIni->count();
+        $hadirBulanIni = $absensiBulanIni->where('status', 'hadir')->count();
+        $izinBulanIni = $absensiBulanIni->where('status', 'izin')->count();
+        $sakitBulanIni = $absensiBulanIni->where('status', 'sakit')->count();
+        $alphaBulanIni = $absensiBulanIni->where('status', 'alpha')->count();
+
+        // Persentase kehadiran bulan ini
+        $persentaseKehadiran = $totalAbsensiBulanIni > 0
+            ? round(($hadirBulanIni / $totalAbsensiBulanIni) * 100, 1)
+            : 0;
+
+        return view('guru.dashboard', compact(
+            'waliKelas',
+            'kelas',
+            'totalSiswa',
+            'hadirHariIni',
+            'izinHariIni',
+            'sakitHariIni',
+            'alphaHariIni',
+            'hadirBulanIni',
+            'izinBulanIni',
+            'sakitBulanIni',
+            'alphaBulanIni',
+            'persentaseKehadiran'
+        ));
+    }
+
+    public function daftarSiswa()
+    {
+        $user = Auth::user();
+        $waliKelas = $user->waliKelas;
+        $kelas = $waliKelas->kelas;
+
+        $siswa = Siswa::where('id_kelas', $kelas->id_kelas)
+            ->with('user')
+            ->paginate(10);
+
+        return view('guru.siswa.index', compact('waliKelas', 'kelas', 'siswa'));
+    }
+
+    public function absensiHariIni()
+    {
+        $user = Auth::user();
+        $waliKelas = $user->waliKelas;
+        $kelas = $waliKelas->kelas;
+        $today = Carbon::today();
+
+        // Ambil semua siswa di kelas beserta absensi hari ini (jika ada)
+        $siswa = Siswa::where('id_kelas', $kelas->id_kelas)
+            ->with(['absensi' => function ($query) use ($today) {
+                $query->where('tanggal', $today);
+            }])
+            ->get();
+
+        return view('guru.absensi.hari-ini', compact('waliKelas', 'kelas', 'siswa', 'today'));
+    }
+
+    public function laporanAbsensi(Request $request)
+    {
+        $user = Auth::user();
+        $waliKelas = $user->waliKelas;
+        $kelas = $waliKelas->kelas;
+
+        $bulan = $request->get('bulan', Carbon::now()->format('Y-m'));
+        $startDate = Carbon::createFromFormat('Y-m', $bulan)->startOfMonth();
+        $endDate = Carbon::createFromFormat('Y-m', $bulan)->endOfMonth();
+
+        $absensi = Absensi::whereBetween('tanggal', [$startDate, $endDate])
+            ->whereHas('siswa', function ($query) use ($kelas) {
+                $query->where('id_kelas', $kelas->id_kelas);
+            })
+            ->with('siswa')
+            ->orderBy('tanggal')
+            ->get()
+            ->groupBy('tanggal');
+
+        return view('guru.absensi.laporan', compact('waliKelas', 'kelas', 'absensi', 'bulan', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Export absensi laporan as XLSX for the selected month
+     */
+    public function exportAbsensiXlsx(Request $request)
+    {
+        $user = Auth::user();
+        $waliKelas = $user->waliKelas;
+        $kelas = $waliKelas->kelas;
+
+        $bulan = $request->get('bulan', Carbon::now()->format('Y-m'));
+        $startDate = Carbon::createFromFormat('Y-m', $bulan)->startOfMonth();
+        $endDate = Carbon::createFromFormat('Y-m', $bulan)->endOfMonth();
+
+        $filename = sprintf('laporan-absensi-%s-%s.xlsx', $kelas->nama_kelas, $bulan);
+
+        return Excel::download(new AbsensiReportExport($kelas->id_kelas, $startDate, $endDate), $filename);
+    }
+}
