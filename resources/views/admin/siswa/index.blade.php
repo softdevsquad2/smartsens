@@ -101,15 +101,8 @@
                     class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-2 py-2 rounded-lg transition-colors">
                     Filter
                 </button>
-                <a href="{{ route('siswa.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
-                    <i class="fas fa-plus mr-2"></i> Tambah
-                </a>
-                <button command="show-modal" commandfor="dialog"
-                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-all duration-150 text-gray-700 flex items-center">
-                    <i class="fas fa-file-import mr-2 text-gray-500"></i> Import
-                </button>
             </div>
+
 
             @if (request('q') || request('kelas') || request('jurusan'))
                 <a href="{{ route('siswa.index') }}"
@@ -118,6 +111,14 @@
                 </a>
             @endif
         </form>
+        <a href="{{ route('siswa.create') }}"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
+            <i class="fas fa-plus mr-2"></i> Tambah
+        </a>
+        <button command="show-modal" commandfor="dialog"
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-all duration-150 text-gray-700 flex items-center">
+            <i class="fas fa-file-import mr-2 text-gray-500"></i> Import
+        </button>
 
         <!-- ➕ Action Buttons -->
 
