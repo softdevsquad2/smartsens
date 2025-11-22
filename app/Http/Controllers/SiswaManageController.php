@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SiswaTemplateExport;
+use App\Imports\SiswaImport;
 use App\Models\Jurusan;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -42,7 +44,8 @@ class SiswaManageController extends Controller
         }
 
         // ✅ Pagination
-        $siswa = $query->paginate(10)->withQueryString();
+        $perpage = $request->get('per_page', 10);
+        $siswa = $query->paginate($perpage)->withQueryString();
 
         // ✅ Data dropdown
         $kelas = Kelas::all();
@@ -153,213 +156,31 @@ class SiswaManageController extends Controller
      * Import siswa from uploaded Excel (.xlsx).
      * Expected columns: nama, nisn, jenis_kelamin, kelas, jurusan, card_code (optional)
      */
+    // use Maatwebsite\Excel\Facades\Excel;
+
     public function import(Request $request)
     {
-        // Support two flows: direct upload (file) or confirm from preview (stored filename)
-        if ($request->has('stored_file')) {
-            $stored = $request->input('stored_file');
-            $path = storage_path('app/' . $stored);
-            if (! file_exists($path)) {
-                return redirect()->route('siswa.index')->with('error', 'File temp tidak ditemukan. Silakan preview ulang.');
-            }
-            $file = new \Illuminate\Http\UploadedFile($path, basename($path));
-        } else {
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls',
-            ]);
+        set_time_limit(300); // 5 menit
 
-            $file = $request->file('file');
-        }
+        \App\Imports\SiswaImport::$inserted = 0;
+        \App\Imports\SiswaImport::$updated = 0;
 
-        // Use Maatwebsite Excel to read into array
-        try {
-            $rows = Excel::toArray([], $file);
-        } catch (\Exception $e) {
-            Log::error('Import error: ' . $e->getMessage());
+        Excel::import(new \App\Imports\SiswaImport, $request->file('file'));
 
-            return redirect()->route('siswa.index')->with('error', 'Gagal membaca file: ' . $e->getMessage());
-        }
+        $insert = \App\Imports\SiswaImport::$inserted;
+        $update = \App\Imports\SiswaImport::$updated;
 
-        if (empty($rows) || ! isset($rows[0]) || count($rows[0]) === 0) {
-            return redirect()->route('siswa.index')->with('error', 'File kosong atau format tidak dikenali');
-        }
-
-        $sheet = $rows[0];
-
-        // Normalize header row (first row) and build flexible header map
-        // Maatwebsite\Excel::toArray returns native PHP arrays (sheets -> rows -> cells)
-        // so treat the header row as an array rather than calling ->toArray() on it.
-        $rawHeaderRow = (array) $sheet[0];
-        $normalizedHeaders = [];
-        foreach ($rawHeaderRow as $i => $h) {
-            $key = strtolower(trim((string) $h));
-            $key = preg_replace('/[^a-z0-9]+/i', '_', $key); // sanitize to snake_case-ish
-            $normalizedHeaders[$key] = $i;
-        }
-
-        // Header aliases - map multiple possible header names to canonical keys
-        $headerAliases = [
-            'nama' => ['nama', 'full_name', 'name', 'nama_lengkap'],
-            'nisn' => ['nisn', 'nis', 'id_nisn'],
-            'jenis_kelamin' => ['jenis_kelamin', 'jenis kelamin', 'gender', 'sex'],
-            'kelas' => ['kelas', 'class', 'nama_kelas'],
-            'jurusan' => ['jurusan', 'major', 'department'],
-            'card_code' => ['card_code', 'card', 'cardcode'],
-            'no_hp_ortu' => ['no_hp_ortu', 'no hp ortu', 'nomor_hp_ortu', 'phone_ortu', 'hp_ortu'],
-        ];
-
-        $cols = [];
-        foreach ($headerAliases as $canonical => $variants) {
-            foreach ($variants as $v) {
-                $vnorm = preg_replace('/[^a-z0-9]+/i', '_', strtolower($v));
-                if (array_key_exists($vnorm, $normalizedHeaders)) {
-                    $cols[$canonical] = $normalizedHeaders[$vnorm];
-                    break;
-                }
-                // also allow substring match in header keys
-                foreach ($normalizedHeaders as $hdr => $idx) {
-                    if (str_contains($hdr, $vnorm) || str_contains($vnorm, $hdr)) {
-                        $cols[$canonical] = $idx;
-                        break 2;
-                    }
-                }
-            }
-        }
-
-        // Required headers
-        $required = ['nama', 'nisn', 'jenis_kelamin', 'kelas'];
-        foreach ($required as $r) {
-            if (! isset($cols[$r])) {
-                return redirect()->route('siswa.index')->with('error', "Header '$r' tidak ditemukan di file. Pastikan file mengikuti template.");
-            }
-        }
-
-        $created = 0;
-        $skipped = 0;
-        $errors = [];
-
-        // Process rows (skip header)
-        for ($i = 1; $i < count($sheet); $i++) {
-            $row = (array) $sheet[$i];
-
-            $nama = isset($row[$cols['nama']]) ? trim((string) $row[$cols['nama']]) : null;
-            $nisn = isset($row[$cols['nisn']]) ? trim((string) $row[$cols['nisn']]) : null;
-            $jenis = isset($row[$cols['jenis_kelamin']]) ? trim((string) $row[$cols['jenis_kelamin']]) : null;
-            $kelasName = isset($row[$cols['kelas']]) ? trim((string) $row[$cols['kelas']]) : null;
-            $jurusanName = isset($cols['jurusan']) && isset($row[$cols['jurusan']]) ? trim((string) $row[$cols['jurusan']]) : null;
-            $card = isset($cols['card_code']) && isset($row[$cols['card_code']]) ? trim((string) $row[$cols['card_code']]) : null;
-            $noHpOrtu = isset($cols['no_hp_ortu']) && isset($row[$cols['no_hp_ortu']]) ? trim((string) $row[$cols['no_hp_ortu']]) : null;
-
-            // Basic validation
-            // Basic required validation
-            if (empty($nama) || empty($nisn) || empty($jenis) || empty($kelasName)) {
-                $skipped++;
-                $errors[] = 'Baris ' . ($i + 1) . ': Data wajib tidak lengkap';
-
-                continue;
-            }
-
-            // Sanitize name (remove extra whitespace, dangerous chars)
-            $nama = preg_replace('/\s+/', ' ', strip_tags($nama));
-            $nama = trim($nama);
-
-            // Validate NISN: numeric, length between 8 and 12 (adjustable)
-            $nisnNumeric = preg_replace('/[^0-9]/', '', $nisn);
-            if ($nisnNumeric === '' || strlen($nisnNumeric) < 8 || strlen($nisnNumeric) > 12) {
-                $skipped++;
-                $errors[] = 'Baris ' . ($i + 1) . ': NISN tidak valid (harus numeric dan 8-12 digit)';
-
-                continue;
-            }
-            $nisn = $nisnNumeric;
-
-            // Map jenis kelamin variations
-            $jenisNorm = strtolower($jenis);
-            if (in_array($jenisNorm, ['l', 'laki-laki', 'laki laki', 'male', 'm'])) {
-                $jenis = 'L';
-            } elseif (in_array($jenisNorm, ['p', 'perempuan', 'female', 'f'])) {
-                $jenis = 'P';
-            } else {
-                // try first char
-                $first = strtolower(substr($jenisNorm, 0, 1));
-                if ($first === 'l') {
-                    $jenis = 'L';
-                } elseif ($first === 'p') {
-                    $jenis = 'P';
-                } else {
-                    $skipped++;
-                    $errors[] = 'Baris ' . ($i + 1) . ": Jenis kelamin tidak dikenali ($jenis)";
-
-                    continue;
-                }
-            }
-
-            // Find kelas by name (try exact, case-insensitive, then substring/fuzzy)
-            $kelas = Kelas::whereRaw('LOWER(nama_kelas) = ?', [strtolower($kelasName)])->first();
-            if (! $kelas) {
-                $kelas = Kelas::where('nama_kelas', 'like', '%' . $kelasName . '%')->first();
-            }
-            // If jurusan provided, try to match using jurusan as well
-            if (! $kelas && $jurusanName) {
-                $jurusanNameNorm = strtolower($jurusanName);
-                $kelas = Kelas::whereHas('jurusan', function ($q) use ($jurusanNameNorm) {
-                    $q->whereRaw('LOWER(nama_jurusan) = ?', [$jurusanNameNorm])
-                        ->orWhere('nama_jurusan', 'like', '%' . $jurusanNameNorm . '%');
-                })->where('nama_kelas', 'like', '%' . $kelasName . '%')->first();
-            }
-
-            if (! $kelas) {
-                $skipped++;
-                $errors[] = 'Baris ' . ($i + 1) . ": Kelas '$kelasName' tidak ditemukan";
-
-                continue;
-            }
-
-            // Check duplicate nisn
-            $exists = Siswa::where('nisn', $nisn)->first();
-            if ($exists) {
-                $skipped++;
-                $errors[] = 'Baris ' . ($i + 1) . ": NISN '$nisn' sudah ada";
-
-                continue;
-            }
-
-            try {
-                $siswa = Siswa::create([
-                    'id_kelas' => $kelas->id_kelas,
-                    'nama' => $nama,
-                    'jenis_kelamin' => $jenis,
-                    'nisn' => $nisn,
-                    'card_code' => $card ?: null,
-                    'no_hp_ortu' => $noHpOrtu ?: null,
-                ]);
-
-                // Create corresponding user account (username = nisn, password = nisn)
-                $user = User::create([
-                    'id_siswa' => $siswa->id_siswa,
-                    'username' => $nama,
-                    'password' => Hash::make($nisn),
-                    'role' => 'siswa',
-                    'card_code' => $card ?: null,
-                ]);
-
-                $created++;
-            } catch (\Exception $e) {
-                Log::error('Error importing row ' . ($i + 1) . ': ' . $e->getMessage());
-                $skipped++;
-                $errors[] = 'Baris ' . ($i + 1) . ': Terjadi kesalahan saat menyimpan - ' . $e->getMessage();
-
-                continue;
-            }
-        }
-
-        $msg = "Import selesai: $created dibuat, $skipped dilewati.";
-        if (! empty($errors)) {
-            session()->flash('import_errors', $errors);
-        }
-
-        return redirect()->route('siswa.index')->with('success', $msg);
+        return back()->with('success', "
+        Import selesai!
+        Ditambahkan: $insert siswa
+        Diperbarui: $update siswa
+    ");
     }
+
+
+
+
+
 
     /**
      * Preview import: parse file and show first N rows with validation result.

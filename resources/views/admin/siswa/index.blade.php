@@ -68,7 +68,7 @@
 
         <!-- 🔍 Search & Filter -->
         <form method="GET" action="{{ route('siswa.index') }}" class="w-full sm:w-auto mb-6 sm:mb-0">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
 
                 <!-- Search -->
                 <input type="text" name="q" placeholder="Cari nama / NISN..." value="{{ request('q') }}"
@@ -101,6 +101,14 @@
                     class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-2 py-2 rounded-lg transition-colors">
                     Filter
                 </button>
+                <a href="{{ route('siswa.create') }}"
+                    class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
+                    <i class="fas fa-plus mr-2"></i> Tambah
+                </a>
+                <button command="show-modal" commandfor="dialog"
+                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-all duration-150 text-gray-700 flex items-center">
+                    <i class="fas fa-file-import mr-2 text-gray-500"></i> Import
+                </button>
             </div>
 
             @if (request('q') || request('kelas') || request('jurusan'))
@@ -112,19 +120,13 @@
         </form>
 
         <!-- ➕ Action Buttons -->
-        <div class="flex items-center space-x-2 grid grid-cols-2 gap-2 ms-1">
-            <!-- Tambah Siswa -->
-            <a href="{{ route('siswa.create') }}"
-                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
-                <i class="fas fa-plus mr-2"></i> Tambah
-            </a>
 
-            <!-- Import Data -->
-            <button command="show-modal" commandfor="dialog"
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm font-semibold rounded-lg transition-all duration-150 text-gray-700 flex items-center">
-                <i class="fas fa-file-import mr-2 text-gray-500"></i> Import
-            </button>
-        </div>
+        <!-- Tambah Siswa -->
+
+
+        <!-- Import Data -->
+
+
 
     </div>
 
@@ -161,6 +163,24 @@
     <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
 
         <div class="overflow-x-auto">
+            <form method="GET" class="p-4">
+                <input type="hidden" name="q" value="{{ request('q') }}">
+                <input type="hidden" name="kelas" value="{{ request('kelas') }}">
+                <input type="hidden" name="jurusan" value="{{ request('jurusan') }}">
+
+                <label for="per_page" class="text-sm text-gray-700 mr-2">Tampilkan</label>
+
+                <select name="per_page" id="per_page" onchange="this.form.submit()"
+                    class="border border-gray-300 px-2 py-1 rounded">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                </select>
+
+                <span class="text-sm text-gray-700 ml-2">data per halaman</span>
+            </form>
+
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100">
                     <tr>
