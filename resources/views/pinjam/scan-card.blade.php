@@ -18,12 +18,17 @@
 
             input.focus();
 
-            // ketika RFID masuk otomatis (biasanya enter di akhir)
-            input.addEventListener("input", function() {
+            // hanya jalankan ketika RFID mengirim ENTER
+            input.addEventListener("keyup", function(e) {
+
+                if (e.key !== "Enter") return; // ignore selain ENTER
 
                 let card = this.value.trim();
+                console.log("RFID FINAL:", card);
 
-                if (card.length < 5) return; // cegah false trigger (optional)
+                this.value = ""; // reset untuk scan berikutnya
+
+                if (card.length < 3) return;
 
                 fetch(`/api/rfid/${card}`)
                     .then(res => res.json())
@@ -36,7 +41,7 @@
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
-                                window.location.href = "{{ route('pinjam.checkout') }}";
+                                window.location.href = "{{ route('pinjam.kembali') }}";
                             });
                         } else {
                             Swal.fire({
@@ -46,8 +51,6 @@
                             });
                         }
                     });
-
-                this.value = ""; // reset input supaya bisa scan lagi
             });
         });
     </script>

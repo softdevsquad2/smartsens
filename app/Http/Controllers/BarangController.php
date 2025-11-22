@@ -260,7 +260,7 @@ class BarangController extends Controller
         // dd($peminjaman);
 
         if ($peminjaman->isEmpty()) {
-            return redirect()->route('kembali.scan')
+            return redirect()->route('kembali.pilih')
                 ->with('error', 'Tidak ada barang yang sedang dipinjam oleh siswa ini.');
         }
 
