@@ -45,12 +45,16 @@ Route::post('/pinjam/add', [BarangController::class, 'addToCart'])->name('pinjam
 
 // Checkout
 Route::get('/pinjam/checkout', [BarangController::class, 'checkout'])->name('pinjam.checkout');
-
+Route::get('/pinjam/pilih', [BarangController::class, 'pilih'])->name('pinjam.pilih');
+Route::get('/pinjam/scan-card', [BarangController::class, 'scanCard'])
+    ->name('pinjam.scan.card');
+// Route::get('/pinjam/pilih', [BarangController::class, 'pilih'])
+//     ->name('pinjam.pilih');
 // Proses checkout
 Route::post('/pinjam/checkout/process', [BarangController::class, 'processCheckout'])->name('pinjam.process');
 Route::post('/pinjam/remove/{id}', [BarangController::class, 'removeItem'])->name('pinjam.remove');
 // Halaman scan QR (uses ScanController)
-Route::get('/scan', [ScanController::class, 'scan'])->name('scan.qr');
+
 
 Route::get('/api/get-siswa-by-nisn/{nisn}', function ($nisn) {
     $siswa = DB::table('tbl_siswa')
@@ -69,21 +73,51 @@ Route::get('/api/get-siswa-by-nisn/{nisn}', function ($nisn) {
     ]);
 });
 
-// Proses hasil scan (from camera/post)
-Route::post('/scan', [ScanController::class, 'scan'])->name('scan.process');
+
 
 // Store peminjaman (form from scan checkout)
 Route::post('/peminjaman/store', [BarangController::class, 'store'])->name('peminjaman.store');
 
 Route::get('/pinjam/scan', [BarangController::class, 'scanPage'])->name('pinjam.scan');
-Route::get('/peminjaman', [BarangController::class, 'scanPageKembali'])->name('kembali.scan');
 Route::post('/pinjam/scan/process', [BarangController::class, 'scanProcess'])->name('pinjam.scan.process');
-Route::post('/pinjam/scan/processBack', [BarangController::class, 'scanProcessBack'])->name('pinjam.scan.processBack');
-Route::get('/pinjam/kembali', [BarangController::class, 'kembalikan'])->name('pinjam.kembali');
-Route::post('/pinjam/kembali/process', [BarangController::class, 'processKembalikan'])->name('pinjam.kembalikan.proses');
 Route::post('/pinjam/update-qty', [BarangController::class, 'updateQty'])->name('pinjam.updateQty');
 
 
+// kemablikan barang
+Route::post('/pinjam/kembali/process', [BarangController::class, 'processKembalikan'])->name('pinjam.kembalikan.proses');
+
+Route::get('/pinjam/kembali', [BarangController::class, 'kembalikan'])->name('pinjam.kembali');
+
+Route::get('/peminjaman', [BarangController::class, 'scanPageKembali'])->name('kembali.scan');
+
+Route::post('/pinjam/scan/processBack', [BarangController::class, 'scanProcessBack'])->name('pinjam.scan.processBack');
+Route::get('/kembali/scan-card', [BarangController::class, 'scanCardPage'])
+    ->name('kembali.scan.card');
+Route::get('/kembali/pilih', [BarangController::class, 'kembalikanPinjam'])
+    ->name('kembali.pilih');
+
+Route::get('/api/rfid/{code}', function ($code) {
+
+    $siswa = DB::table('tbl_siswa')
+        ->join('tbl_user', 'tbl_user.id_siswa', '=', 'tbl_siswa.id_siswa')
+        ->where('tbl_siswa.card_code', $code)
+        ->select('tbl_user.id_user', 'tbl_siswa.nama')
+        ->first();
+
+    if (!$siswa) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Kartu tidak dikenali!'
+        ]);
+    }
+
+    session(['peminjam_id' => $siswa->id_user]);
+
+    return response()->json([
+        'success' => true,
+        'nama' => $siswa->nama
+    ]);
+});
 
 
 

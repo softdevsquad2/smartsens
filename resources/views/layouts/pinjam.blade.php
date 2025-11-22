@@ -31,7 +31,7 @@
                         class="fa-solid fa-house px-1"></i><a href="{{ route('pinjam.index') }}">Home</a></button>
                 <button
                     class="border border-blue-400 bg-blue-500 rounded-md px-2 py-2 hover:bg-blue-600 text-white hover:text-white shadow-lg"><i
-                        class="fa-solid fa-rotate-left px-1"></i><a href="{{ route('kembali.scan') }}">Kembalikan
+                        class="fa-solid fa-rotate-left px-1"></i><a href="{{ route('kembali.pilih') }}">Kembalikan
                         Barang</a></button>
             </div>
         </div>

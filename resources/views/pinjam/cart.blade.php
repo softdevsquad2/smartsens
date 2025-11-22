@@ -81,7 +81,7 @@
             </div>
 
             <!-- Button Checkout -->
-            <a href="{{ route('pinjam.checkout') }}"
+            <a href="{{ route('pinjam.pilih') }}"
                 class="w-full block text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
                 Lanjut ke checkout
             </a>

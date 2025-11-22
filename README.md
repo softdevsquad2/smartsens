@@ -149,6 +149,11 @@ Aplikasi dirancang untuk berfungsi optimal di:
 
 ## 🚀 Deployment
 
+### Link Storage
+jalankan fungsi
+
+php artisan storage:link
+
 ### Production Setup
 ```bash
 # Install dependencies

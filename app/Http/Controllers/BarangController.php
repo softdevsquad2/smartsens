@@ -65,6 +65,17 @@ class BarangController extends Controller
     // ===============================
     //  HALAMAN CHECKOUT
     // ===============================
+
+    public function pilih()
+    {
+        $cart = session('cart', []);
+
+        if (empty($cart)) {
+            return redirect()->route('pinjam.index')
+                ->with('error', 'Keranjang kosong!');
+        }
+        return view('pinjam.pilih', compact('cart'));
+    }
     public function checkout()
     {
         // session()->forget('peminjam_id');
@@ -154,6 +165,10 @@ class BarangController extends Controller
     {
         session()->forget('peminjam_id');
         return view('pinjam.scanKembali');
+    }
+    public function kembalikanPinjam()
+    {
+        return view("pinjam.pilihscan");
     }
 
     // ===============================
@@ -326,5 +341,13 @@ class BarangController extends Controller
         session()->put('cart', $cart);
 
         return back()->with('success', 'Jumlah diperbarui.');
+    }
+    public function scanCardPage()
+    {
+        return view('pinjam.scan-card');
+    }
+    public function scanCard()
+    {
+        return view('pinjam.card');
     }
 }
