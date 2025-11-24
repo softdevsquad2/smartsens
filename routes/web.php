@@ -224,7 +224,7 @@ Route::prefix('guru')->middleware(['auth', 'role:guru'])->group(function () {
 });
 
 // Siswa Routes
-Route::prefix('siswa')->middleware(['auth', 'role:siswa'])->group(function () {
+Route::prefix('siswa')->middleware(['auth', 'role:siswa,ketua'])->group(function () {
     Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
     Route::get('/absen', [SiswaController::class, 'absen'])->name('siswa.absen');
     Route::get('/riwayat-absensi', [SiswaController::class, 'riwayatAbsensi'])->name('siswa.riwayat-absensi');
@@ -233,14 +233,14 @@ Route::prefix('siswa')->middleware(['auth', 'role:siswa'])->group(function () {
     Route::post('/settings', [SiswaController::class, 'updateSettings'])->name('siswa.settings.update');
 });
 // Siswa Routes
-Route::prefix('siswa')->middleware(['auth', 'role:ketua'])->group(function () {
-    Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
-    Route::get('/absen', [SiswaController::class, 'absen'])->name('siswa.absen');
-    Route::get('/riwayat-absensi', [SiswaController::class, 'riwayatAbsensi'])->name('siswa.riwayat-absensi');
-    Route::get('/riwayat-sholat', [SiswaController::class, 'riwayatSholat'])->name('siswa.riwayat-sholat');
-    Route::get('/settings', [SiswaController::class, 'settings'])->name('siswa.settings');
-    Route::post('/settings', [SiswaController::class, 'updateSettings'])->name('siswa.settings.update');
-});
+// Route::prefix('siswa')->middleware(['auth', 'role:ketua'])->group(function () {
+//     Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
+//     Route::get('/absen', [SiswaController::class, 'absen'])->name('siswa.absen');
+//     Route::get('/riwayat-absensi', [SiswaController::class, 'riwayatAbsensi'])->name('siswa.riwayat-absensi');
+//     Route::get('/riwayat-sholat', [SiswaController::class, 'riwayatSholat'])->name('siswa.riwayat-sholat');
+//     Route::get('/settings', [SiswaController::class, 'settings'])->name('siswa.settings');
+//     Route::post('/settings', [SiswaController::class, 'updateSettings'])->name('siswa.settings.update');
+// });
 
 // UKS Routes
 Route::prefix('uks')->middleware(['auth', 'role:uks'])->group(function () {
