@@ -28,6 +28,14 @@
                 <h3 class="text-xl font-semibold mb-1">Scan QR / NISN</h3>
                 <p class="text-sm text-gray-600 text-center">Gunakan QR Code siswa</p>
             </a>
+            <a href="{{ route('pinjam.cari.siswa') }}"
+                class="p-6 bg-white rounded-2xl shadow-lg border hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col items-center">
+                <div class="w-20 h-20 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mb-4">
+                    <i class="fas fa-search text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-1">Cari Siswa</h3>
+                <p class="text-sm text-gray-600 text-center">Cari berdasarkan Nama atau NISN</p>
+            </a>
 
         </div>
 

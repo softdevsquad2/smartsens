@@ -95,6 +95,9 @@ Route::get('/kembali/scan-card', [BarangController::class, 'scanCardPage'])
     ->name('kembali.scan.card');
 Route::get('/kembali/pilih', [BarangController::class, 'kembalikanPinjam'])
     ->name('kembali.pilih');
+Route::get('/kembali/cari', [BarangController::class, 'cariSiswaPage'])->name('kembali.cari.siswa');
+Route::get('/pinjam/cari', [BarangController::class, 'cariSiswaPagePinjam'])->name('pinjam.cari.siswa');
+Route::get('/kembali/cari/result', [BarangController::class, 'cariSiswaResult'])->name('kembali.cari.hasil');
 
 Route::get('/api/rfid/{code}', function ($code) {
 
