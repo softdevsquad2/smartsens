@@ -128,7 +128,7 @@
 
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Gambar (Opsional)</label>
-                    <input type="file" name="gambar" class="w-full border rounded p-2">
+                    <input type="file" accept=".png" name="gambar" class="w-full border rounded p-2">
                 </div>
 
                 <div class="flex justify-end space-x-2">
@@ -167,8 +167,7 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Gambar</label>
-                    <input type="file" name="gambar" class="w-full border rounded p-2"
-                        accept=".img, .png, .jpg, .jpeg">
+                    <input type="file" name="gambar" class="w-full border rounded p-2" accept=".png">
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeModal()"

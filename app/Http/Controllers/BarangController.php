@@ -26,14 +26,34 @@ class BarangController extends Controller
     {
         $keyword = $request->input('q');
 
-        $siswa = DB::table('tbl_siswa')
-            ->join('tbl_kelas', 'tbl_siswa.id_kelas', '=', 'tbl_kelas.id_kelas')
-            ->where('tbl_siswa.nama', 'like', "%$keyword%")
-            ->orWhere('tbl_siswa.nisn', 'like', "%$keyword%")
-            ->select('tbl_siswa.*', 'tbl_kelas.nama_kelas')
+        $siswa = DB::table('tbl_user')
+            ->join('tbl_siswa', 'tbl_siswa.id_siswa', '=', 'tbl_user.id_siswa')
+            ->join('tbl_kelas', 'tbl_kelas.id_kelas', '=', 'tbl_siswa.id_kelas')
+            ->where(function ($q) use ($keyword) {
+                $q->where('tbl_siswa.nama', 'like', "%$keyword%")
+                    ->orWhere('tbl_siswa.nisn', 'like', "%$keyword%");
+            })
+            ->select('tbl_siswa.*', 'tbl_user.*', 'tbl_kelas.nama_kelas')
             ->get();
 
+
         return view('pinjam.kembali.hasil-cari', compact('siswa', 'keyword'));
+    }
+    public function cariSiswaResultPinjam(Request $request)
+    {
+        $keyword = $request->input('q');
+
+        $siswa = DB::table('tbl_user')
+            ->join('tbl_siswa', 'tbl_siswa.id_siswa', '=', 'tbl_user.id_siswa')
+            ->join('tbl_kelas', 'tbl_kelas.id_kelas', '=', 'tbl_siswa.id_kelas')
+            ->where(function ($q) use ($keyword) {
+                $q->where('tbl_siswa.nama', 'like', "%$keyword%")
+                    ->orWhere('tbl_siswa.nisn', 'like', "%$keyword%");
+            })
+            ->select('tbl_siswa.*', 'tbl_user.*', 'tbl_kelas.nama_kelas')
+            ->get();
+
+        return view('pinjam.pinjam.hasil-cari', compact('siswa', 'keyword'));
     }
 
     public function index()
@@ -100,24 +120,31 @@ class BarangController extends Controller
     }
     public function checkout(Request $request)
     {
-        // dd(session('id_siswa'));
-        // session()->forget('peminjam_id');
-        $cart = session('cart', []);
-        $idSiswa = $request->id ?? session('id_siswa');
+        // Simpan id siswa ke session
+        if ($request->id) {
+            session(['id_siswa' => $request->id]);
+        }
 
+        $cart = session('cart', []);
 
         if (empty($cart)) {
             return redirect()->route('pinjam.index')
                 ->with('error', 'Keranjang kosong!');
         }
+        $peminjam = session('peminjam_id') ?? session('id_siswa');
 
-        // Harus scan QR dulu
-        if (!session()->has('peminjam_id')) {
-            return redirect()->route('pinjam.scan');
+        if (!$peminjam) {
+            dd('Saya Tidak Tau Anda Siapa!');
+            // return redirect()->route('pinjam.scan');
         }
+
+        // if (!session()->has('peminjam_id') ?? !session()->has('id_siswa')) {
+        //     dd('Saya Tidak Tau Anda Siapa!');
+        // }
 
         return view('pinjam.checkout', compact('cart'));
     }
+
 
     // ===============================
     //  PROSES CHECKOUT
@@ -130,7 +157,7 @@ class BarangController extends Controller
         $idSiswa = $request->id ?? session('id_siswa');
         $id_user = session('peminjam_id') ?? session('id_siswa');
         $cart = session('cart', []);
-        $id_user = session('peminjam_id');
+        $id_user = session('peminjam_id') ?? $idSiswa;
 
         if (!$id_user) {
             return redirect()->route('pinjam.pilih')
@@ -275,8 +302,8 @@ class BarangController extends Controller
         $id_user = session('peminjam_id') ?? $idSiswa;
         // dd($id_user);
         if (!$id_user) {
-            return redirect()->route('kembali.scan')
-                ->with('error', 'Scan QR NISN siswa terlebih dahulu!');
+            return redirect()->route('kembali.pilih')
+                ->with('error', 'Saya tidak mengetahui anda!');
         }
         $peminjaman = Peminjaman::with(['user', 'siswa', 'barang'])
             ->where('id_user', $id_user)
@@ -303,7 +330,7 @@ class BarangController extends Controller
             'barang.required' => 'Pilih minimal satu barang yang ingin dikembalikan.'
         ]);
 
-        $id_user = session('peminjam_id');
+        $id_user = session('peminjam_id') ?? session('id_siswa');
 
         if (!$id_user) {
             return redirect()->route('pinjam.scan')

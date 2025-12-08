@@ -163,17 +163,31 @@ class ToolmanController extends Controller
             return redirect()->back()->with('error', 'Barang tidak ditemukan');
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'nama_barang' => 'required',
             'kode_barang' => 'required',
             'satuan' => 'required',
             'stok' => 'required|integer',
             'gambar' => 'nullable|image|max:2048',
         ]);
+        // dd([
+        //     'mime' => $request->file('gambar')->getMimeType(),
+        //     'size' => $request->file('gambar')->getSize(),
+        //     'extension' => $request->file('gambar')->getClientOriginalExtension(),
+        // ]);
+
+
+        // Redirect manual jika gambar lebih dari 2MB
+        if ($request->hasFile('gambar')) {
+            if ($request->file('gambar')->getSize() > 2 * 1024 * 1024) {
+                return redirect()->back()->with('error', 'Gambar maksimal 2MB!');
+            }
+        }
 
         $barang->update($request->only('nama_barang', 'kode_barang', 'satuan', 'stok'));
 
         if ($request->hasFile('gambar')) {
+
             if ($barang->gambar && Storage::disk('public')->exists($barang->gambar)) {
                 Storage::disk('public')->delete($barang->gambar);
             }
@@ -184,6 +198,7 @@ class ToolmanController extends Controller
 
         return redirect()->back()->with('success', 'Barang berhasil diupdate.');
     }
+
 
     public function destroy($id)
     {

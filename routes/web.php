@@ -98,6 +98,7 @@ Route::get('/kembali/pilih', [BarangController::class, 'kembalikanPinjam'])
 Route::get('/kembali/cari', [BarangController::class, 'cariSiswaPage'])->name('kembali.cari.siswa');
 Route::get('/pinjam/cari', [BarangController::class, 'cariSiswaPagePinjam'])->name('pinjam.cari.siswa');
 Route::get('/kembali/cari/result', [BarangController::class, 'cariSiswaResult'])->name('kembali.cari.hasil');
+Route::get('/pinjam/cari/result', [BarangController::class, 'cariSiswaResultPinjam'])->name('pinjam.cari.hasil');
 
 Route::get('/api/rfid/{code}', function ($code) {
 

@@ -10,8 +10,9 @@
         @else
             <div class="space-y-3">
                 @foreach ($siswa as $s)
-                    <a href="{{ route('pinjam.kembali', ['id' => $s->id_siswa]) }}"
+                    <a href="{{ route('pinjam.kembali', ['id' => $s->id_user]) }}"
                         class="block p-4 bg-white border rounded-xl shadow hover:bg-gray-50">
+                        {{-- id {{ $s->id_user }} --}}
                         <p class="font-bold">{{ $s->nama }}</p>
                         <p class="text-sm text-gray-600">NISN: {{ $s->nisn }}</p>
                         <p class="text-sm text-gray-600">Kelas: {{ $s->nama_kelas }}</p>
