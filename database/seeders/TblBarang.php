@@ -21,6 +21,7 @@ class TblBarang extends Seeder
                 'satuan' => 'pcs',
                 'nama_barang' => 'Laptop Dell Inspiron',
                 'stok' => 15,
+                'jenis' => 'Barang',
                 'gambar' => 'ROG.png',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -31,6 +32,7 @@ class TblBarang extends Seeder
                 'satuan' => 'pcs',
                 'nama_barang' => 'Proyektor Epson',
                 'stok' => 8,
+                'jenis' => 'Barang',
                 'gambar' => 'proyektor.png',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -41,10 +43,22 @@ class TblBarang extends Seeder
                 'satuan' => 'unit',
                 'nama_barang' => 'Speaker Bluetooth JBL',
                 'stok' => 20,
+                'jenis' => 'Barang',
                 'gambar' => 'speaker.png',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'id_barang' => 4,
+                'kode_barang' => 'BRG004',
+                'satuan' => 'pcs',
+                'nama_barang' => 'Kabel LAN CAT6',
+                'stok' => 12,
+                'jenis' => 'Bahan',
+                'gambar' => 'kabel_lan.png',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
         ]);
     }
 }

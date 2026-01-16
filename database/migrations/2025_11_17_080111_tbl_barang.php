@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_barang');
             $table->string('kode_barang');
             $table->string('gambar')->nullable();
-
+            $table->enum('jenis', ['Barang', 'Bahan']);
             $table->string('satuan');
             $table->string('nama_barang');
             $table->integer('stok');

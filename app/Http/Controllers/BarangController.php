@@ -134,8 +134,8 @@ class BarangController extends Controller
         $peminjam = session('peminjam_id') ?? session('id_siswa');
 
         if (!$peminjam) {
-            dd('Saya Tidak Tau Anda Siapa!');
-            // return redirect()->route('pinjam.scan');
+            // dd('Saya Tidak Tau Anda Siapa!');
+            return redirect()->route('pinjam.scan');
         }
 
         // if (!session()->has('peminjam_id') ?? !session()->has('id_siswa')) {
@@ -308,6 +308,9 @@ class BarangController extends Controller
         $peminjaman = Peminjaman::with(['user', 'siswa', 'barang'])
             ->where('id_user', $id_user)
             ->where('status', 'dipinjam')
+            ->whereHas('barang', function ($query) {
+                $query->where('jenis', 'Barang');
+            })
             ->get();
 
         $siswa = $peminjaman->first()->siswa ?? null;

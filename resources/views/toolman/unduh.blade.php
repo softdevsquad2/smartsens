@@ -70,7 +70,9 @@
 
                         </td>
                         <td class="px-6 py-4">
-                            @if ($p->status == 'dipinjam')
+                            @if ($p->barang->jenis == 'Bahan')
+                                <span class="px-2 py-1 bg-green-200 text-gray-800 rounded-full text-sm">Digunakan</span>
+                            @elseif($p->status == 'dipinjam')
                                 <span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded-full text-sm">Dipinjam</span>
                             @elseif($p->status == 'dikembalikan')
                                 <span class="px-2 py-1 bg-green-200 text-green-800 rounded-full text-sm">Dikembalikan</span>

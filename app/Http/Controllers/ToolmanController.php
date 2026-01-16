@@ -38,6 +38,7 @@ class ToolmanController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         $peminjamans = Peminjaman::with(['siswa', 'barang'])
+        
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -130,6 +131,7 @@ class ToolmanController extends Controller
             'satuan' => 'required|string',
             'stok' => 'required|integer',
             'gambar' => 'nullable|image',
+            'jenis' => 'required|string',
             'kode_barang' => 'required|string|unique:tbl_barang,kode_barang',
         ]);
 
@@ -137,6 +139,7 @@ class ToolmanController extends Controller
             'nama_barang' => $request->nama_barang,
             'satuan' => $request->satuan,
             'stok' => $request->stok,
+            'jenis' => $request->jenis,
             'kode_barang' => $request->kode_barang,
             'gambar' => $request->hasFile('gambar') ? $request->file('gambar')->store('barangs', 'public') : null,
         ]);
@@ -168,6 +171,7 @@ class ToolmanController extends Controller
             'kode_barang' => 'required',
             'satuan' => 'required',
             'stok' => 'required|integer',
+            'jenis' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
         ]);
         // dd([
@@ -184,7 +188,7 @@ class ToolmanController extends Controller
             }
         }
 
-        $barang->update($request->only('nama_barang', 'kode_barang', 'satuan', 'stok'));
+        $barang->update($request->only('nama_barang', 'kode_barang', 'satuan', 'stok', 'jenis'));
 
         if ($request->hasFile('gambar')) {
 

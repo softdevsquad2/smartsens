@@ -33,7 +33,8 @@
                     <h3 class="font-semibold text-sm mt-2 line-clamp-2">
                         {{ $item->nama_barang }}
                     </h3>
-
+                    {{-- jenis --}}
+                    <p class="text-gray-500 text-xs">Jenis: {{ $item->jenis }}</p>
                     <!-- Stok -->
                     <p class="text-gray-600 text-xs">Stok: {{ $item->stok }}</p>
 

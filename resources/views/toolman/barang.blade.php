@@ -47,6 +47,7 @@
                     <th class="px-6 py-3 text-left text-gray-700 font-semibold uppercase text-sm">Kode Barang</th>
                     <th class="px-6 py-3 text-left text-gray-700 font-semibold uppercase text-sm">Nama Barang</th>
                     <th class="px-6 py-3 text-left text-gray-700 font-semibold uppercase text-sm">Satuan</th>
+                    <th class="px-6 py-3 text-left text-gray-700 font-semibold uppercase text-sm">Jenis</th>
                     <th class="px-6 py-3 text-left text-gray-700 font-semibold uppercase text-sm">Stok</th>
                     <th class="px-6 py-3 text-left text-gray-700 font-semibold uppercase text-sm">Aksi</th>
                 </tr>
@@ -66,6 +67,7 @@
                         <td class="px-6 py-4">{{ $barang->kode_barang }}</td>
                         <td class="px-6 py-4">{{ $barang->nama_barang }}</td>
                         <td class="px-6 py-4">{{ $barang->satuan }}</td>
+                        <td class="px-6 py-4">{{ $barang->jenis }}</td>
                         <td class="px-6 py-4">{{ $barang->stok }}</td>
                         <td class="px-6 py-4 space-x-2">
                             <button onclick="openEditModal({{ $barang->id_barang }})"
@@ -125,6 +127,15 @@
                     <label class="block text-gray-700 mb-2">Stok</label>
                     <input type="number" id="edit_stok" name="stok" class="w-full border rounded p-2" required>
                 </div>
+                
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Jenis</label>
+                    <select id="edit_jenis" name="jenis" class="w-full border rounded p-2" required>
+                        <option value="Barang">Barang</option>
+                        <option value="Bahan">Bahan</option>
+                    </select>
+                </div>
 
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Gambar (Opsional)</label>
@@ -160,6 +171,13 @@
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Satuan</label>
                     <input type="text" name="satuan" class="w-full border rounded p-2" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Jenis</label>
+                    <select name="jenis" class="w-full border rounded p-2" required>
+                        <option value="Barang">Barang</option>
+                        <option value="Bahan">Bahan</option>
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Stok</label>
