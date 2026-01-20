@@ -16,6 +16,9 @@ class SettingController extends Controller
             'waktu_masuk' => Setting::getSetting('jam_masuk') ?? '07:00',
             'waktu_terlambat' => Setting::getSetting('jam_terlambat') ?? '07:30',
             'waktu_pulang' => Setting::getSetting('jam_pulang') ?? '15:00',
+            'pagination_pelanggaran' => Setting::getSetting('pagination_pelanggaran') ?? 10,
+            'pagination_riwayat' => Setting::getSetting('pagination_riwayat') ?? 10,
+            'pagination_unduh' => Setting::getSetting('pagination_unduh') ?? 15,
         ];
 
         return view('admin.settings.index', compact('settings'));
@@ -30,6 +33,9 @@ class SettingController extends Controller
             'waktu_masuk' => 'required|date_format:H:i',
             'waktu_terlambat' => 'required|date_format:H:i|after:waktu_masuk',
             'waktu_pulang' => 'required|date_format:H:i|after:waktu_terlambat',
+            'pagination_pelanggaran' => 'required|integer|min:5|max:100',
+            'pagination_riwayat' => 'required|integer|min:5|max:100',
+            'pagination_unduh' => 'required|integer|min:5|max:100',
         ]);
 
         // Update atau create settings
@@ -39,6 +45,9 @@ class SettingController extends Controller
         Setting::setSetting('jam_masuk', $request->waktu_masuk, 'Jam masuk sekolah');
         Setting::setSetting('jam_terlambat', $request->waktu_terlambat, 'Batas waktu masuk sebelum dianggap terlambat');
         Setting::setSetting('jam_pulang', $request->waktu_pulang, 'Jam pulang sekolah');
+        Setting::setSetting('pagination_pelanggaran', $request->pagination_pelanggaran, 'Jumlah data per halaman di halaman pelanggaran');
+        Setting::setSetting('pagination_riwayat', $request->pagination_riwayat, 'Jumlah data per halaman di halaman riwayat siswa');
+        Setting::setSetting('pagination_unduh', $request->pagination_unduh, 'Jumlah data per halaman di halaman unduh laporan');
 
         return redirect()->back()->with('success', 'Pengaturan berhasil disimpan');
     }

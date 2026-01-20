@@ -24,7 +24,7 @@ class CreateTblUserTable extends Migration
 
             $table->string('username')->nullable();
             $table->string('password')->nullable();
-            $table->enum('role', ['admin', 'guru', 'operator', 'siswa', 'ketua', 'toolman', 'uks', 'piket'])->nullable();
+            $table->enum('role', ['admin','kesiswaan', 'guru', 'operator', 'siswa', 'ketua', 'toolman', 'uks', 'piket'])->nullable();
             $table->bigInteger('card_code')->nullable();
             $table->timestamps();
         });

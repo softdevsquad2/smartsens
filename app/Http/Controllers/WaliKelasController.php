@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Pelanggaran;
 
 class WaliKelasController extends Controller
 {
@@ -60,6 +61,10 @@ class WaliKelasController extends Controller
             ? round(($hadirBulanIni / $totalAbsensiBulanIni) * 100, 1)
             : 0;
 
+        // Data untuk modal pelanggaran
+        $siswa = Siswa::where('id_kelas', $kelas->id_kelas)->get();
+        $pelanggaran = \App\Models\Pelanggaran::all();
+
         return view('guru.dashboard', compact(
             'waliKelas',
             'kelas',
@@ -72,7 +77,9 @@ class WaliKelasController extends Controller
             'izinBulanIni',
             'sakitBulanIni',
             'alphaBulanIni',
-            'persentaseKehadiran'
+            'persentaseKehadiran',
+            'siswa',
+            'pelanggaran'
         ));
     }
 
@@ -144,5 +151,42 @@ class WaliKelasController extends Controller
         $filename = sprintf('laporan-absensi-%s-%s.xlsx', $kelas->nama_kelas, $bulan);
 
         return Excel::download(new AbsensiReportExport($kelas->id_kelas, $startDate, $endDate), $filename);
+    }
+
+    public function rekamPelanggaran()
+    {
+        $user = Auth::user();
+        $waliKelas = $user->waliKelas;
+        $kelas = $waliKelas->kelas;
+        $siswa = Siswa::where('id_kelas', $kelas->id_kelas)->get();
+
+        return view('guru.pelanggaran.rekam', compact('waliKelas', 'kelas', 'siswa'));
+    }
+
+    public function storePelanggaran(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_siswa' => 'required|exists:tbl_siswa,id_siswa',
+                'pelanggaran' => 'required|array|min:1',
+                'pelanggaran.*' => 'exists:tbl_pelanggaran,id',
+            ]);
+
+            $tanggal = now()->toDateString();
+
+            foreach ($request->pelanggaran as $idPelanggaran) {
+                \App\Models\rekam_pelanggaran::create([
+                    'id_siswa' => $request->id_siswa,
+                    'id_pelanggaran' => $idPelanggaran,
+                    'tanggal_pelanggaran' => $tanggal,
+                ]);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Pelanggaran berhasil direkam.']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => 'Validasi gagal: ' . implode(', ', $e->errors()['pelanggaran'] ?? $e->errors()['id_siswa'] ?? ['Data tidak valid'])]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
     }
 }

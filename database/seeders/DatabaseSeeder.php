@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             TblKunjunganUksSeeder::class,
             TblRekamMedisSeeder::class,
             TblAbsensiSeeder::class,
+            TblPelanggaranSeeder::class,
         ]);
     }
 }

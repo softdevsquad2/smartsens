@@ -50,7 +50,6 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Total Siswa -->
         <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-6">
             <div class="flex items-center">
                 <div
@@ -225,4 +224,161 @@
             </div>
         </div>
     </div>
+    <!-- Modal Rekam Pelanggaran -->
+<div id="modalPelanggaran" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Rekam Pelanggaran Siswa</h3>
+            <form id="formPelanggaran">
+                @csrf
+                <div class="mb-4">
+                    <label for="siswa" class="block text-sm font-medium text-gray-700">Pilih Siswa</label>
+                    <select id="siswa" name="id_siswa" class="searchable-select mt-1 block w-full" required>
+                        <option value="">Pilih Siswa</option>
+                        @foreach ($siswa as $s)
+                            <option value="{{ $s->id_siswa }}">
+                                {{ $s->nama }} ({{ $s->nisn }})
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <p class="mt-1 text-xs text-gray-500">Total siswa: {{ $siswa ? $siswa->count() : 0 }}</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Pelanggaran</label>
+                    @foreach ($pelanggaran as $p)
+                        <div class="flex items-center">
+                            <input type="checkbox" id="pelanggaran{{ $p->id }}" name="pelanggaran[]"
+                                value="{{ $p->id }}"
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="pelanggaran{{ $p->id }}" class="ml-2 block text-sm text-gray-900">
+                                {{ $p->nama_pelanggaran }} ({{ $p->poin_pelanggaran }} poin)
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="btnBatal"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">Batal</button>
+                    <button type="submit" id="btnKirim"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Kirim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Loading Overlay -->
+<div id="loading" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-4 rounded-md shadow-lg">
+        <div class="flex items-center space-x-2">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span>Menyimpan...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Button Rekam Pelanggaran -->
+<div class="fixed bottom-4 right-4 z-50">
+    <button id="btnPelanggaran"
+        class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-all duration-200 transform hover:scale-110"
+        title="Rekam Pelanggaran">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
+</div>
 @endsection
+
+
+
+
+
+@push('scripts')
+  <script>
+    document.getElementById('btnPelanggaran').addEventListener('click', function() {
+        document.getElementById('modalPelanggaran').classList.remove('hidden');
+    });
+
+    document.getElementById('btnBatal').addEventListener('click', function() {
+        document.getElementById('modalPelanggaran').classList.add('hidden');
+        document.getElementById('formPelanggaran').reset();
+        // Reset select2
+        $('#siswa').val(null).trigger('change');
+    });
+
+    document.getElementById('formPelanggaran').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: 'Apakah anda yakin ingin mencatat pelanggaran siswa?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Catat',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('loading').classList.remove('hidden');
+
+                const formData = new FormData(this);
+
+                fetch('{{ route('guru.pelanggaran.rekam.store') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('loading').classList.add('hidden');
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Pelanggaran berhasil direkam.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                document.getElementById('modalPelanggaran').classList.add(
+                                    'hidden');
+                                document.getElementById('formPelanggaran').reset();
+                                // Reset select2
+                                $('#siswa').val(null).trigger('change');
+                                // Reload page or update UI
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: 'Gagal: ' + (data.message || 'Terjadi kesalahan.'),
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('loading').classList.add('hidden');
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Gagal: Terjadi kesalahan jaringan.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#siswa').select2({
+            placeholder: 'Cari nama atau NISN siswa...',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#modalPelanggaran') // WAJIB untuk modal
+        });
+    });
+</script>
+@endpush
+

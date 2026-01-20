@@ -19,6 +19,7 @@ use App\Http\Controllers\WaliKelasController;
 use App\Http\Controllers\WaliKelasManageController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PelanggaranController;
 
 // Route untuk absensi GPS - redirect ke login
 Route::get('/', function () {
@@ -30,7 +31,6 @@ Route::get('/phpmyadmin', function () {
 });
 
 // Auth Routes
-
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -125,7 +125,24 @@ Route::get('/api/rfid/{code}', function ($code) {
 
 
 
+Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(function () {
 
+    Route::get('/dashboard', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
+    Route::get('/pelanggaran', [PelanggaranController::class, 'pelanggaran'])->name('pelanggaran.pelanggaran');
+    Route::post('/pelanggaran', [PelanggaranController::class, 'storePelanggaranJenis'])->name('pelanggaran.pelanggaran.store');
+    Route::put('/pelanggaran/{id}', [PelanggaranController::class, 'updatePelanggaranJenis'])->name('pelanggaran.pelanggaran.update');
+    Route::delete('/pelanggaran/{id}', [PelanggaranController::class, 'deletePelanggaranJenis'])->name('pelanggaran.pelanggaran.delete');
+    Route::get('/riwayat', [PelanggaranController::class, 'riwayat'])->name('pelanggaran.riwayat');
+    Route::get('/unduh', [PelanggaranController::class, 'unduh'])->name('pelanggaran.unduh');
+    Route::get('/unduh/pdf', [PelanggaranController::class, 'exportPDF'])->name('pelanggaran.unduh.pdf');
+    Route::get('/unduh/excel', [PelanggaranController::class, 'exportExcel'])->name('pelanggaran.unduh.excel');
+    Route::get('/riwayat/{nama}', [PelanggaranController::class, 'detail'])->name('pelanggaran.riwayat.detail');
+    Route::get('/rekam', [PelanggaranController::class, 'rekamPelanggaran'])->name('guru.pelanggaran.rekam');
+    Route::post('/rekam/store', [PelanggaranController::class, 'storePelanggaran'])->name('guru.pelanggaran.rekam.store');
+    Route::get('/rekam/list', [PelanggaranController::class, 'listRekamPelanggaran'])->name('pelanggaran.rekam.list');
+    Route::delete('/rekam/{id}', [PelanggaranController::class, 'deleteRekamPelanggaran'])->name('pelanggaran.rekam.delete');
+
+});
 
 
 Route::prefix('toolman')->middleware(['auth', 'role:toolman'])->group(function () {
@@ -219,6 +236,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 
 // Guru (Wali Kelas) Routes
 Route::prefix('guru')->middleware(['auth', 'role:guru'])->group(function () {
+    Route::get('/pelanggaran/rekam', [WaliKelasController::class, 'rekamPelanggaran'])->name('guru.pelanggaran.rekam');
+    Route::post('/pelanggaran/rekam/store', [WaliKelasController::class, 'storePelanggaran'])->name('guru.pelanggaran.rekam.store');
     Route::get('/dashboard', [WaliKelasController::class, 'dashboard'])->name('guru.dashboard');
     Route::get('/siswa', [WaliKelasController::class, 'daftarSiswa'])->name('guru.siswa.index');
     Route::get('/absensi/hari-ini', [WaliKelasController::class, 'absensiHariIni'])->name('guru.absensi.hari-ini');

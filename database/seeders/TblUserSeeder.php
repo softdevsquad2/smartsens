@@ -19,7 +19,7 @@ class TblUserSeeder extends Seeder
             ['id_user' => 7, 'id_wali_kelas' => null, 'id_siswa' => 135, 'username' => 'ARIEF MAULANA RIZKI', 'password' => '$2y$12$AHWCFjvmqIg2WG6soY5zFea3WTbQ1C28GpHh7qQOlpVWSb5XuZpuy', 'role' => 'siswa', 'card_code' => 2146798597, 'created_at' => '2025-10-16 11:30:56', 'updated_at' => '2025-10-16 11:30:56'],
             ['id_user' => 8, 'id_wali_kelas' => 13, 'id_siswa' => null, 'username' => 'aisiti.', 'password' => '$2y$10$8FTsC8DU/UGXSM6U.sbuYeRYSgxTerMbH.MR1uqIJVa8Xos0azo5O', 'role' => 'guru', 'card_code' => null, 'created_at' => '2025-10-16 11:30:56', 'updated_at' => '2025-10-16 11:30:56'],
             ['id_user' => 9, 'id_wali_kelas' => null, 'id_siswa' => null, 'username' => 'toolman', 'password' => '$2y$10$Deifdgi426HdZwfWy267CuH9Dr6cTIABxvbLemK5D9P05PR2IB9lS', 'role' => 'toolman', 'card_code' => null, 'created_at' => '2025-10-16 11:30:56', 'updated_at' => '2025-10-16 11:30:56'],
-
+            ['id_user' => 10, 'id_wali_kelas' => null, 'id_siswa' => null, 'username' => 'kesiswaan', 'password' => '$2y$10$11GuGKXJLVfOOVfPY.U4uuViXAOXw5Ahp.UWSqdyU1Wuspx.jCNfC', 'role' => 'kesiswaan', 'card_code' => null, 'created_at' => '2025-10-16 11:30:56', 'updated_at' => '2025-10-16 11:30:56'],
         ]);
     }
 }

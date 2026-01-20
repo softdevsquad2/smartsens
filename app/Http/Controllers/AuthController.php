@@ -44,6 +44,8 @@ class AuthController extends Controller
                     return redirect('/piket/dashboard');
                 case 'toolman':
                     return redirect('/toolman/dashboard');
+                case 'kesiswaan':
+                    return redirect('/pelanggaran/dashboard');
                 default:
                     return redirect('/');
             }

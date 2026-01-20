@@ -209,6 +209,62 @@
                 </div>
             </div>
 
+            <!-- Pagination Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <h3 class="md:col-span-3 text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-list mr-2 text-blue-500"></i>
+                    Pengaturan Pagination
+                </h3>
+
+                <!-- Pagination Pelanggaran -->
+                <div>
+                    <label for="pagination_pelanggaran" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+                        Data Pelanggaran per Halaman <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="pagination_pelanggaran" id="pagination_pelanggaran"
+                        value="{{ old('pagination_pelanggaran', $settings['pagination_pelanggaran']) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pagination_pelanggaran') border-red-500 @enderror"
+                        min="5" max="100" required>
+                    @error('pagination_pelanggaran')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">Jumlah data per halaman di halaman kelola pelanggaran</p>
+                </div>
+
+                <!-- Pagination Riwayat -->
+                <div>
+                    <label for="pagination_riwayat" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-history mr-2 text-green-500"></i>
+                        Riwayat Siswa per Halaman <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="pagination_riwayat" id="pagination_riwayat"
+                        value="{{ old('pagination_riwayat', $settings['pagination_riwayat']) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pagination_riwayat') border-red-500 @enderror"
+                        min="5" max="100" required>
+                    @error('pagination_riwayat')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">Jumlah data per halaman di halaman riwayat siswa</p>
+                </div>
+
+                <!-- Pagination Unduh -->
+                <div>
+                    <label for="pagination_unduh" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-download mr-2 text-purple-500"></i>
+                        Laporan per Halaman <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="pagination_unduh" id="pagination_unduh"
+                        value="{{ old('pagination_unduh', $settings['pagination_unduh']) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pagination_unduh') border-red-500 @enderror"
+                        min="5" max="100" required>
+                    @error('pagination_unduh')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">Jumlah data per halaman di halaman unduh laporan</p>
+                </div>
+            </div>
+
             <!-- Action Buttons -->
             <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
                 <button type="button" onclick="resetForm()"
@@ -278,6 +334,9 @@
                     document.getElementById('waktu_masuk').value = '07:00';
                     document.getElementById('waktu_terlambat').value = '07:30';
                     document.getElementById('waktu_pulang').value = '15:00';
+                    document.getElementById('pagination_pelanggaran').value = '10';
+                    document.getElementById('pagination_riwayat').value = '10';
+                    document.getElementById('pagination_unduh').value = '15';
                 }
             });
         }
