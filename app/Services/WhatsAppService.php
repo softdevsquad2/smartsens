@@ -17,24 +17,31 @@ class WhatsAppService
             $message .= "Status: *Berhasil direkam di sistem.*";
 
             // Kirim ke BOT kamu
-            $response = Http::post(env('WHATSAPP_BOT_URL'), [
-                'token'   => env('WHATSAPP_BOT_TOKEN'),
-                'phone'   => $phone,
-                'message' => $message,
-                'image'   => $photoPath ? url($photoPath) : null
-            ]);
+            try {
+                $response = Http::timeout(10)->post(env('WHATSAPP_BOT_URL'), [
+                    'token'   => env('WHATSAPP_BOT_TOKEN'),
+                    'phone'   => $phone,
+                    'message' => $message,
+                    'image'   => $photoPath ? url($photoPath) : null
+                ]);
 
-            if ($response->successful()) {
+                if ($response->successful()) {
+                    return [
+                        'success' => true,
+                        'message' => 'Notification sent',
+                    ];
+                }
+
                 return [
-                    'success' => true,
-                    'message' => 'Notification sent',
+                    'success' => false,
+                    'message' => $response->body(),
+                ];
+            } catch (\Exception $httpException) {
+                return [
+                    'success' => false,
+                    'message' => 'HTTP Error: ' . $httpException->getMessage(),
                 ];
             }
-
-            return [
-                'success' => false,
-                'message' => $response->body(),
-            ];
         } catch (\Exception $e) {
             return [
                 'success' => false,

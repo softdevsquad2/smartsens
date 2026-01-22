@@ -87,7 +87,7 @@ document.getElementById('formPelanggaran').addEventListener('submit', function(e
 
             const formData = new FormData(this);
 
-            fetch('{{ route("guru.pelanggaran.rekam.store") }}', {
+            fetch('/guru/pelanggaran/rekam/store', {
                 method: 'POST',
                 body: formData,
                 headers: {

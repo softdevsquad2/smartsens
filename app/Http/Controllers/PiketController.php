@@ -12,7 +12,6 @@ use App\Models\Jurusan;
 use App\Models\KunjunganUks;
 use Illuminate\Http\Request;
 
-use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -186,18 +185,6 @@ class PiketController extends Controller
                 'status_pulang' => 'izin_pulang',
             ]);
 
-            // ✅ Kirim WhatsApp
-            $wa = new WhatsAppService;
-            if (! empty($siswa->no_hp_ortu)) {
-                $wa->sendIzinPulangNotification(
-                    phoneNumber: $siswa->no_hp_ortu,
-                    studentName: $siswa->nama,
-                    className: $siswa->kelas?->nama_kelas ?? '-',
-                    reason: $request->keterangan,
-                    time: $now->format('H:i'),
-                    date: $today->format('d-m-Y'),
-                );
-            }
 
             /* ================================ */
 

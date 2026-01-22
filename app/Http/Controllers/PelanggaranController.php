@@ -189,6 +189,7 @@ class PelanggaranController extends Controller
 
     public function storePelanggaran(Request $request)
     {
+        \Log::info('PelanggaranController storePelanggaran Request:', $request->all());
         try {
             $request->validate([
                 'id_siswa' => 'required|exists:tbl_siswa,id_siswa',
@@ -205,11 +206,13 @@ class PelanggaranController extends Controller
                     'tanggal_pelanggaran' => $tanggal,
                 ]);
             }
-
+            // dd($request->all());
             return response()->json(['success' => true, 'message' => 'Pelanggaran berhasil direkam.']);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation Error in PelanggaranController:', $e->errors());
             return response()->json(['success' => false, 'message' => 'Validasi gagal: ' . implode(', ', $e->errors()['pelanggaran'] ?? $e->errors()['id_siswa'] ?? ['Data tidak valid'])]);
         } catch (\Exception $e) {
+            \Log::error('Exception in PelanggaranController:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }

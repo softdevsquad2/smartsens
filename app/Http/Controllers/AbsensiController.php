@@ -7,7 +7,6 @@ use App\Models\Absensi;
 use App\Models\Setting;
 use App\Models\Sholat;
 use App\Models\Siswa;
-use App\Services\WhatsAppService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -204,42 +203,6 @@ class AbsensiController extends Controller
                 ], 500);
             }
 
-            // Send WhatsApp notification to parent
-            try {
-                $siswa = Siswa::find($request->id_siswa);
-                if ($siswa && $siswa->no_hp_ortu) {
-                    $whatsappService = new WhatsAppService;
-
-                    $result = $whatsappService->sendAttendanceNotification(
-                        $siswa->no_hp_ortu,
-                        $siswa->nama,
-                        'masuk',
-                        Carbon::now()->format('H:i'),
-                        Carbon::today()->format('d/m/Y'),
-                        $photoPath
-                    );
-
-                    if ($result['success']) {
-                        Log::info('WhatsApp notification sent successfully for absen masuk', [
-                            'siswa_id' => $request->id_siswa,
-                            'phone' => $siswa->no_hp_ortu,
-                        ]);
-                    } else {
-                        Log::warning('Failed to send WhatsApp notification for absen masuk', [
-                            'siswa_id' => $request->id_siswa,
-                            'phone' => $siswa->no_hp_ortu,
-                            'error' => $result['message'],
-                        ]);
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::error('Error sending WhatsApp notification for absen masuk', [
-                    'siswa_id' => $request->id_siswa,
-                    'error' => $e->getMessage(),
-                ]);
-                // Don't fail the attendance process if WhatsApp fails
-            }
-
             return response()->json([
                 'success' => true,
                 'message' => 'Absensi masuk berhasil',
@@ -366,27 +329,6 @@ class AbsensiController extends Controller
                 'foto_pulang' => $photoPath,
             ]);
 
-            // 8. Kirim notifikasi WhatsApp ke orang tua
-            try {
-                $siswa = Siswa::find($request->id_siswa);
-                if ($siswa && $siswa->no_hp_ortu) {
-                    $whatsappService = new WhatsAppService;
-                    $whatsappService->sendAttendanceNotification(
-                        $siswa->no_hp_ortu,
-                        $siswa->nama,
-                        'pulang',
-                        Carbon::now()->format('H:i'),
-                        Carbon::today()->format('d/m/Y'),
-                        $photoPath
-                    );
-                }
-            } catch (\Exception $e) {
-                Log::error('Error sending WhatsApp notification', [
-                    'siswa_id' => $request->id_siswa,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-
             return response()->json([
                 'success' => true,
                 'message' => 'Absensi pulang berhasil',
@@ -403,34 +345,9 @@ class AbsensiController extends Controller
 
     public function markAbsentStudents()
     {
-        // Fungsi untuk menandai siswa yang tidak absen sama sekali sebagai alfa
-        $jamPulang = Setting::getSetting('jam_pulang') ?? '15:00';
-        $waktuSekarang = Carbon::now();
-
-        // Cek apakah sudah lewat jam pulang
-        if ($waktuSekarang->format('H:i') >= $jamPulang) {
-            // Cari siswa yang belum absen masuk hari ini
-            $siswaBelumAbsen = Siswa::whereDoesntHave('absensi', function ($query) {
-                $query->where('tanggal', Carbon::today())
-                    ->whereNotNull('waktu_masuk');
-            })->get();
-
-            foreach ($siswaBelumAbsen as $siswa) {
-                // Cek apakah sudah ada record absensi untuk hari ini
-                $absensiHariIni = Absensi::where('id_siswa', $siswa->id_siswa)
-                    ->where('tanggal', Carbon::today())
-                    ->first();
-
-                if (! $absensiHariIni) {
-                    // Buat record absensi dengan status alfa
-                    Absensi::create([
-                        'id_siswa' => $siswa->id_siswa,
-                        'tanggal' => Carbon::today(),
-                        'status_masuk' => 'alfa',
-                    ]);
-                }
-            }
-        }
+        // Fungsi ini dinonaktifkan - siswa yang tidak absen tidak akan mendapat record di database
+        // Sebelumnya: menandai siswa yang tidak absen sebagai alfa
+        // return; // Non-aktifkan proses penandaan alpha
     }
 
     private function isWithinRadius($lat1, $lng1, $lat2, $lng2, $radius)

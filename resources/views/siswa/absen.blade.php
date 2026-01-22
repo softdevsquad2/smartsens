@@ -233,6 +233,38 @@
         let currentLatitude = null;
         let currentLongitude = null;
 
+        // Helper functions for SweetAlert
+        function showError(message, title = 'Error') {
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+
+        function showSuccess(message, title = 'Berhasil') {
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        }
+
+        function showConfirm(message, title = 'Konfirmasi', confirmText = 'Ya', cancelText = 'Batal') {
+            return Swal.fire({
+                title: title,
+                text: message,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: confirmText,
+                cancelButtonText: cancelText
+            });
+        }
+
         // Update time every second
         function updateTime() {
             const now = new Date();
@@ -457,17 +489,83 @@
                 });
         }
 
+        // Compress image if too large
+        function compressImage(file, maxSizeKB, callback) {
+            const maxSize = maxSizeKB * 1024; // Convert to bytes
+            if (file.size <= maxSize) {
+                callback(file);
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = function() {
+                // Calculate new dimensions (maintain aspect ratio)
+                let { width, height } = img;
+                const maxDimension = 1024; // Max width or height
+
+                if (width > height) {
+                    if (width > maxDimension) {
+                        height = (height * maxDimension) / width;
+                        width = maxDimension;
+                    }
+                } else {
+                    if (height > maxDimension) {
+                        width = (width * maxDimension) / height;
+                        height = maxDimension;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(function(blob) {
+                    // If still too large, try lower quality
+                    if (blob.size > maxSize) {
+                        canvas.toBlob(function(blob2) {
+                            callback(blob2);
+                        }, 'image/jpeg', 0.7); // 70% quality
+                    } else {
+                        callback(blob);
+                    }
+                }, 'image/jpeg', 0.9); // 90% quality
+            };
+
+            img.src = URL.createObjectURL(file);
+        }
+
         // Photo upload event listener
         document.getElementById('photo-upload').addEventListener('change', function() {
             const file = this.files[0];
+            const maxSize = 250 * 1024; // 250KB in bytes
+
             if (file) {
-                // Show photo preview
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('preview-image').src = e.target.result;
-                    document.getElementById('photo-preview').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+                // Compress if necessary
+                compressImage(file, 250, (compressedFile) => {
+                    // Create a new File object with the compressed data
+                    const newFile = new File([compressedFile], file.name, {
+                        type: compressedFile.type,
+                        lastModified: Date.now()
+                    });
+
+                    // Replace the file in the input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(newFile);
+                    this.files = dataTransfer.files;
+
+                    // Show photo preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('preview-image').src = e.target.result;
+                        document.getElementById('photo-preview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(newFile);
+                });
             } else {
                 // Hide photo preview
                 document.getElementById('photo-preview').style.display = 'none';
@@ -510,7 +608,14 @@
                                 },
                                 body: formData
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                console.log('Response status:', response.status);
+                                console.log('Response ok:', response.ok);
+                                if (!response.ok) {
+                                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 hideLoading();
                                 if (data.success) {
@@ -525,7 +630,7 @@
                             .catch(error => {
                                 hideLoading();
                                 console.error('Error:', error);
-                                showError('Terjadi kesalahan saat absen masuk.', 'Error Sistem');
+                                showError('Terjadi kesalahan saat absen masuk: ' + error.message, 'Error Sistem');
                             });
                     }
                 });
@@ -565,7 +670,14 @@
                             },
                             body: formData
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response ok:', response.ok);
+                            if (!response.ok) {
+                                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             hideLoading();
                             if (data.success) {
@@ -580,7 +692,7 @@
                         .catch(error => {
                             hideLoading();
                             console.error('Error:', error);
-                            showError('Terjadi kesalahan saat absen pulang.', 'Error Sistem');
+                            showError('Terjadi kesalahan saat absen pulang: ' + error.message, 'Error Sistem');
                         });
                 }
             });
@@ -621,7 +733,14 @@
                                 },
                                 body: formData
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                console.log('Response status:', response.status);
+                                console.log('Response ok:', response.ok);
+                                if (!response.ok) {
+                                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 hideLoading();
                                 if (data.success) {
@@ -636,7 +755,7 @@
                             .catch(error => {
                                 hideLoading();
                                 console.error('Error:', error);
-                                showError('Terjadi kesalahan saat absen sakit.', 'Error Sistem');
+                                showError('Terjadi kesalahan saat absen sakit: ' + error.message, 'Error Sistem');
                             });
                     }
                 });
@@ -677,7 +796,14 @@
                                 },
                                 body: formData
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                console.log('Response status:', response.status);
+                                console.log('Response ok:', response.ok);
+                                if (!response.ok) {
+                                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 hideLoading();
                                 if (data.success) {
@@ -692,7 +818,7 @@
                             .catch(error => {
                                 hideLoading();
                                 console.error('Error:', error);
-                                showError('Terjadi kesalahan saat absen izin.', 'Error Sistem');
+                                showError('Terjadi kesalahan saat absen izin: ' + error.message, 'Error Sistem');
                             });
                     }
                 });

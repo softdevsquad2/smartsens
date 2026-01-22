@@ -22,7 +22,7 @@ class UserManageController extends Controller
     {
         $siswa = Siswa::with('kelas.jurusan')->get();
         $waliKelas = WaliKelas::with('kelas.jurusan')->get();
-        $roles = ['admin', 'guru', 'operator', 'siswa', 'ketua', 'piket'];
+        $roles = ['admin', 'guru', 'operator', 'siswa', 'ketua', 'piket', 'uks', 'kesiswaan'];
 
         return view('admin.user.create', compact('siswa', 'waliKelas', 'roles'));
     }

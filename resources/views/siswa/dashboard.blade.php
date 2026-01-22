@@ -120,6 +120,16 @@
                             {{ Auth::user()->siswa->kelas->jurusan->nama_jurusan ?? '-' }}</p>
                     </div>
                 </div>
+                <div class="flex items-center mb-2">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Poin Pelanggaran</p>
+                        <p class="text-md font-semibold text-gray-900 text-red-700">
+                            {{ $jumlahPoin ?? 0 }} Poin
+                        </p>
+                    </div>
             </div>
         </div>
 
@@ -167,12 +177,12 @@
                         </div>
                         <div>
                             <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             @if ($absensiHariIni->status_masuk == 'hadir') bg-green-100 text-green-800
                             @elseif($absensiHariIni->status_masuk == 'terlambat') bg-yellow-100 text-yellow-800
                             @else bg-gray-100 text-gray-800 @endif">
                                 <i
-                                    class="fas 
+                                    class="fas
                                 @if ($absensiHariIni->status_masuk == 'hadir') fa-check-circle
                                 @elseif($absensiHariIni->status_masuk == 'terlambat') fa-exclamation-triangle
                                 @else fa-times-circle @endif mr-1"></i>
@@ -193,11 +203,11 @@
                         </div>
                         <div>
                             <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             @if ($absensiHariIni->status_pulang == 'pulang') bg-blue-100 text-blue-800
                             @else bg-gray-100 text-gray-800 @endif">
                                 <i
-                                    class="fas 
+                                    class="fas
                                 @if ($absensiHariIni->status_pulang == 'pulang') fa-check-circle
                                 @else fa-times-circle @endif mr-1"></i>
                                 {{ ucfirst($absensiHariIni->status_pulang ?? 'N/A') }}

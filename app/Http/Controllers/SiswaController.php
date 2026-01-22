@@ -7,6 +7,7 @@ use App\Models\Sholat;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\rekam_pelanggaran;
 
 class SiswaController extends Controller
 {
@@ -16,13 +17,16 @@ class SiswaController extends Controller
         $absensiHariIni = Absensi::where('id_siswa', $siswa->id_siswa)
             ->where('tanggal', Carbon::today())
             ->first();
+        $jumlahPoin = rekam_pelanggaran::where('id_siswa', $siswa->id_siswa)
+            ->join('tbl_pelanggaran', 'tbl_rekam_pelanggaran.id_pelanggaran', '=', 'tbl_pelanggaran.id')
+            ->sum('poin_pelanggaran');
 
         $absensiBulanIni = Absensi::where('id_siswa', $siswa->id_siswa)
             ->whereMonth('tanggal', Carbon::now()->month)
             ->whereYear('tanggal', Carbon::now()->year)
             ->get();
 
-        return view('siswa.dashboard', compact('siswa', 'absensiHariIni', 'absensiBulanIni'));
+        return view('siswa.dashboard', compact('siswa', 'jumlahPoin', 'absensiHariIni', 'absensiBulanIni'));
     }
 
     public function riwayatSholat()

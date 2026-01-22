@@ -35,10 +35,15 @@ class WaliKelasController extends Controller
             })
             ->get();
 
-        $hadirHariIni = $absensiHariIni->where('status', 'hadir')->count();
-        $izinHariIni = $absensiHariIni->where('status', 'izin')->count();
-        $sakitHariIni = $absensiHariIni->where('status', 'sakit')->count();
-        $alphaHariIni = $absensiHariIni->where('status', 'alpha')->count();
+        $hadirHariIni = $absensiHariIni
+    ->whereIn('status_masuk', ['hadir', 'terlambat'])
+    ->count();
+
+        $izinHariIni = $absensiHariIni->where('status_masuk', 'izin')->count();
+        $sakitHariIni = $absensiHariIni->where('status_masuk', 'sakit')->count();
+        // Alpha = total siswa - siswa yang sudah absen (karena siswa yang tidak absen tidak masuk database)
+        $sudahAbsenHariIni = $hadirHariIni + $izinHariIni + $sakitHariIni;
+        $alphaHariIni = $totalSiswa - $sudahAbsenHariIni;
 
         // Statistik absensi bulan ini
         $startOfMonth = Carbon::now()->startOfMonth();
@@ -51,10 +56,30 @@ class WaliKelasController extends Controller
             ->get();
 
         $totalAbsensiBulanIni = $absensiBulanIni->count();
-        $hadirBulanIni = $absensiBulanIni->where('status', 'hadir')->count();
-        $izinBulanIni = $absensiBulanIni->where('status', 'izin')->count();
-        $sakitBulanIni = $absensiBulanIni->where('status', 'sakit')->count();
-        $alphaBulanIni = $absensiBulanIni->where('status', 'alpha')->count();
+        $hadirBulanIni = $absensiBulanIni->whereIn('status_masuk', ['masuk', 'terlambat'])->count();
+        $izinBulanIni = $absensiBulanIni->where('status_masuk', 'izin')->count();
+        $sakitBulanIni = $absensiBulanIni->where('status_masuk', 'sakit')->count();
+        // Alpha bulan ini = total siswa × jumlah hari dalam bulan - total record absensi
+        $jumlahHariBulanIni = Carbon::now()->daysInMonth;
+        $totalAbsensiYangSeharusnya = $totalSiswa * $jumlahHariBulanIni;
+        $alphaBulanIni = $totalAbsensiYangSeharusnya - $totalAbsensiBulanIni;
+
+        // Data absensi per hari untuk diagram garis (hanya hadir)
+        $dailyAttendanceData = [];
+        $currentDate = $startOfMonth->copy();
+        while ($currentDate <= $endOfMonth) {
+            $dateString = $currentDate->format('Y-m-d');
+            $absensiHariIni = $absensiBulanIni->where('tanggal', $dateString);
+
+            $hadir = $absensiHariIni->whereIn('status_masuk', ['masuk', 'terlambat'])->count();
+
+            $dailyAttendanceData[] = [
+                'date' => $currentDate->format('d/m'),
+                'hadir' => $hadir
+            ];
+
+            $currentDate->addDay();
+        }
 
         // Persentase kehadiran bulan ini
         $persentaseKehadiran = $totalAbsensiBulanIni > 0
@@ -78,6 +103,7 @@ class WaliKelasController extends Controller
             'sakitBulanIni',
             'alphaBulanIni',
             'persentaseKehadiran',
+            'dailyAttendanceData',
             'siswa',
             'pelanggaran'
         ));

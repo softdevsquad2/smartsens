@@ -72,7 +72,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-600">Hadir Hari Ini</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $hadirHariIni }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $hadirHariIni  }}</p>
                 </div>
             </div>
         </div>
@@ -107,79 +107,27 @@
     </div>
 
     <!-- Monthly Statistics -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class=" mb-8">
         <!-- Absensi Bulan Ini -->
-        <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+        <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Absensi Bulan Ini</h3>
+                <h3 class="text-lg font-medium text-gray-900">Trend Kehadiran Bulan Ini</h3>
                 <p class="mt-1 text-sm text-gray-500">{{ \Carbon\Carbon::now()->format('F Y') }}</p>
             </div>
             <div class="p-6">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-check-circle text-green-600"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">Hadir</span>
-                        </div>
-                        <span class="text-sm font-bold text-gray-900">{{ $hadirBulanIni }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-exclamation-triangle text-yellow-600"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">Izin</span>
-                        </div>
-                        <span class="text-sm font-bold text-gray-900">{{ $izinBulanIni }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-medkit text-blue-600"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">Sakit</span>
-                        </div>
-                        <span class="text-sm font-bold text-gray-900">{{ $sakitBulanIni }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-times-circle text-red-600"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">Alpha</span>
-                        </div>
-                        <span class="text-sm font-bold text-gray-900">{{ $alphaBulanIni }}</span>
+                <div class="relative" style="height: 300px; max-height: 300px;">
+                    <canvas id="monthlyAttendanceChart" style="max-height: 100%; width: 100%;"></canvas>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-4 text-center justify-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span class="text-xs text-gray-600">Hadir</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Persentase Kehadiran -->
-        <div class="bg-white shadow-sm rounded-xl border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Persentase Kehadiran</h3>
-                <p class="mt-1 text-sm text-gray-500">Bulan {{ \Carbon\Carbon::now()->format('F Y') }}</p>
-            </div>
-            <div class="p-6">
-                <div class="flex items-center justify-center">
-                    <div class="relative w-32 h-32">
-                        <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
-                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none" stroke="#E5E7EB" stroke-width="2" />
-                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none" stroke="#10B981" stroke-width="2"
-                                stroke-dasharray="{{ $persentaseKehadiran }}, 100" />
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-2xl font-bold text-gray-900">{{ $persentaseKehadiran }}%</span>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-center text-sm text-gray-600 mt-4">Persentase kehadiran siswa</p>
-            </div>
-        </div>
+
     </div>
 
     <!-- Quick Actions -->
@@ -237,7 +185,7 @@
                         <option value="">Pilih Siswa</option>
                         @foreach ($siswa as $s)
                             <option value="{{ $s->id_siswa }}">
-                                {{ $s->nama }} ({{ $s->nisn }})
+                                {{ $s->nama }} ({{ $s->nisn }}) - {{ $s->kelas->nama_kelas ?? 'N/A' }}
                             </option>
                         @endforeach
                     </select>
@@ -307,6 +255,18 @@
     document.getElementById('formPelanggaran').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Check if at least one pelanggaran is selected
+        const pelanggaranChecked = document.querySelectorAll('input[name="pelanggaran[]"]:checked');
+        if (pelanggaranChecked.length === 0) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Pilih setidaknya satu pelanggaran.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Konfirmasi',
             text: 'Apakah anda yakin ingin mencatat pelanggaran siswa?',
@@ -322,7 +282,7 @@
 
                 const formData = new FormData(this);
 
-                fetch('{{ route('guru.pelanggaran.rekam.store') }}', {
+                fetch('/guru/pelanggaran/rekam/store', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -370,6 +330,7 @@
         });
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
     $(document).ready(function() {
         $('#siswa').select2({
@@ -377,6 +338,77 @@
             allowClear: true,
             width: '100%',
             dropdownParent: $('#modalPelanggaran') // WAJIB untuk modal
+        });
+
+        // Initialize monthly attendance chart
+        const ctx = document.getElementById('monthlyAttendanceChart').getContext('2d');
+        const dailyData = @json($dailyAttendanceData);
+
+        const monthlyAttendanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dailyData.map(item => item.date),
+                datasets: [
+                    {
+                        label: 'Hadir',
+                        data: dailyData.map(item => item.hadir),
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(34, 197, 94)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: 'Jumlah Siswa Hadir'
+                        }
+                    },
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Tanggal'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                }
+            }
         });
     });
 </script>

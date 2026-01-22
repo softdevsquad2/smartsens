@@ -89,13 +89,21 @@
             $totalIzin = 0;
             $totalSakit = 0;
             $totalAlpha = 0;
+            $totalSiswaKelas = $kelas->siswa->count(); // Total siswa di kelas ini
             foreach ($absensi as $tanggal => $data) {
                 // absensi table uses status_masuk/status_pulang
-                $totalHadir += $data->where('status_masuk', 'hadir')->count();
-                $totalTerlambat += $data->where('status_masuk', 'terlambat')->count();
-                $totalIzin += $data->where('status_masuk', 'izin')->count();
-                $totalSakit += $data->where('status_masuk', 'sakit')->count();
-                $totalAlpha += $data->where('status_masuk', 'alpha')->count();
+                $hadirHariIni = $data->where('status_masuk', 'hadir')->count();
+                $terlambatHariIni = $data->where('status_masuk', 'terlambat')->count();
+                $izinHariIni = $data->where('status_masuk', 'izin')->count();
+                $sakitHariIni = $data->where('status_masuk', 'sakit')->count();
+                $sudahAbsenHariIni = $hadirHariIni + $terlambatHariIni + $izinHariIni + $sakitHariIni;
+                $alphaHariIni = $totalSiswaKelas - $sudahAbsenHariIni;
+
+                $totalHadir += $hadirHariIni;
+                $totalTerlambat += $terlambatHariIni;
+                $totalIzin += $izinHariIni;
+                $totalSakit += $sakitHariIni;
+                $totalAlpha += $alphaHariIni;
             }
         @endphp
 

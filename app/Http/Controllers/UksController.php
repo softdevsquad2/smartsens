@@ -16,7 +16,6 @@ use App\Models\RekamMedis;
 use App\Models\RekamMedisObat;
 use App\Models\Siswa;
 use App\Models\StokObat;
-use App\Services\WhatsAppService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -519,19 +518,6 @@ class UksController extends Controller
             'keterangan' => $request->keterangan,
         ]);
 
-        // Ambil data siswa untuk notifikasi
-        $siswa = Siswa::with('kelas')->find($request->id_siswa);
-        if ($siswa && !empty($siswa->no_hp_ortu)) {
-            $wa = new WhatsAppService;
-            $wa->sendIzinPulangNotification(
-                phoneNumber: $siswa->no_hp_ortu,
-                studentName: $siswa->nama,
-                className: $siswa->kelas?->nama_kelas ?? '-',
-                reason: $request->keterangan,
-                time: Carbon::now()->format('H:i'),
-                date: Carbon::today()->format('d-m-Y')
-            );
-        }
 
         return $this->handleIzinPulang($request->id_siswa);
     }

@@ -14,7 +14,7 @@
             </form>
         </div>
         {{-- card siswa --}}
-        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-5">
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3">
             @foreach ($siswa as $s)
                 <a class="bg-white shadow-md rounded-lg p-4" href="{{ route('pelanggaran.riwayat.detail', $s->nama) }}">
                     <img src="{{ asset('storage/foto/' . ($s->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . ($loop->index + 1) . '.jpg')) }}"

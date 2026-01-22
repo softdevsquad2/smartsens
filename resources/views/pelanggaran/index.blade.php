@@ -30,7 +30,7 @@
 
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3">
-        <div class="bg-white shadow rounded-lg p-3 md:col-span-2">
+        <div class="bg-white shadow rounded-lg p-3 md:col-span-2 overflow-x-auto">
             <h2 class="text-lg font-semibold text-gray-700 mb-4 justify-center flex items-center">
                 Data Terbaru Pelanggaran Siswa
             </h2>

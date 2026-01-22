@@ -138,7 +138,7 @@ Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(func
     Route::get('/unduh/excel', [PelanggaranController::class, 'exportExcel'])->name('pelanggaran.unduh.excel');
     Route::get('/riwayat/{nama}', [PelanggaranController::class, 'detail'])->name('pelanggaran.riwayat.detail');
     Route::get('/rekam', [PelanggaranController::class, 'rekamPelanggaran'])->name('guru.pelanggaran.rekam');
-    Route::post('/rekam/store', [PelanggaranController::class, 'storePelanggaran'])->name('guru.pelanggaran.rekam.store');
+    Route::post('/rekam/store', [PelanggaranController::class, 'storePelanggaran'])->name('pelanggaran.rekam.store');
     Route::get('/rekam/list', [PelanggaranController::class, 'listRekamPelanggaran'])->name('pelanggaran.rekam.list');
     Route::delete('/rekam/{id}', [PelanggaranController::class, 'deleteRekamPelanggaran'])->name('pelanggaran.rekam.delete');
 

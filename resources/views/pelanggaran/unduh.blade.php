@@ -39,7 +39,7 @@
                 </select>
             </div>
 
-            <div>
+            {{-- <div>
                 <label class="text-sm font-medium text-gray-600">Jenis Pelanggaran</label>
                 <select name="jenis"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200">
@@ -48,7 +48,7 @@
                     <option value="{{ $jp->id_pelanggaran }}" {{ request('jenis') == $jp->id_pelanggaran ? 'selected' : '' }}>{{ $jp->nama_pelanggaran }}</option>
                     @endforeach
                 </select>
-            </div>
+            </div> --}}
 
             <div>
                 <label class="text-sm font-medium text-gray-600">Tanggal</label>
