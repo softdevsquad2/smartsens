@@ -82,6 +82,10 @@ Aplikasi akan berjalan di `http://localhost:8000`
 - **Username**: aisiti
 - **Password**: aisiti123
 
+## Kesiswaan
+- **username**: kesiswaan
+- **password**: password
+
 ## 📱 Cara Penggunaan
 
 ### Untuk Admin

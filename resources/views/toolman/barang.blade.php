@@ -127,7 +127,7 @@
                     <label class="block text-gray-700 mb-2">Stok</label>
                     <input type="number" id="edit_stok" name="stok" class="w-full border rounded p-2" required>
                 </div>
-                
+
 
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2">Jenis</label>
@@ -240,9 +240,7 @@
             document.getElementById('tambahModal').classList.add('hidden');
         }
 
-        // =============================
-        // OPEN EDIT MODAL
-        // =============================
+
         function openEditModal(id) {
             fetch(`/toolman/barang/${id}/edit`)
                 .then(res => res.json())

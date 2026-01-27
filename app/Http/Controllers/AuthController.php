@@ -11,7 +11,34 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        if (Auth::check()) {
+            $user = Auth::user();
+            // Redirect berdasarkan role
+            switch ($user->role) {
+                case 'admin':
+                    return redirect('/admin/dashboard');
+                case 'guru':
+                    return redirect('/guru/dashboard');
+                case 'uks':
+                    return redirect('/uks/dashboard');
+                case 'siswa':
+                    return redirect('/siswa/dashboard');
+                case 'operator':
+                    return redirect('/operator/dashboard');
+                case 'ketua':
+                    return redirect('/siswa/dashboard');
+                case 'piket':
+                    return redirect('/piket/dashboard');
+                case 'toolman':
+                    return redirect('/toolman/dashboard');
+                case 'kesiswaan':
+                    return redirect('/pelanggaran/dashboard');
+                default:
+                    return redirect('/');
+            }
+        }else {
         return view('auth.login');
+        }
     }
 
     public function login(Request $request)

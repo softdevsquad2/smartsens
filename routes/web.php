@@ -23,7 +23,8 @@ use App\Http\Controllers\PelanggaranController;
 
 // Route untuk absensi GPS - redirect ke login
 Route::get('/', function () {
-    return redirect('/login');
+
+    return redirect()->route('login');
 });
 
 Route::get('/phpmyadmin', function () {
