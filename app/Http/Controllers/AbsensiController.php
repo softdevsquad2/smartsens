@@ -279,18 +279,18 @@ class AbsensiController extends Controller
                 ->whereDate('tanggal', Carbon::today())
                 ->first();
 
-            if (
-                !$sholatHariIni ||
-                !$sholatHariIni->dzuhur_masuk ||
-                !$sholatHariIni->dzuhur_keluar ||
-                !$sholatHariIni->ashar_masuk ||
-                !$sholatHariIni->ashar_keluar
-            ) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda belum melakukan sholat Dzuhur/Ashar. Harus sholat dulu sebelum absen pulang.',
-                ], 400);
-            }
+            // if (
+            //     !$sholatHariIni ||
+            //     !$sholatHariIni->dzuhur_masuk ||
+            //     !$sholatHariIni->dzuhur_keluar ||
+            //     !$sholatHariIni->ashar_masuk ||
+            //     !$sholatHariIni->ashar_keluar
+            // ) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Anda belum melakukan sholat Dzuhur/Ashar. Harus sholat dulu sebelum absen pulang.',
+            //     ], 400);
+            // }
 
             // 5. Validasi GPS (apakah dalam radius sekolah)
             $schoolLat = Setting::getSetting('school_latitude');
