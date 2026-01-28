@@ -160,15 +160,29 @@ class SiswaManageController extends Controller
 
     public function import(Request $request)
     {
-        set_time_limit(300); // 5 menit
+        // Timeout 10 menit untuk handle 3000+ rows
+        set_time_limit(600);
+        
+        // Disable query log untuk performa
+        DB::disableQueryLog();
 
         \App\Imports\SiswaImport::$inserted = 0;
         \App\Imports\SiswaImport::$updated = 0;
+        \App\Imports\SiswaImport::$errors = [];
 
         Excel::import(new \App\Imports\SiswaImport, $request->file('file'));
 
         $insert = \App\Imports\SiswaImport::$inserted;
         $update = \App\Imports\SiswaImport::$updated;
+        $errors = \App\Imports\SiswaImport::$errors;
+
+        // Jika ada error, tampilkan ke user
+        if (!empty($errors)) {
+            return back()->with([
+                'success' => "Import selesai dengan catatan!\n\nDitambahkan: $insert siswa\nDiperbarui: $update siswa",
+                'import_errors' => $errors
+            ]);
+        }
 
         return back()->with('success', "
         Import selesai!

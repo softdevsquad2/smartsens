@@ -134,7 +134,7 @@
         <input type="hidden" id="longitude" name="longitude">
 
         <!-- Photo upload for all attendance -->
-        <div id="photo-upload-section" class="mt-4 p-6 border-2 border-dashed border-blue-400 rounded-xl"
+        <div id="photo-upload-section" class="mt-4 mb-2 p-6 border-2 border-dashed border-blue-400 rounded-xl"
             style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);">
             <div class="cursor-pointer" onclick="document.getElementById('photo-upload').click();">
                 <div class="flex flex-col items-center justify-center py-4">
@@ -155,10 +155,10 @@
                     </p>
                 </div>
             </div>
-            
+
             <input type="file" id="photo-upload" name="photo" accept="image/*" capture="environment"
                 class="hidden">
-            
+
             <p class="text-xs text-blue-600 mt-3 text-center font-medium">
                 📸 Foto adalah bukti sah absensi Anda
             </p>
@@ -172,7 +172,7 @@
                         <p class="text-sm text-green-700 font-semibold">
                             <i class="fas fa-check-circle mr-1"></i>Foto berhasil dipilih
                         </p>
-                        <button type="button" onclick="document.getElementById('photo-upload').value = ''; document.getElementById('photo-preview').style.display = 'none'; updateButtonStates();" 
+                        <button type="button" onclick="document.getElementById('photo-upload').value = ''; document.getElementById('photo-preview').style.display = 'none'; updateButtonStates();"
                             class="text-xs text-red-600 hover:text-red-800 mt-2">
                             Ganti foto
                         </button>

@@ -148,13 +148,24 @@
 
     {{-- ✅ ALERT ERROR IMPORT --}}
     @if (session('import_errors'))
-        <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div class="text-sm font-medium text-yellow-800">Beberapa baris gagal diimpor:</div>
-            <ul class="mt-2 list-disc list-inside text-sm text-yellow-700">
-                @foreach (session('import_errors') as $err)
-                    <li>{{ $err }}</li>
-                @endforeach
-            </ul>
+        <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-3"></i>
+                <div class="flex-1">
+                    <h3 class="text-sm font-bold text-red-800 mb-2">⚠️ Import Gagal pada Beberapa Baris</h3>
+                    <p class="text-sm text-red-700 mb-3">Baris-baris berikut tidak dapat diimpor karena error validasi:</p>
+                    <div class="max-h-48 overflow-y-auto bg-white rounded p-3 border border-red-200">
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach (session('import_errors') as $err)
+                                <li class="text-xs text-red-600">{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <p class="text-xs text-red-600 mt-2">
+                        💡 Mohon perbaiki data Excel Anda dan coba import kembali.
+                    </p>
+                </div>
+            </div>
         </div>
     @endif
 
@@ -324,7 +335,7 @@
                             </div>
 
                             <p class="mt-2 text-xs text-gray-400">
-                                Pastikan format sesuai template
+                                Maksimal 3000 baris per file. Pastikan format sesuai template.
                             </p>
 
                             <div class="mt-5 flex justify-end space-x-2">
