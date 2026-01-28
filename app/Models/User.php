@@ -14,6 +14,8 @@ class User extends Authenticatable
 
     protected $primaryKey = 'id_user';
 
+    public $timestamps = true;
+
     protected $fillable = [
         'id_wali_kelas',
         'id_siswa',
@@ -25,7 +27,6 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     protected function casts(): array

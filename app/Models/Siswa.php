@@ -44,4 +44,14 @@ class Siswa extends Model
     {
         return $this->hasMany(RekamMedis::class, 'id_siswa');
     }
+
+    public function rekamPelanggaran()
+    {
+        return $this->hasMany(RekamPelanggaran::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function rekamPrestasi()
+    {
+        return $this->hasMany(RekamPrestasi::class, 'id_siswa', 'id_siswa');
+    }
 }

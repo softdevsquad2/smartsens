@@ -134,21 +134,50 @@
         <input type="hidden" id="longitude" name="longitude">
 
         <!-- Photo upload for all attendance -->
-        <div id="photo-upload-section" class="mt-4 p-4 border border-blue-200 rounded-lg"
-            style="background-color: #e9ecef;">
-            <h4 class="text-sm font-medium text-blue-900 mb-2">
-                <i class="fas fa-camera mr-2"></i>
-                Upload Foto (Wajib untuk semua absensi)
-            </h4>
+        <div id="photo-upload-section" class="mt-4 p-6 border-2 border-dashed border-blue-400 rounded-xl"
+            style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);">
+            <div class="cursor-pointer" onclick="document.getElementById('photo-upload').click();">
+                <div class="flex flex-col items-center justify-center py-4">
+                    <div class="mb-4">
+                        <div class="relative">
+                            <i class="fas fa-camera text-6xl text-blue-600"></i>
+                            <div class="absolute -bottom-2 -right-2 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center">
+                                <i class="fas fa-plus text-white text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-bold text-blue-900 mb-1">
+                        Ambil Foto Absensi
+                    </h4>
+                    <p class="text-sm text-blue-700 text-center">
+                        Klik di sini atau drag foto untuk upload<br/>
+                        <span class="text-xs">(JPG, PNG - Max 250KB)</span>
+                    </p>
+                </div>
+            </div>
+            
             <input type="file" id="photo-upload" name="photo" accept="image/*" capture="environment"
-                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-            <p class="text-xs text-blue-700 mt-2">Foto akan digunakan sebagai bukti absensi</p>
+                class="hidden">
+            
+            <p class="text-xs text-blue-600 mt-3 text-center font-medium">
+                📸 Foto adalah bukti sah absensi Anda
+            </p>
 
             <!-- Photo Preview -->
-            <div id="photo-preview" class="mt-3" style="display: none;">
-                <img id="preview-image" src="" alt="Preview"
-                    class="w-full max-w-xs mx-auto rounded-lg border border-gray-300">
-                <p class="text-xs text-green-600 mt-1 text-center">Foto berhasil dipilih</p>
+            <div id="photo-preview" class="mt-4" style="display: none;">
+                <div class="bg-white rounded-lg p-3 border border-green-300">
+                    <img id="preview-image" src="" alt="Preview"
+                        class="w-full max-w-xs mx-auto rounded-lg border border-gray-300 mb-2">
+                    <div class="text-center">
+                        <p class="text-sm text-green-700 font-semibold">
+                            <i class="fas fa-check-circle mr-1"></i>Foto berhasil dipilih
+                        </p>
+                        <button type="button" onclick="document.getElementById('photo-upload').value = ''; document.getElementById('photo-preview').style.display = 'none'; updateButtonStates();" 
+                            class="text-xs text-red-600 hover:text-red-800 mt-2">
+                            Ganti foto
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

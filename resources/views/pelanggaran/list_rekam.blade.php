@@ -19,7 +19,9 @@
                     <th class="px-4 py-3 border-b text-left">Nama Siswa</th>
                     <th class="px-4 py-3 border-b text-left">Jenis Pelanggaran</th>
                     <th class="px-4 py-3 border-b">Poin</th>
+                    <th class="px-4 py-3 border-b">Pelapor</th>
                     <th class="px-4 py-3 border-b">Tanggal</th>
+                    <th class="px-4 py-3 border-b">Bukti</th>
                     <th class="px-4 py-3 border-b">Aksi</th>
                 </tr>
             </thead>
@@ -31,7 +33,17 @@
                     <td class="px-4 py-3">{{ $rekam->siswa->nama ?? 'N/A' }}</td>
                     <td class="px-4 py-3">{{ $rekam->pelanggaran->nama_pelanggaran ?? 'N/A' }}</td>
                     <td class="px-4 py-3 text-center font-semibold text-red-600">{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}</td>
+                    <td class="px-4 py-3 text-center">{{ $rekam->petugas->waliKelas->nama ?? 'N/A' }}</td>
                     <td class="px-4 py-3 text-center">{{ $rekam->tanggal_pelanggaran }}</td>
+                    <td class="px-4 py-3 text-center">
+                        @if($rekam->foto_pelanggaran)
+                            <button class="text-blue-600 hover:text-blue-800 font-medium text-sm" onclick="showBukti('{{ asset('storage/' . $rekam->foto_pelanggaran) }}')">
+                                <i class="fas fa-image mr-1"></i>Lihat Bukti
+                            </button>
+                        @else
+                            <span class="text-gray-400 text-xs">Tidak ada bukti</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-center">
                         <button onclick="hapusRekam({{ $rekam->id }})"
                             class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition">
@@ -45,10 +57,34 @@
     </div>
 
 </div>
+
+{{-- Modal Bukti --}}
+<div id="buktiModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-bold">Bukti Pelanggaran</h3>
+            <button onclick="closeBukti()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <img id="buktiImage" src="" alt="Bukti Pelanggaran" class="w-full max-h-96 object-contain rounded-lg">
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+function showBukti(src) {
+    document.getElementById('buktiImage').src = src;
+    document.getElementById('buktiModal').classList.remove('hidden');
+}
+
+function closeBukti() {
+    document.getElementById('buktiModal').classList.add('hidden');
+}
+
 function hapusRekam(id) {
     Swal.fire({
         title: 'Yakin?',

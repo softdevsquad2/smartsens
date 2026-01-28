@@ -51,6 +51,7 @@ class AuthController extends Controller
         $user = User::where('username', $request->username)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
+            // Login tanpa remember_token, gunakan session dengan lifetime panjang
             Auth::login($user);
             // dd($user->role);
             // Redirect berdasarkan role

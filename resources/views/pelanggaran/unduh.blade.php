@@ -77,7 +77,8 @@
                     <th class="px-4 py-3 border-b text-left">Nama Siswa</th>
                     <th class="px-4 py-3 border-b">Kelas</th>
                     <th class="px-4 py-3 border-b text-left">Jenis Pelanggaran</th>
-                    <th class="px-4 py-3 border-b">Poin</th>
+                    <th class="px-4 py-3 border-b">Poin Pelanggaran</th>
+                    <th class="px-4 py-3 border-b">Poin Prestasi</th>
                 </tr>
             </thead>
 
@@ -91,6 +92,7 @@
                     <td class="px-4 py-3 text-center">{{ $rekam->siswa->kelas->nama_kelas ?? 'N/A' }}</td>
                     <td class="px-4 py-3">{{ $rekam->pelanggaran->nama_pelanggaran ?? 'N/A' }}</td>
                     <td class="px-4 py-3 text-center font-semibold text-red-600">{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}</td>
+                    <td class="px-4 py-3 text-center font-semibold text-green-600">{{ $rekam->total_poin_prestasi ?? 0 }}</td>
                 </tr>
                 @endforeach
             </tbody>

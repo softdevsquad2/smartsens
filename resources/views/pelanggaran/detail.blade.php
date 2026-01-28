@@ -56,7 +56,9 @@
                     <th class="py-2 px-4 text-left border-b">No</th>
                     <th class="py-2 px-4 text-left border-b">Jenis Pelanggaran</th>
                     <th class="py-2 px-4 text-left border-b">Poin</th>
+                    <th class="py-2 px-4 text-left border-b">Pelapor</th>
                     <th class="py-2 px-4 text-left border-b">Tanggal</th>
+                    <th class="py-2 px-4 text-left border-b">Bukti</th>
                 </tr>
             </thead>
             <tbody id="riwayatTableBody">
@@ -64,8 +66,22 @@
                 <tr class="hover:bg-gray-50 violation-row" data-date="{{ $rekam->tanggal_pelanggaran }}">
                     <td class="py-2 px-4 border-b">{{ $index + 1 }}</td>
                     <td class="py-2 px-4 border-b">{{ $rekam->pelanggaran->nama_pelanggaran ?? 'N/A' }}</td>
-                    <td class="py-2 px-4 border-b">{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}</td>
+                    <td class="py-2 px-4 border-b">
+                        <span class="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full font-semibold text-sm">
+                            -{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}
+                        </span>
+                    </td>
+                    <td class="py-2 px-4 border-b">{{ $rekam->petugas->waliKelas->nama ?? 'N/A' }}</td>
                     <td class="py-2 px-4 border-b">{{ $rekam->tanggal_pelanggaran }}</td>
+                    <td class="py-2 px-4 border-b">
+                        @if($rekam->foto_pelanggaran)
+                            <button class="text-blue-600 hover:text-blue-800 font-medium text-sm" onclick="showBukti('{{ asset('storage/' . $rekam->foto_pelanggaran) }}')">
+                                <i class="fas fa-image mr-1"></i>Lihat Bukti
+                            </button>
+                        @else
+                            <span class="text-gray-400 text-xs">Tidak ada bukti</span>
+                        @endif
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
@@ -74,9 +90,33 @@
 
 </div>
 
+{{-- Modal Bukti --}}
+<div id="buktiModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-bold">Bukti Pelanggaran</h3>
+            <button onclick="closeBukti()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <img id="buktiImage" src="" alt="Bukti Pelanggaran" class="w-full max-h-96 object-contain rounded-lg">
+        </div>
+    </div>
+</div>
+
 </div>
 
 <script>
+function showBukti(src) {
+    document.getElementById('buktiImage').src = src;
+    document.getElementById('buktiModal').classList.remove('hidden');
+}
+
+function closeBukti() {
+    document.getElementById('buktiModal').classList.add('hidden');
+}
+
 document.getElementById('tanggal').addEventListener('change', function() {
     const selectedDate = this.value;
     const rows = document.querySelectorAll('.violation-row');

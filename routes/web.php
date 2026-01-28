@@ -5,6 +5,9 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\ExternalRedirectController;
+use App\Http\Controllers\PelanggaranController;
+use App\Http\Controllers\Guru\PelanggaranController as GuruPelanggaranController;
+use App\Http\Controllers\Guru\PretasiController;
 use App\Http\Controllers\JurusanManageController;
 use App\Http\Controllers\KelasManageController;
 use App\Http\Controllers\PiketController;
@@ -19,7 +22,6 @@ use App\Http\Controllers\WaliKelasController;
 use App\Http\Controllers\WaliKelasManageController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PelanggaranController;
 
 // Route untuk absensi GPS - redirect ke login
 Route::get('/', function () {
@@ -143,6 +145,23 @@ Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(func
     Route::get('/rekam/list', [PelanggaranController::class, 'listRekamPelanggaran'])->name('pelanggaran.rekam.list');
     Route::delete('/rekam/{id}', [PelanggaranController::class, 'deleteRekamPelanggaran'])->name('pelanggaran.rekam.delete');
 
+    // List Pelanggaran dan Prestasi
+    Route::get('/list-pelanggaran', [PelanggaranController::class, 'listPelanggaran'])->name('pelanggaran.list');
+    Route::get('/prestasi/list', [PelanggaranController::class, 'listPrestasi'])->name('pelanggaran.prestasi.list');
+    Route::get('/prestasi/rekam', [PretasiController::class, 'formPrestasi'])->name('guru.prestasi.rekam');
+    Route::post('/prestasi/store', [PretasiController::class, 'storePrestasi'])->name('guru.prestasi.store');
+
+    // Jenis Prestasi Management
+    Route::get('/jenis-prestasi', [PelanggaranController::class, 'jenisPrestasi'])->name('pelanggaran.jenis-prestasi');
+    Route::post('/jenis-prestasi', [PelanggaranController::class, 'storeJenisPrestasi'])->name('pelanggaran.jenis-prestasi.store');
+    Route::put('/jenis-prestasi/{id}', [PelanggaranController::class, 'updateJenisPrestasi'])->name('pelanggaran.jenis-prestasi.update');
+    Route::delete('/jenis-prestasi/{id}', [PelanggaranController::class, 'deleteJenisPrestasi'])->name('pelanggaran.jenis-prestasi.delete');
+
+    // Prestasi Management
+    Route::get('/prestasi/manage', [PelanggaranController::class, 'managePrestasi'])->name('pelanggaran.prestasi.manage');
+    Route::put('/prestasi/{id}', [PelanggaranController::class, 'updatePrestasi'])->name('pelanggaran.prestasi.update');
+    Route::delete('/prestasi/{id}', [PelanggaranController::class, 'deletePrestasi'])->name('pelanggaran.prestasi.delete');
+
 });
 
 
@@ -237,14 +256,18 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 
 // Guru (Wali Kelas) Routes
 Route::prefix('guru')->middleware(['auth', 'role:guru'])->group(function () {
-    Route::get('/pelanggaran/rekam', [WaliKelasController::class, 'rekamPelanggaran'])->name('guru.pelanggaran.rekam');
-    Route::post('/pelanggaran/rekam/store', [WaliKelasController::class, 'storePelanggaran'])->name('guru.pelanggaran.rekam.store');
     Route::get('/dashboard', [WaliKelasController::class, 'dashboard'])->name('guru.dashboard');
     Route::get('/siswa', [WaliKelasController::class, 'daftarSiswa'])->name('guru.siswa.index');
     Route::get('/absensi/hari-ini', [WaliKelasController::class, 'absensiHariIni'])->name('guru.absensi.hari-ini');
     Route::get('/absensi/laporan', [WaliKelasController::class, 'laporanAbsensi'])->name('guru.absensi.laporan');
-    // Export laporan as XLSX
     Route::get('/absensi/laporan/export', [WaliKelasController::class, 'exportAbsensiXlsx'])->name('guru.absensi.laporan.export');
+
+    // Rekam Pelanggaran dan Prestasi
+    Route::get('/rekam/pilih', [GuruPelanggaranController::class, 'pilihJenis'])->name('guru.rekam.pilih');
+    Route::get('/pelanggaran/form', [GuruPelanggaranController::class, 'formPelanggaran'])->name('guru.pelanggaran.form');
+    Route::post('/pelanggaran/store', [GuruPelanggaranController::class, 'storePelanggaran'])->name('guru.pelanggaran.store');
+    Route::get('/prestasi/form', [PretasiController::class, 'formPrestasi'])->name('guru.prestasi.form');
+    Route::post('/prestasi/store', [PretasiController::class, 'storePrestasi'])->name('guru.prestasi.store');
 });
 
 // Siswa Routes

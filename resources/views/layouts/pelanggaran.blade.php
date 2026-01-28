@@ -115,49 +115,88 @@
             <!-- NAV -->
             <nav class="flex-1 px-4 py-6 space-y-2">
 
+                <!-- Dashboard & Laporan -->
                 <a href="{{ route('pelanggaran.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg
-               {{ request()->routeIs('pelanggaran.index') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                   {{ request()->routeIs('pelanggaran.index') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
-
-                <a href="{{ route('pelanggaran.pelanggaran') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg
-               {{ request()->routeIs('pelanggaran.pelanggaran') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
-                    <i class="fas fa-users"></i>
-                    <span>Pelanggaran</span>
-                </a>
-
                 <a href="{{ route('pelanggaran.riwayat') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                     {{ request()->routeIs('pelanggaran.riwayat') || request()->routeIs('pelanggaran.riwayat.detail')
-                     ? 'bg-blue-600 text-white'
-                        : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
-                    <i class="fas fa-triangle-exclamation"></i>
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg
+                   {{ request()->routeIs('pelanggaran.riwayat') || request()->routeIs('pelanggaran.riwayat.detail') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                    <i class="fas fa-history"></i>
                     <span>Riwayat Pelanggaran</span>
                 </a>
-
-                <a href="{{ route('pelanggaran.rekam.list') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg
-               {{ request()->routeIs('pelanggaran.rekam.list') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
-                    <i class="fas fa-list"></i>
-                    <span>List Rekam Pelanggaran</span>
-                </a>
-
-                <a href="{{ route('guru.pelanggaran.rekam') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-lg
-               {{ request()->routeIs('guru.pelanggaran.rekam') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
-                    <i class="fas fa-plus"></i>
-                    <span>Rekam Pelanggaran</span>
-                </a>
-
                 <a href="{{ route('pelanggaran.unduh') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg
-               {{ request()->routeIs('pelanggaran.unduh') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                   {{ request()->routeIs('pelanggaran.unduh') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
                     <i class="fas fa-download"></i>
                     <span>Unduh Laporan</span>
                 </a>
+
+                <!-- Pelanggaran Group -->
+                <div>
+                    <button onclick="toggleDropdown('pelanggaran-menu')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Pelanggaran</span>
+                        </div>
+                        <i id="pelanggaran-icon" class="fas fa-chevron-down text-sm transform transition-transform"></i>
+                    </button>
+                    <div id="pelanggaran-menu" class="hidden ml-4 space-y-1 mt-1">
+                        <a href="{{ route('pelanggaran.pelanggaran') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm
+                           {{ request()->routeIs('pelanggaran.pelanggaran') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                            <i class="fas fa-list"></i>
+                            <span>Kelola Jenis</span>
+                        </a>
+                        <a href="{{ route('pelanggaran.rekam.list') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm
+                           {{ request()->routeIs('pelanggaran.rekam.list') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                            <i class="fas fa-eye"></i>
+                            <span>List Pelanggaran</span>
+                        </a>
+                        {{-- <a href="{{ route('guru.pelanggaran.rekam') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm
+                           {{ request()->routeIs('guru.pelanggaran.rekam') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                            <i class="fas fa-plus"></i>
+                            <span>Rekam Pelanggaran</span>
+                        </a> --}}
+                    </div>
+                </div>
+
+                <!-- Prestasi Group -->
+                <div>
+                    <button onclick="toggleDropdown('prestasi-menu')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-700 hover:text-white transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-trophy"></i>
+                            <span>Prestasi</span>
+                        </div>
+                        <i id="prestasi-icon" class="fas fa-chevron-down text-sm transform transition-transform"></i>
+                    </button>
+                    <div id="prestasi-menu" class="hidden ml-4 space-y-1 mt-1">
+                        <a href="{{ route('pelanggaran.prestasi.list') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm
+                           {{ request()->routeIs('pelanggaran.prestasi.list') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                            <i class="fas fa-eye"></i>
+                            <span>List Prestasi</span>
+                        </a>
+                        {{-- <a href="{{ route('guru.prestasi.rekam') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm
+                           {{ request()->routeIs('guru.prestasi.rekam') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                            <i class="fas fa-plus"></i>
+                            <span>Rekam Prestasi</span>
+                        </a> --}}
+                        <a href="{{ route('pelanggaran.prestasi.manage') }}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm
+                           {{ request()->routeIs('pelanggaran.prestasi.manage') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                            <i class="fas fa-edit"></i>
+                            <span>Kelola Prestasi Siswa</span>
+                        </a>
+
+                    </div>
+                </div>
 
             </nav>
 
@@ -247,6 +286,34 @@
         overlay.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
             overlay.classList.add('hidden');
+        });
+
+        // Dropdown menu toggle function
+        function toggleDropdown(menuId) {
+            const menu = document.getElementById(menuId);
+            const icon = document.getElementById(menuId.replace('-menu', '-icon'));
+
+            menu.classList.toggle('hidden');
+
+            if (icon) {
+                icon.classList.toggle('rotate-180');
+            }
+        }
+
+        // Auto-expand dropdown if any child link is active
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeLinks = document.querySelectorAll('a.bg-blue-600');
+            activeLinks.forEach(link => {
+                let parent = link.closest('[id$="-menu"]');
+                if (parent) {
+                    parent.classList.remove('hidden');
+                    const menuId = parent.id.replace('-menu', '-icon');
+                    const icon = document.getElementById(menuId);
+                    if (icon) {
+                        icon.classList.add('rotate-180');
+                    }
+                }
+            });
         });
     </script>
 

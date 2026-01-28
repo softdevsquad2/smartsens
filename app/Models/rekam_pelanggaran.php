@@ -18,4 +18,8 @@ class rekam_pelanggaran extends Model
     {
         return $this->belongsTo(Pelanggaran::class, 'id_pelanggaran', 'id');
     }
+    public function petugas()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id_user');
+    }
 }

@@ -173,6 +173,18 @@ class PelanggaranController extends Controller
 
         $dataPelanggaran = $query->paginate($perPage);
 
+        // Add prestasi points untuk setiap siswa
+        $dataPelanggaran->getCollection()->transform(function($item) {
+            $totalPoinPrestasi = \App\Models\RekamPrestasi::where('id_siswa', $item->siswa->id_siswa)
+                ->with('jenisPrestasi')
+                ->get()
+                ->sum(function($prestasi) {
+                    return $prestasi->jenisPrestasi->poin_prestasi ?? 0;
+                });
+            $item->total_poin_prestasi = $totalPoinPrestasi;
+            return $item;
+        });
+
         // Get data for filters
         $kelas = Kelas::all();
         $jenisPelanggaran = Pelanggaran::all();
@@ -219,7 +231,7 @@ class PelanggaranController extends Controller
 
     public function listRekamPelanggaran()
     {
-        $rekamPelanggaran = rekam_pelanggaran::with(['siswa', 'pelanggaran'])->get();
+        $rekamPelanggaran = rekam_pelanggaran::with(['siswa', 'pelanggaran', 'petugas'])->get();
         return view('pelanggaran.list_rekam', compact('rekamPelanggaran'));
     }
 
@@ -261,5 +273,136 @@ class PelanggaranController extends Controller
     public function exportExcel(Request $request)
     {
         return \Excel::download(new \App\Exports\PelanggaranExport($request), 'laporan_pelanggaran.xlsx');
+    }
+
+    public function listPelanggaran(Request $request)
+    {
+        $query = rekam_pelanggaran::with(['siswa', 'pelanggaran', 'petugas']);
+
+        // Filter berdasarkan search
+        if ($request->search) {
+            $query->whereHas('siswa', function($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter berdasarkan tanggal
+        if ($request->tanggal) {
+            $query->whereDate('tanggal_pelanggaran', $request->tanggal);
+        }
+
+        // Filter berdasarkan jenis pelanggaran
+        if ($request->id_pelanggaran) {
+            $query->where('id_pelanggaran', $request->id_pelanggaran);
+        }
+
+        $dataPelanggaran = $query->orderBy('tanggal_pelanggaran', 'desc')->paginate(10);
+        $jenisPelanggaran = Pelanggaran::all();
+
+        return view('pelanggaran.list_pelanggaran', compact('dataPelanggaran', 'jenisPelanggaran'));
+    }
+
+    public function listPrestasi(Request $request)
+    {
+        $query = \App\Models\RekamPrestasi::with(['siswa', 'jenisPrestasi', 'petugas']);
+
+        // Filter berdasarkan search
+        if ($request->search) {
+            $query->whereHas('siswa', function($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter berdasarkan tanggal
+        if ($request->tanggal) {
+            $query->whereDate('tanggal_prestasi', $request->tanggal);
+        }
+
+        // Filter berdasarkan jenis prestasi
+        if ($request->id_jenis_prestasi) {
+            $query->where('id_jenis_prestasi', $request->id_jenis_prestasi);
+        }
+
+        $dataPrestasi = $query->orderBy('tanggal_prestasi', 'desc')->paginate(10);
+        $jenisPrestasi = \App\Models\JenisPrestasi::all();
+
+        return view('pelanggaran.list_prestasi', compact('dataPrestasi', 'jenisPrestasi'));
+    }
+
+    public function jenisPrestasi()
+    {
+        $jenisPrestasi = \App\Models\JenisPrestasi::all();
+        return view('pelanggaran.kelola_prestasi', compact('jenisPrestasi'));
+    }
+
+    public function storeJenisPrestasi(Request $request)
+    {
+        $request->validate([
+            'nama_prestasi' => 'required|string|max:255',
+            'poin_prestasi' => 'required|integer|min:1',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        \App\Models\JenisPrestasi::create($request->only(['nama_prestasi', 'poin_prestasi', 'keterangan']));
+
+        return redirect()->route('pelanggaran.prestasi.manage')->with('success', 'Jenis prestasi berhasil ditambahkan.');
+    }
+
+    public function updateJenisPrestasi(Request $request, $id)
+    {
+        $request->validate([
+            'nama_prestasi' => 'required|string|max:255',
+            'poin_prestasi' => 'required|integer|min:1',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        $jenisPrestasi = \App\Models\JenisPrestasi::findOrFail($id);
+        $jenisPrestasi->update($request->only(['nama_prestasi', 'poin_prestasi', 'keterangan']));
+
+        return redirect()->route('pelanggaran.prestasi.manage')->with('success', 'Jenis prestasi berhasil diperbarui.');
+    }
+
+    public function deleteJenisPrestasi($id)
+    {
+        $jenisPrestasi = \App\Models\JenisPrestasi::findOrFail($id);
+
+        // Check if this jenis prestasi is being used
+        if ($jenisPrestasi->rekamPrestasi()->count() > 0) {
+            return redirect()->route('pelanggaran.prestasi.manage')->with('error', 'Tidak dapat menghapus jenis prestasi yang sudah digunakan.');
+        }
+
+        $jenisPrestasi->delete();
+
+        return redirect()->route('pelanggaran.prestasi.manage')->with('success', 'Jenis prestasi berhasil dihapus.');
+    }
+
+    public function managePrestasi(Request $request)
+    {
+        $jenisPrestasi = \App\Models\JenisPrestasi::all();
+        return view('pelanggaran.kelola_prestasi', compact('jenisPrestasi'));
+    }
+
+    public function updatePrestasi(Request $request, $id)
+    {
+        $request->validate([
+            'id_jenis_prestasi' => 'required|exists:tbl_jenis_prestasi,id',
+            'tanggal_prestasi' => 'required|date',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        $rekamPrestasi = \App\Models\RekamPrestasi::findOrFail($id);
+        $rekamPrestasi->update($request->only(['id_jenis_prestasi', 'tanggal_prestasi', 'keterangan']));
+
+        return redirect()->route('pelanggaran.prestasi.manage')->with('success', 'Prestasi berhasil diperbarui.');
+    }
+
+    public function deletePrestasi($id)
+    {
+        $rekamPrestasi = \App\Models\RekamPrestasi::findOrFail($id);
+        $rekamPrestasi->delete();
+
+        return redirect()->route('pelanggaran.prestasi.manage')->with('success', 'Prestasi berhasil dihapus.');
     }
 }

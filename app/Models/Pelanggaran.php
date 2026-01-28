@@ -9,4 +9,6 @@ class Pelanggaran extends Model
     protected $table = 'tbl_pelanggaran';
 
     protected $guarded = ['id'];
+
+    
 }
