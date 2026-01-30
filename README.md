@@ -5,10 +5,12 @@ Sistem absensi berbasis GPS untuk sekolah dengan antarmuka modern dan responsif.
 ## 🚀 Fitur Utama
 
 - **Absensi GPS**: Sistem absensi menggunakan koordinat GPS untuk memastikan siswa berada di lokasi sekolah
+- **Pencatatan Pelanggaran Otomatis**: Sistem otomatis mencatat pelanggaran siswa yang terlambat absen masuk dengan poin dari database pelanggaran
 - **Multi-Role**: Dukungan untuk Admin, Guru, Operator, dan Siswa
 - **Dashboard Modern**: Antarmuka yang modern dan responsif dengan Tailwind CSS
 - **Manajemen Data**: Kelola siswa, kelas, jurusan, dan user dengan mudah
 - **Pengaturan GPS**: Konfigurasi koordinat sekolah dan radius absensi
+- **Dukungan Multi-Obat**: Sistem rekam medis mendukung pemberian multiple obat dengan jumlah dan aturan pakai yang dapat disesuaikan, serta pelacakan stok otomatis
 - **Responsive Design**: Tampilan yang optimal di desktop dan mobile
 
 ## 📋 Persyaratan Sistem
@@ -54,7 +56,12 @@ php artisan migrate
 php artisan db:seed
 ```
 
-### 6. Jalankan Aplikasi
+### 6. Link Storage
+```bash
+php artisan storage:link
+```
+
+### 7. Jalankan Aplikasi
 ```bash
 php artisan serve
 ```

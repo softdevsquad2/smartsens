@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Wali Kelas - SmartSens')
-@section('page-title', 'Edit Wali Kelas')
-@section('page-description', 'Edit informasi wali kelas')
+@section('title', 'Edit Guru - SmartSens')
+@section('page-title', 'Edit Guru')
+@section('page-description', 'Edit informasi guru')
 
 @section('sidebar')
     <!-- Dashboard -->
@@ -33,10 +33,10 @@
         <span>Kelola Kelas</span>
     </a>
 
-    <!-- Kelola Wali Kelas -->
+    <!-- Kelola Guru -->
     <a href="/admin/walikelas" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
         <i class="fas fa-user-tie"></i>
-        <span>Kelola Wali Kelas</span>
+        <span>Kelola Guru</span>
     </a>
 
     <!-- Kelola Jurusan -->
@@ -78,8 +78,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Edit Wali Kelas</h1>
-            <p class="mt-1 text-sm text-gray-600">Edit informasi wali kelas</p>
+            <h1 class="text-2xl font-bold text-gray-900">Edit Guru</h1>
+            <p class="mt-1 text-sm text-gray-600">Edit informasi guru</p>
         </div>
         <a href="{{ route('walikelas.index') }}"
             class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -103,7 +103,7 @@
                 <!-- Nama Wali Kelas -->
                 <div>
                     <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nama Wali Kelas <span class="text-red-500">*</span>
+                        Nama Guru <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="nama" id="nama" value="{{ old('nama', $walikelas->nama) }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nama') border-red-500 @enderror"
@@ -116,11 +116,10 @@
                 <!-- Kelas -->
                 <div>
                     <label for="id_kelas" class="block text-sm font-medium text-gray-700 mb-2">
-                        Kelas <span class="text-red-500">*</span>
+                        Kelas (Opsional)
                     </label>
                     <select name="id_kelas" id="id_kelas"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('id_kelas') border-red-500 @enderror"
-                        required>
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('id_kelas') border-red-500 @enderror">
                         <option value="">Pilih Kelas</option>
                         @foreach ($kelas as $k)
                             <option value="{{ $k->id_kelas }}"
@@ -167,7 +166,7 @@
                 <button type="submit"
                     class="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
                     <i class="fas fa-save mr-2"></i>
-                    Update Wali Kelas
+                    Update Guru
                 </button>
             </div>
         </form>
@@ -178,7 +177,7 @@
             const form = document.querySelector('form');
 
             form.addEventListener('submit', function(e) {
-                console.log('WaliKelas edit form submitted');
+                console.log('Guru edit form submitted');
                 console.log('Form data:', new FormData(form));
 
                 // Show loading state

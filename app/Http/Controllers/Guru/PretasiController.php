@@ -8,6 +8,7 @@ use App\Models\RekamPrestasi;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PretasiController extends Controller
 {
@@ -17,11 +18,15 @@ class PretasiController extends Controller
         $waliKelas = $user->waliKelas;
 
         if (!$waliKelas) {
-            return redirect()->route('guru.dashboard')->with('error', 'Anda tidak memiliki akses sebagai wali kelas.');
+            return redirect()->route('guru.rekam.pilih')->with('error', 'Anda tidak memiliki akses sebagai wali kelas.');
+        }
+
+        if (!$waliKelas->id_kelas) {
+            return redirect()->route('guru.rekam.pilih')->with('error', 'Anda belum memiliki kelas yang ditugaskan.');
         }
 
         $kelas = $waliKelas->kelas;
-        $siswa = Siswa::where('id_kelas', $kelas->id_kelas)->get();
+        $siswa = Siswa::all();
         $jenisPrestasi = JenisPrestasi::all();
 
         return view('guru.rekam.prestasi', compact('siswa', 'jenisPrestasi', 'kelas'));
@@ -30,41 +35,79 @@ class PretasiController extends Controller
     public function storePrestasi(Request $request)
     {
         try {
-            $request->validate([
+            Log::info('PretasiController storePrestasi started', ['user_id' => Auth::id()]);
+
+            $validated = $request->validate([
                 'id_siswa' => 'required|exists:tbl_siswa,id_siswa',
                 'id_jenis_prestasi' => 'required|exists:tbl_jenis_prestasi,id',
-                'tanggal_prestasi' => 'required|date',
                 'bukti_prestasi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'keterangan' => 'nullable|string|max:500',
-                'pembimbing' => 'required|string|max:100',
             ]);
+
+            Log::info('Validation passed', ['validated' => $validated]);
 
             $user = Auth::user();
             $buktiPath = null;
 
             // Simpan bukti jika ada
             if ($request->hasFile('bukti_prestasi')) {
+                Log::info('Processing bukti_prestasi file');
                 $file = $request->file('bukti_prestasi');
                 $filename = 'prestasi_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $buktiPath = $file->storeAs('prestasi', $filename, 'public');
+                Log::info('File stored', ['buktiPath' => $buktiPath]);
             }
+
+            Log::info('About to create RekamPrestasi', [
+                'id_siswa' => $request->id_siswa,
+                'id_jenis_prestasi' => $request->id_jenis_prestasi,
+                'id_user' => $user->id_user,
+                'bukti_prestasi' => $buktiPath
+            ]);
 
             RekamPrestasi::create([
                 'id_siswa' => $request->id_siswa,
                 'id_jenis_prestasi' => $request->id_jenis_prestasi,
-                'tanggal_prestasi' => $request->tanggal_prestasi,
+                'tanggal_prestasi' => $request->input('tanggal_prestasi', today()),
                 'bukti_prestasi' => $buktiPath,
                 'keterangan' => $request->keterangan,
                 'id_user' => $user->id_user,
-                'pembimbing' => $request->pembimbing,
+                // jika pembimbing tidak dikirim, gunakan username user saat ini
+                'pembimbing' => $request->input('pembimbing', $user->username ?? ''),
             ]);
 
-            return redirect()->route('guru.dashboard')
-                ->with('success', 'Prestasi berhasil direkam.');
+            Log::info('RekamPrestasi created successfully');
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Prestasi berhasil direkam.']);
+            }
+
+           return response()->json([
+        'success' => true,
+        'message' => 'Prestasi berhasil direkam.'
+    ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Validation failed', ['errors' => $e->errors()]);
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'errors' => $e->errors()], 422);
+            }
+
             return back()->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
+            Log::error('PretasiController storePrestasi error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['_token', 'bukti_prestasi'])
+            ]);
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            }
+
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }

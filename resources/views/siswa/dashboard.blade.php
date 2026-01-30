@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Beranda Siswa - SmartSens')
-@section('page-title', 'Beranda Siswa')
-@section('page-description', 'Sistem absensi GPS untuk siswa')
+@section('page-title', 'Dashboard')
+{{-- @section('page-description', 'Sistem absensi GPS untuk siswa') --}}
 
 @section('sidebar')
     <!-- Beranda -->
@@ -24,11 +24,11 @@
         <i class="fas fa-history"></i>
         <span>Riwayat Absensi</span>
     </a>
-    <a href="/siswa/riwayat-sholat"
+    {{-- <a href="/siswa/riwayat-sholat"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-history"></i>
         <span>Riwayat sholat</span>
-    </a>
+    </a> --}}
 
     <!-- Pengaturan -->
     <a href="/siswa/settings"
@@ -72,8 +72,28 @@
 
     <!-- Student Info Card -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+         <!-- Quick Action -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-bolt mr-2 text-yellow-500"></i>
+                Aksi Cepat
+            </h3>
+            <div class="space-y-3">
+                <a href="{{ route('siswa.absen') }}"
+                    class="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
+                    <i class="fas fa-fingerprint mr-2"></i>
+                    Lakukan Absensi
+                </a>
+
+                <button onclick="getCurrentLocation(true)"
+                    class="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
+                    <i class="fas fa-map-marker-alt mr-2"></i>
+                    Cek Lokasi
+                </button>
+            </div>
+        </div>
         <!-- Student Information -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6 ">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
                 <i class="fas fa-user-graduate mr-2 text-blue-500"></i>
                 Informasi Siswa
@@ -133,26 +153,7 @@
             </div>
         </div>
 
-        <!-- Quick Action -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-bolt mr-2 text-yellow-500"></i>
-                Aksi Cepat
-            </h3>
-            <div class="space-y-3">
-                <a href="{{ route('siswa.absen') }}"
-                    class="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
-                    <i class="fas fa-fingerprint mr-2"></i>
-                    Lakukan Absensi
-                </a>
 
-                <button onclick="getCurrentLocation(true)"
-                    class="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
-                    <i class="fas fa-map-marker-alt mr-2"></i>
-                    Cek Lokasi
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- Attendance Status -->
@@ -230,7 +231,7 @@
         </div>
 
         <!-- System Info -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
                 <i class="fas fa-info-circle mr-2 text-blue-500"></i>
                 Informasi Sistem
@@ -270,7 +271,7 @@
                     <li>• Absen pulang setelah jam pulang sekolah</li>
                 </ul>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <script>

@@ -1,13 +1,21 @@
-# TODO: Fix Toolman Barang Edit and Delete Features
+# TODO: Connect Attendance with Violation Feature
 
-## Issues Identified:
-1. **Delete Route Mismatch**: Route defined as `POST /toolman/toolman/barang/{id}` but view uses `DELETE /toolman/barang/{id}`
-2. **Inconsistent Image Storage**: `storeBarang` uses 'uploads' folder, `update` uses 'barangs' folder
-3. **Route Method**: Delete route should be DELETE, not POST
+## Completed Tasks
+- [x] Add imports for Pelanggaran and RekamPelanggaran models in AbsensiController.php
+- [x] Implement logic to record late violation when student is late during absenMasuk
+  - Find 'Terlambat Masuk Sekolah' violation from tbl_pelanggaran
+  - Insert record into tbl_rekam_pelanggaran with:
+    - foto_pelanggaran: null
+    - id_user: null (empty)
+    - pelapor: 'system'
+    - Points from tbl_pelanggaran
 
-## Tasks:
-- [ ] Fix delete route in routes/web.php: Change path and method
-- [ ] Standardize image storage folder in ToolmanController
-- [ ] Test edit functionality
-- [ ] Test delete functionality
-- [ ] Verify all CRUD operations work correctly
+## Requirements Met
+- [x] When student is late, add violation point from tbl_pelanggaran
+- [x] Insert into tbl_rekam_pelanggaran with null image and empty id_user
+- [x] For late violations, reporter is 'system'
+- [x] Points are from tbl_rekam_pelanggaran (via tbl_pelanggaran relationship)
+
+## Testing Needed
+- Test late attendance scenario to ensure violation is recorded
+- Verify violation points are correctly retrieved from database

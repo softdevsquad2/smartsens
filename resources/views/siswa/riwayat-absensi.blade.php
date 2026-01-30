@@ -2,7 +2,7 @@
 
 @section('title', 'Riwayat Absensi - SmartSens')
 @section('page-title', 'Riwayat Absensi')
-@section('page-description', 'Riwayat presensi siswa')
+{{-- @section('page-description', 'Riwayat presensi siswa') --}}
 
 @section('sidebar')
     <!-- Beranda -->
@@ -24,11 +24,11 @@
         <i class="fas fa-history"></i>
         <span>Riwayat Absensi</span>
     </a>
-    <a href="/siswa/riwayat-sholat"
+    {{-- <a href="/siswa/riwayat-sholat"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-history"></i>
         <span>Riwayat sholat</span>
-    </a>
+    </a> --}}
 
     <!-- Pengaturan -->
     <a href="/siswa/settings"

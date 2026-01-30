@@ -2,7 +2,7 @@
 
 @section('title', 'Pengaturan - SmartSens')
 @section('page-title', 'Pengaturan')
-@section('page-description', 'Kelola pengaturan akun siswa')
+{{-- @section('page-description', 'Kelola pengaturan akun siswa') --}}
 
 @section('sidebar')
     <!-- Beranda -->
@@ -25,11 +25,11 @@
         <i class="fas fa-history"></i>
         <span>Riwayat Absensi</span>
     </a>
-    <a href="/siswa/riwayat-sholat"
+    {{-- <a href="/siswa/riwayat-sholat"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-history"></i>
         <span>Riwayat sholat</span>
-    </a>
+    </a> --}}
 
     <!-- Pengaturan -->
     <a href="/siswa/settings" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
@@ -136,7 +136,7 @@
     </div>
 
     <!-- Form Pengaturan -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-200">
 
 
         <form action="{{ route('siswa.settings.update') }}" method="POST" class="p-6">
@@ -163,10 +163,10 @@
 
 
         </form>
-    </div>
+    </div> --}}
 
     <!-- Informasi Sistem -->
-    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
+    {{-- <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-6">
         <h3 class="text-lg font-medium text-blue-900 mb-4">
             <i class="fas fa-info-circle mr-2"></i>
             Informasi Sistem
@@ -197,7 +197,7 @@
                 <li>• Data Anda akan disimpan dengan aman dan hanya digunakan untuk keperluan absensi</li>
             </ul>
         </div>
-    </div>
+    </div> --}}
 
     <script>
         function resetForm() {

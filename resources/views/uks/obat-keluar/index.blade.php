@@ -1,6 +1,6 @@
 @extends('layouts.app')
 {{-- @section('title', 'Rekam Medis - UKS') --}}
-@section('page-title', 'Daftaf Obat Keluar')
+@section('page-title', 'Daftar Obat Keluar')
 @section('page-description', 'Daftar Obat Keluar')
 @section('title', 'Daftar Obat Keluar - UKS')
 <x-sidebar></x-sidebar>
@@ -15,23 +15,25 @@
             </a>
         </div>
 
-        <table class="min-w-full border-collapse border border-gray-300">
+        <table class="min-w-full border-collapse border border-gray-300 ">
             <thead class="bg-gray-100">
                 <tr>
-                    <th class="border px-4 py-2">Tanggal</th>
-                    <th class="border px-4 py-2">Nama Siswa</th>
-                    <th class="border px-4 py-2">NISN</th>
-                    <th class="border px-4 py-2">Obat Diberikan</th>
-                    <th class="border px-4 py-2">Diagnosis</th>
+                    <th class="border px-4 py-2 text-center align-middle">Tanggal</th>
+<th class="border px-4 py-2 text-center align-middle">Nama Siswa</th>
+<th class="border px-4 py-2 text-center align-middle">NISN</th>
+<th class="border px-4 py-2 text-center align-middle">Obat Diberikan</th>
+<th class="border px-4 py-2 text-center align-middle">Diagnosis</th>
+
                 </tr>
             </thead>
             <tbody>
                 @forelse ($data as $item)
                     <tr>
-                        <td class="border px-4 py-2">{{ $item->tanggal }}</td>
-                        <td class="border px-4 py-2">{{ $item->siswa->nama }}</td>
-                        <td class="border px-4 py-2">{{ $item->siswa->nisn }}</td>
-                        <td class="border px-4 py-2">
+                       <td class="border px-4 py-2 text-center align-middle">{{ $item->tanggal }}</td>
+<td class="border px-4 py-2 text-center align-middle">{{ $item->siswa->nama }}</td>
+<td class="border px-4 py-2 text-center align-middle">{{ $item->siswa->nisn }}</td>
+<td class="border px-4 py-2 text-center align-middle">
+
                             @php
                                 $obatData = json_decode($item->obat_diberikan, true);
                             @endphp

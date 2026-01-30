@@ -2,7 +2,7 @@
 
 @section('title', 'Absensi Siswa - SmartSens')
 @section('page-title', 'Absensi Siswa')
-@section('page-description', 'Lakukan absensi masuk atau pulang')
+{{-- @section('page-description', 'Lakukan absensi masuk atau pulang') --}}
 
 @section('sidebar')
     <!-- Beranda -->
@@ -25,11 +25,11 @@
         <span>Riwayat Absensi</span>
     </a>
     <!-- Riwayat Absensi -->
-    <a href="{{ url('/siswa/riwayat-sholat') }}"
+    {{-- <a href="{{ url('/siswa/riwayat-sholat') }}"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-history"></i>
         <span>Riwayat Sholat</span>
-    </a>
+    </a> --}}
 
     <!-- Pengaturan -->
     <a href="/siswa/settings"
@@ -290,7 +290,8 @@
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: confirmText,
-                cancelButtonText: cancelText
+                cancelButtonText: cancelText,
+                reservereverseButtons: true
             });
         }
 
@@ -650,7 +651,9 @@
                                 if (data.success) {
                                     showSuccess(data.message, 'Absen Masuk Berhasil!');
                                     setTimeout(() => {
-                                        window.location.reload();
+                                        // window.location.reload();
+                                        window.location.href = '/siswa/dashboard';
+
                                     }, 1500);
                                 } else {
                                     showError(data.message, 'Gagal Absen Masuk');
@@ -712,7 +715,9 @@
                             if (data.success) {
                                 showSuccess(data.message, 'Absen Pulang Berhasil!');
                                 setTimeout(() => {
-                                    window.location.reload();
+                                    // window.location.reload();
+                                    window.location.href = '/siswa/dashboard';
+
                                 }, 1500);
                             } else {
                                 showError(data.message, 'Gagal Absen Pulang');
@@ -775,7 +780,8 @@
                                 if (data.success) {
                                     showSuccess(data.message, 'Absen Sakit Berhasil!');
                                     setTimeout(() => {
-                                        window.location.reload();
+                                        // window.location.reload();
+                                        window.location.href = '/siswa/dashboard';
                                     }, 1500);
                                 } else {
                                     showError(data.message, 'Gagal Absen Sakit');
@@ -838,7 +844,8 @@
                                 if (data.success) {
                                     showSuccess(data.message, 'Absen Izin Berhasil!');
                                     setTimeout(() => {
-                                        window.location.reload();
+                                        // window.location.reload();
+                                        window.location.href = '/siswa/dashboard';
                                     }, 1500);
                                 } else {
                                     showError(data.message, 'Gagal Absen Izin');

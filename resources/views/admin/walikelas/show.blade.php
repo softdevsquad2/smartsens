@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Detail Wali Kelas - SmartSens')
-@section('page-title', 'Detail Wali Kelas')
-@section('page-description', 'Detail informasi wali kelas')
+@section('title', 'Detail Guru - SmartSens')
+@section('page-title', 'Detail Guru')
+@section('page-description', 'Detail informasi guru')
 
 @section('sidebar')
 <!-- Dashboard -->
@@ -29,10 +29,10 @@
     <span>Kelola Kelas</span>
 </a>
 
-<!-- Kelola Wali Kelas -->
+<!-- Kelola Guru -->
 <a href="/admin/walikelas" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
     <i class="fas fa-user-tie"></i>
-    <span>Kelola Wali Kelas</span>
+    <span>Kelola Guru</span>
 </a>
 
 <!-- Kelola Jurusan -->
@@ -58,16 +58,16 @@
 <!-- Header -->
 <div class="flex items-center justify-between mb-8">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Detail Wali Kelas</h1>
-        <p class="mt-1 text-sm text-gray-600">Informasi lengkap wali kelas</p>
+        <h1 class="text-2xl font-bold text-gray-900">Detail Guru</h1>
+        <p class="mt-1 text-sm text-gray-600">Informasi lengkap guru</p>
     </div>
     <div class="flex items-center space-x-3">
-        <a href="{{ route('walikelas.edit', $walikelas) }}" 
+        <a href="{{ route('walikelas.edit', $walikelas) }}"
            class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
             <i class="fas fa-edit mr-2"></i>
             Edit
         </a>
-        <a href="{{ route('walikelas.index') }}" 
+        <a href="{{ route('walikelas.index') }}"
            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <i class="fas fa-arrow-left mr-2"></i>
             Kembali
@@ -86,7 +86,7 @@
                 </div>
                 <h3 class="text-xl font-semibold text-gray-900">{{ $walikelas->nama }}</h3>
                 <p class="text-sm text-gray-500">Wali Kelas</p>
-                
+
                 @if($walikelas->user)
                     <div class="mt-4 p-3 bg-green-50 rounded-lg">
                         <div class="flex items-center justify-center">
@@ -106,14 +106,14 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Details -->
     <div class="lg:col-span-2">
         <div class="bg-white shadow-sm rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">Informasi Detail</h3>
             </div>
-            
+
             <div class="p-6">
                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Nama -->
@@ -121,7 +121,7 @@
                         <dt class="text-sm font-medium text-gray-500">Nama Lengkap</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $walikelas->nama }}</dd>
                     </div>
-                    
+
                     <!-- NIP -->
                     <div>
                         <dt class="text-sm font-medium text-gray-500">NIP</dt>
@@ -129,7 +129,7 @@
                             {{ $walikelas->nip ?? 'Tidak ada' }}
                         </dd>
                     </div>
-                    
+
                     <!-- Kelas -->
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Kelas</dt>
@@ -145,7 +145,7 @@
                             </div>
                         </dd>
                     </div>
-                    
+
                     <!-- User Account -->
                     <div class="md:col-span-2">
                         <dt class="text-sm font-medium text-gray-500">User Account</dt>
@@ -168,30 +168,30 @@
                 </dl>
             </div>
         </div>
-        
+
         <!-- Action Buttons -->
         <div class="mt-6 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <a href="{{ route('walikelas.edit', $walikelas) }}" 
+                <a href="{{ route('walikelas.edit', $walikelas) }}"
                    class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
                     <i class="fas fa-edit mr-2"></i>
-                    Edit Wali Kelas
+                    Edit Guru
                 </a>
-                
-                <form action="{{ route('walikelas.destroy', $walikelas) }}" 
-                      method="POST" 
-                      class="inline"
-                      onsubmit="return confirmDelete('Yakin ingin menghapus wali kelas ini?', 'Konfirmasi Hapus Wali Kelas')">
+
+                    <form action="{{ route('walikelas.destroy', $walikelas) }}"
+                        method="POST"
+                        class="inline"
+                        onsubmit="return confirmDelete('Yakin ingin menghapus guru ini?', 'Konfirmasi Hapus Guru')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" 
+                    <button type="submit"
                             class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                         <i class="fas fa-trash mr-2"></i>
                         Hapus
                     </button>
                 </form>
             </div>
-            
+
             <div class="text-sm text-gray-500">
                 Dibuat: {{ $walikelas->created_at->format('d M Y H:i') }}
             </div>

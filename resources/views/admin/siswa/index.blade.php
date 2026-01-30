@@ -101,15 +101,16 @@
                     class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-2 py-2 rounded-lg transition-colors">
                     Filter
                 </button>
-            </div>
-
-
-            @if (request('q') || request('kelas') || request('jurusan'))
+                @if (request('q') || request('kelas') || request('jurusan'))
                 <a href="{{ route('siswa.index') }}"
-                    class="inline-block mt-2 text-sm text-red-500 underline hover:text-red-700 transition-colors">
+                    class="bg-red-600 hover:bg-red-700 text-center text-white text-sm font-medium px-2 py-2 rounded-lg transition-colors">
                     Reset
                 </a>
             @endif
+            </div>
+
+
+
         </form>
         <a href="{{ route('siswa.create') }}"
             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">

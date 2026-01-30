@@ -32,18 +32,12 @@
         <span>Laporan Absensi</span>
     </a>
 
-    <!-- Logout -->
-    <a href="{{ route('logout') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors mt-auto">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-    </a>
+  
 @endsection
 
 @section('content')
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900">Rekam Prestasi Siswa</h1>
-        <p class="mt-1 text-sm text-gray-600">Kelas {{ $kelas->nama_kelas }}</p>
     </div>
 
     <!-- Error Messages -->
@@ -58,7 +52,7 @@
         </div>
     @endif
 
-    <form action="{{ route('guru.prestasi.store') }}" method="POST" enctype="multipart/form-data"
+    <form id="prestasiForm" action="{{ route('guru.prestasi.store') }}" method="POST" enctype="multipart/form-data"
         class="bg-white shadow-md rounded-lg border border-gray-200 p-6">
         @csrf
 
@@ -81,8 +75,101 @@
 
         <!-- Jenis Prestasi -->
         <div class="mb-6">
+
             <label for="id_jenis_prestasi" class="block text-sm font-medium text-gray-700 mb-2">Jenis Prestasi <span
                     class="text-red-600">*</span></label>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        (function() {
+            // attach handler to the specific prestasi form
+            const formEl = document.getElementById('prestasiForm');
+            if (!formEl) return;
+
+            formEl.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const confirmed = await Swal.fire({
+                    title: 'Sudah benar semua?',
+                    text: 'Periksa data dan bukti. Apakah sudah sesuai?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    cancelButtonText: 'Batal',
+                    confirmButtonText: 'Ya, simpan',
+                    reverseButtons: true
+                });
+
+                if (!confirmed.isConfirmed) return;
+
+                // show progress swal with bar
+                Swal.fire({
+                    title: 'Mengunggah...',
+                    html: '<div style="margin-top:8px"><div id="uploadBarP" style="width:100%;height:12px;background:#eee;border-radius:6px;"><div id="uploadBarFillP" style="width:0%;height:100%;background:#34d399;border-radius:6px;"></div></div><div id="uploadPercentP" style="margin-top:8px;font-size:13px;color:#444">0%</div></div>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                try {
+                    const fd = new FormData(formEl);
+
+                    await new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('POST', formEl.action);
+                        xhr.withCredentials = true;
+                        xhr.upload.onprogress = function(e) {
+                            if (e.lengthComputable) {
+                                const pct = Math.round((e.loaded / e.total) * 100);
+                                const fill = document.getElementById('uploadBarFillP');
+                                const pctEl = document.getElementById('uploadPercentP');
+                                if (fill) fill.style.width = pct + '%';
+                                if (pctEl) pctEl.textContent = pct + '%';
+                            }
+                        };
+                        xhr.onload = function() {
+                            let text = xhr.responseText || '';
+                            let data = null;
+                            try { data = JSON.parse(text); } catch (e) { /* ignore */ }
+
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                if (data && data.success) {
+                                    Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message || 'Prestasi berhasil direkam.' });
+                                    formEl.reset();
+                                    document.getElementById('buktiPreview').classList.add('hidden');
+                                    $('#id_siswa, #id_jenis_prestasi').val(null).trigger('change');
+                                    resolve();
+                                } else if (xhr.status === 422 && data && data.errors) {
+                                    const msgs = Object.values(data.errors).flat().join('\n');
+                                    Swal.fire({ icon: 'error', title: 'Validasi', text: msgs });
+                                    reject(new Error('validation'));
+                                } else {
+                                    Swal.fire({ icon: 'error', title: 'Gagal', text: data && data.message ? data.message : 'Terjadi kesalahan saat menyimpan.' });
+                                    reject(new Error('server'));
+                                }
+                            } else {
+                                const msg = (data && data.message) ? data.message : (text || 'Terjadi kesalahan server.');
+                                console.error('Server error response:', xhr.status, text);
+                                Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+                                reject(new Error('http'));
+                            }
+                        };
+                        xhr.onerror = function() { Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan.' }); reject(new Error('network')); };
+                        xhr.send(fd);
+                    });
+                } catch (err) {
+                    // handled above
+                }
+            });
+
+            // Flash fallback using session (if redirect used)
+            document.addEventListener('DOMContentLoaded', function() {
+                @if(session('success'))
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: @json(session('success')) });
+                @endif
+                @if(session('error'))
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: @json(session('error')) });
+                @endif
+            });
+        })();
+    </script>
             <select id="id_jenis_prestasi" name="id_jenis_prestasi" class="searchable-select w-full" required>
                 <option value="">-- Pilih Jenis Prestasi --</option>
                 @foreach ($jenisPrestasi as $jp)
@@ -96,27 +183,7 @@
             @enderror
         </div>
 
-        <!-- Tanggal Prestasi -->
-        <div class="mb-6">
-            <label for="tanggal_prestasi" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Prestasi <span
-                    class="text-red-600">*</span></label>
-            <input type="date" id="tanggal_prestasi" name="tanggal_prestasi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                value="{{ old('tanggal_prestasi', date('Y-m-d')) }}" required>
-            @error('tanggal_prestasi')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Pembimbing -->
-        <div class="mb-6">
-            <label for="pembimbing" class="block text-sm font-medium text-gray-700 mb-2">Pembimbing <span
-                    class="text-red-600">*</span></label>
-            <input type="text" id="pembimbing" name="pembimbing" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Nama guru/pembimbing yang mencatat prestasi" value="{{ old('pembimbing') }}" required>
-            @error('pembimbing')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+        <!-- (Tanggal dan Pembimbing diisi otomatis) -->
 
         <!-- Bukti Prestasi (Opsional) -->
         <div class="mb-6">
@@ -200,16 +267,78 @@
                 }
             });
 
-            buktiFileInput.addEventListener('change', handleFileSelect);
+                buktiFileInput.addEventListener('change', () => handleFileSelect());
 
-            function handleFileSelect() {
-                if (buktiFileInput.files && buktiFileInput.files[0]) {
+            async function compressImage(file, maxKB = 250) {
+                const mimeType = 'image/jpeg';
+                return new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        previewImageBukti.src = e.target.result;
-                        buktiPreview.classList.remove('hidden');
+                        const img = new Image();
+                        img.onload = async () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            let [w, h] = [img.width, img.height];
+                            const maxDim = 1600;
+                            if (w > maxDim || h > maxDim) {
+                                const ratio = Math.max(w / maxDim, h / maxDim);
+                                w = Math.round(w / ratio);
+                                h = Math.round(h / ratio);
+                            }
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.drawImage(img, 0, 0, w, h);
+                            let quality = 0.92;
+                            const minQuality = 0.45;
+                            const targetBytes = maxKB * 1024;
+                            async function tryExport() { return new Promise(res => canvas.toBlob(res, mimeType, quality)); }
+                            let blob = await tryExport();
+                            while (blob && blob.size > targetBytes && quality > minQuality) {
+                                quality -= 0.08;
+                                blob = await tryExport();
+                            }
+                            while (blob && blob.size > targetBytes && (canvas.width > 400 || canvas.height > 400)) {
+                                const newW = Math.round(canvas.width * 0.8);
+                                const newH = Math.round(canvas.height * 0.8);
+                                const tmpCanvas = document.createElement('canvas');
+                                tmpCanvas.width = newW; tmpCanvas.height = newH;
+                                const tctx = tmpCanvas.getContext('2d');
+                                tctx.drawImage(canvas, 0, 0, newW, newH);
+                                canvas.width = newW; canvas.height = newH;
+                                ctx.clearRect(0,0,canvas.width,canvas.height);
+                                ctx.drawImage(tmpCanvas, 0,0);
+                                blob = await tryExport();
+                                if (blob && blob.size > targetBytes && quality > minQuality) {
+                                    quality = Math.max(minQuality, quality - 0.05);
+                                    blob = await tryExport();
+                                }
+                            }
+                            if (!blob) { resolve(file); return; }
+                            if (blob.size > file.size) { resolve(file); return; }
+                            try { const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.jpg', { type: mimeType }); resolve(newFile); }
+                            catch (e) { resolve(blob); }
+                        };
+                        img.onerror = () => resolve(file);
+                        img.src = e.target.result;
                     };
-                    reader.readAsDataURL(buktiFileInput.files[0]);
+                    reader.onerror = () => resolve(file);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            async function handleFileSelect() {
+                if (buktiFileInput.files && buktiFileInput.files[0]) {
+                    const originalFile = buktiFileInput.files[0];
+                    const compressed = await compressImage(originalFile, 250);
+                    const dt = new DataTransfer();
+                    if (compressed instanceof Blob && !(compressed instanceof File)) {
+                        const fileName = originalFile.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                        dt.items.add(new File([compressed], fileName, { type: 'image/jpeg' }));
+                    } else { dt.items.add(compressed); }
+                    buktiFileInput.files = dt.files;
+                    const previewUrl = URL.createObjectURL(buktiFileInput.files[0]);
+                    previewImageBukti.src = previewUrl;
+                    buktiPreview.classList.remove('hidden');
                 }
             }
 

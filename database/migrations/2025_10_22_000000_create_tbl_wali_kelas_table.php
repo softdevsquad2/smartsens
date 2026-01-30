@@ -13,7 +13,7 @@ class CreateTblWaliKelasTable extends Migration
             $table->string('nama')->nullable();
             $table->bigInteger('nip')->nullable();
             $table->timestamps();
-            $table->foreignid('id_kelas')->constrained('tbl_kelas', 'id_kelas')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignid('id_kelas')->constrained('tbl_kelas', 'id_kelas')->onUpdate('cascade')->onDelete('cascade')->nullable();
         });
     }
 

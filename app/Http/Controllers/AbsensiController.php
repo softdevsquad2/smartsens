@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\AbsensiExport;
 use App\Models\Absensi;
+use App\Models\Pelanggaran;
+use App\Models\RekamPelanggaran;
 use App\Models\Setting;
 use App\Models\Sholat;
 use App\Models\Siswa;
@@ -194,6 +196,22 @@ class AbsensiController extends Controller
                     ]);
                     Log::info('Absensi created successfully');
                 }
+
+                // Jika terlambat, tambahkan pelanggaran
+                if ($statusMasuk === 'terlambat') {
+                    $pelanggaranTerlambat = Pelanggaran::where('nama_pelanggaran', 'Terlambat Masuk Sekolah')->first();
+                    if ($pelanggaranTerlambat) {
+                        RekamPelanggaran::create([
+                            'id_siswa' => $request->id_siswa,
+                            'id_pelanggaran' => $pelanggaranTerlambat->id,
+                            'tanggal_pelanggaran' => Carbon::today(),
+                            'foto_pelanggaran' => null,
+                            'id_user' => null,
+                            'pelapor' => 'system',
+                        ]);
+                        Log::info('Pelanggaran terlambat recorded for student:', ['id_siswa' => $request->id_siswa]);
+                    }
+                }
             } catch (\Exception $e) {
                 Log::error('Database error in absenMasuk:', ['error' => $e->getMessage()]);
 
@@ -202,7 +220,7 @@ class AbsensiController extends Controller
                     'message' => 'Gagal menyimpan absensi: ' . $e->getMessage(),
                 ], 500);
             }
-
+            // return redirect()->route('siswa.dashboard')->with('success', 'Absensi masuk berhasil');
             return response()->json([
                 'success' => true,
                 'message' => 'Absensi masuk berhasil',

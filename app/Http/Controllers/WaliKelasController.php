@@ -22,6 +22,11 @@ class WaliKelasController extends Controller
             return redirect()->route('login')->with('error', 'Anda tidak memiliki akses sebagai wali kelas.');
         }
 
+        // If wali kelas doesn't have a class assigned, redirect to choose type
+        if (!$waliKelas->id_kelas) {
+            return redirect()->route('guru.rekam.pilih');
+        }
+
         $kelas = $waliKelas->kelas;
 
         // Statistik siswa

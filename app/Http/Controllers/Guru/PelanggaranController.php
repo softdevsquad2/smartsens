@@ -27,7 +27,7 @@ class PelanggaranController extends Controller
         }
 
         $kelas = $waliKelas->kelas;
-        $siswa = Siswa::where('id_kelas', $kelas->id_kelas)->get();
+        $siswa = Siswa::all();
         $pelanggaran = Pelanggaran::all();
 
         return view('guru.rekam.pelanggaran', compact('siswa', 'pelanggaran', 'kelas'));
@@ -41,8 +41,8 @@ class PelanggaranController extends Controller
                 'pelanggaran' => 'required|array|min:1',
                 'pelanggaran.*' => 'exists:tbl_pelanggaran,id',
                 'foto_pelanggaran' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'tanggal_pelanggaran' => 'required|date',
-                'pelapor' => 'required|string|max:100',
+
+
             ]);
 
             $user = Auth::user();
@@ -60,19 +60,33 @@ class PelanggaranController extends Controller
                 RekamPelanggaran::create([
                     'id_siswa' => $request->id_siswa,
                     'id_pelanggaran' => $idPelanggaran,
-                    'tanggal_pelanggaran' => $request->tanggal_pelanggaran,
+                    'tanggal_pelanggaran' => today(),
                     'foto_pelanggaran' => $fotoPath,
                     'id_user' => $user->id_user,
-                    'pelapor' => $request->pelapor,
+
                 ]);
             }
 
-            return redirect()->route('guru.dashboard')
-                ->with('success', 'Pelanggaran berhasil direkam.');
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Pelanggaran berhasil direkam.']);
+            }
+
+            return response()->json([
+        'success' => true,
+        'message' => 'Prestasi berhasil direkam.'
+    ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'errors' => $e->errors()], 422);
+            }
+
             return back()->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            }
+
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }

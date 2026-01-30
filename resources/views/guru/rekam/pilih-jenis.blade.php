@@ -5,45 +5,58 @@
 @section('page-description', 'Pilih jenis pencatatan yang ingin dilakukan')
 
 @section('sidebar')
-    <!-- Dashboard -->
-    <a href="{{ route('guru.dashboard') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
+    @if(Auth::user()->waliKelas && !Auth::user()->waliKelas->id_kelas)
+        <!-- Logout -->
+        <a href="{{ route('guru.rekam.pilih') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors mt-auto">
+            <i class="fas fa-clipboard-list"></i>
 
-    <!-- Daftar Siswa -->
-    <a href="{{ route('guru.siswa.index') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-users"></i>
-        <span>Daftar Siswa</span>
-    </a>
+            <span>Rekam Siswa</span>
+        </a>
+    @else
+        <!-- Dashboard -->
+        <a href="{{ route('guru.dashboard') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
 
-    <!-- Absensi Hari Ini -->
-    <a href="{{ route('guru.absensi.hari-ini') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-calendar-day"></i>
-        <span>Absensi Hari Ini</span>
-    </a>
+        <!-- Daftar Siswa -->
+        <a href="{{ route('guru.siswa.index') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-users"></i>
+            <span>Daftar Siswa</span>
+        </a>
 
-    <!-- Laporan Absensi -->
-    <a href="{{ route('guru.absensi.laporan') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chart-bar"></i>
-        <span>Laporan Absensi</span>
-    </a>
+        <!-- Absensi Hari Ini -->
+        <a href="{{ route('guru.absensi.hari-ini') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-calendar-day"></i>
+            <span>Absensi Hari Ini</span>
+        </a>
 
-    <!-- Logout -->
-    <a href="{{ route('logout') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors mt-auto">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-    </a>
+        <!-- Laporan Absensi -->
+        <a href="{{ route('guru.absensi.laporan') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-chart-bar"></i>
+            <span>Laporan Absensi</span>
+        </a>
+
+
+    @endif
 @endsection
 
 @section('content')
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Pilih Jenis Pencatatan</h1>
+    <div class="mb-8 flex items-center justify-between">
+       <div>
+         <h1 class="text-2xl font-bold text-gray-900">Pilih Jenis Pencatatan</h1>
         <p class="mt-1 text-sm text-gray-600">Silakan pilih jenis pencatatan yang ingin Anda lakukan</p>
+       </div>
+        <div class="mt-8">
+        {{-- <a href="{{ route('guru.dashboard') }}"
+            class="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+        </a> --}}
+    </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -83,10 +96,10 @@
     </div>
 
     <!-- Tombol Kembali -->
-    <div class="mt-8">
-        <a href="{{ route('guru.dashboard') }}"
-            class="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
-            <i class="fas fa-arrow-left mr-2"></i>Kembali ke Dashboard
-        </a>
-    </div>
+
 @endsection
+@push('scripts')
+    <script>
+        // Tambahkan skrip JavaScript jika diperlukan
+    </script>
+@endpush

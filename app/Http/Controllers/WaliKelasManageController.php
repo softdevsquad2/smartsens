@@ -6,6 +6,9 @@ use App\Models\Kelas;
 use App\Models\User;
 use App\Models\WaliKelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\WaliKelasTemplateExport;
 
 class WaliKelasManageController extends Controller
 {
@@ -28,21 +31,22 @@ class WaliKelasManageController extends Controller
     public function store(Request $request)
     {
         // Debug: Log request data
-        \Log::info('WaliKelas form submission data:', $request->all());
+        \Log::info('Guru form submission data:', $request->all());
 
         $request->validate([
             'nama' => 'required|string|max:255',
-            'id_kelas' => 'required|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas',
+            // Kelas sekarang opsional untuk Guru
+            'id_kelas' => 'nullable|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas',
             'id_user' => 'nullable|exists:tbl_user,id_user',
         ]);
 
         try {
             $waliKelas = WaliKelas::create($request->all());
-            \Log::info('WaliKelas berhasil dibuat dengan ID: ' . $waliKelas->id_wali_kelas);
+            \Log::info('Guru berhasil dibuat dengan ID: ' . $waliKelas->id_wali_kelas);
 
-            return redirect()->route('walikelas.index')->with('success', 'Wali kelas berhasil ditambahkan');
+            return redirect()->route('walikelas.index')->with('success', 'Guru berhasil ditambahkan');
         } catch (\Exception $e) {
-            \Log::error('Error creating wali kelas: ' . $e->getMessage());
+            \Log::error('Error creating guru: ' . $e->getMessage());
 
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
@@ -67,17 +71,18 @@ class WaliKelasManageController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'id_kelas' => 'required|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,' . $walikelas->id_wali_kelas . ',id_wali_kelas',
+            // Kelas opsional untuk guru
+            'id_kelas' => 'nullable|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,' . $walikelas->id_wali_kelas . ',id_wali_kelas',
             'id_user' => 'nullable|exists:tbl_user,id_user',
         ]);
 
         try {
             $walikelas->update($request->all());
-            \Log::info('WaliKelas berhasil diupdate dengan ID: ' . $walikelas->id_wali_kelas);
+            \Log::info('Guru berhasil diupdate dengan ID: ' . $walikelas->id_wali_kelas);
 
-            return redirect()->route('walikelas.index')->with('success', 'Wali kelas berhasil diperbarui');
+            return redirect()->route('walikelas.index')->with('success', 'Guru berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Error updating wali kelas: ' . $e->getMessage());
+            \Log::error('Error updating guru: ' . $e->getMessage());
 
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
@@ -87,13 +92,54 @@ class WaliKelasManageController extends Controller
     {
         try {
             $walikelas->delete();
-            \Log::info('WaliKelas berhasil dihapus dengan ID: ' . $walikelas->id_wali_kelas);
+            \Log::info('Guru berhasil dihapus dengan ID: ' . $walikelas->id_wali_kelas);
 
-            return redirect()->route('walikelas.index')->with('success', 'Wali kelas berhasil dihapus');
+            return redirect()->route('walikelas.index')->with('success', 'Guru berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Error deleting wali kelas: ' . $e->getMessage());
+            \Log::error('Error deleting guru: ' . $e->getMessage());
 
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Import guru from uploaded Excel (.xlsx).
+     * Expected columns: nama, nip, kelas (optional)
+     */
+    public function import(Request $request)
+    {
+        // Timeout 10 menit untuk handle 3000+ rows
+        set_time_limit(600);
+
+        // Disable query log untuk performa
+        DB::disableQueryLog();
+
+        \App\Imports\WaliKelasImport::$inserted = 0;
+        \App\Imports\WaliKelasImport::$updated = 0;
+        \App\Imports\WaliKelasImport::$errors = [];
+
+        Excel::import(new \App\Imports\WaliKelasImport, $request->file('file'));
+
+        $insert = \App\Imports\WaliKelasImport::$inserted;
+        $update = \App\Imports\WaliKelasImport::$updated;
+        $errors = \App\Imports\WaliKelasImport::$errors;
+
+        // Jika ada error, tampilkan ke user
+        if (!empty($errors)) {
+            return back()->with([
+                'success' => "Import selesai dengan catatan!\n\nDitambahkan: $insert guru\nDiperbarui: $update guru",
+                'import_errors' => $errors
+            ]);
+        }
+
+        return back()->with('success', "Import selesai!\nDitambahkan: $insert guru\nDiperbarui: $update guru");
+    }
+
+    /**
+     * Download XLSX template for guru import
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new WaliKelasTemplateExport, 'guru_import_template.xlsx');
     }
 }

@@ -220,11 +220,22 @@ class UksController extends Controller
                 $sub->where('nama', 'LIKE', "%{$q}%")
                     ->orWhere('nisn', 'LIKE', "%{$q}%");
             });
+            // also prepare siswa search results for the search dropdown
+            $siswaResults = Siswa::with('kelas.jurusan')
+                ->where('nama', 'LIKE', "%{$q}%")
+                ->orWhere('nisn', 'LIKE', "%{$q}%")
+                ->limit(10)
+                ->get();
         }
         $perpage = $request->get('per_page', 10);
         $rekamMedis = $rekamMedisQuery->paginate($perpage)->appends($request->only('q'));
 
-        return view('uks.rekam-medis.index', compact('rekamMedis', 'q', 'perpage'));
+        // ensure variable exists for the view
+        if (!isset($siswaResults)) {
+            $siswaResults = collect();
+        }
+
+        return view('uks.rekam-medis.index', compact('rekamMedis', 'q', 'perpage', 'siswaResults'));
     }
 
     public function rekamMedisCreate(Request $request)

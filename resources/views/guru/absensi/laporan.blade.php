@@ -33,12 +33,7 @@
         <span>Laporan Absensi</span>
     </a>
 
-    <!-- Logout -->
-    <a href="{{ route('logout') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors mt-auto">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-    </a>
+  
 @endsection
 
 @section('content')
@@ -58,7 +53,7 @@
 
     <!-- Filter Bulan -->
     <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-6 mb-8">
-        <form method="GET" action="{{ route('guru.absensi.laporan') }}" class="flex items-end space-x-4">
+        <form method="GET" action="{{ route('guru.absensi.laporan') }}" class="flex items-end space-x-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <div>
                 <label for="bulan" class="block text-sm font-medium text-gray-700 mb-2">Pilih Bulan</label>
                 <input type="month" name="bulan" id="bulan" value="{{ $bulan }}"

@@ -98,7 +98,7 @@
                     <p class="text-sm text-gray-500">Pilih Siswa</p>
                 </div>
             </a>
-            <a href="{{ route('uks.izin-pulang') }}"
+            {{-- <a href="{{ route('uks.izin-pulang') }}"
                 class="flex items-center p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all">
                 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                     <i class="fas fa-home text-purple-600"></i>
@@ -117,7 +117,7 @@
                     <p class="font-medium text-gray-900">Rekam Medis</p>
                     <p class="text-sm text-gray-500">Buat rekam medis baru</p>
                 </div>
-            </a>
+            </a> --}}
         </div>
     </div>
 

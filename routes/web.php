@@ -145,11 +145,8 @@ Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(func
     Route::get('/rekam/list', [PelanggaranController::class, 'listRekamPelanggaran'])->name('pelanggaran.rekam.list');
     Route::delete('/rekam/{id}', [PelanggaranController::class, 'deleteRekamPelanggaran'])->name('pelanggaran.rekam.delete');
 
-    // List Pelanggaran dan Prestasi
+    // List Pelanggaran
     Route::get('/list-pelanggaran', [PelanggaranController::class, 'listPelanggaran'])->name('pelanggaran.list');
-    Route::get('/prestasi/list', [PelanggaranController::class, 'listPrestasi'])->name('pelanggaran.prestasi.list');
-    Route::get('/prestasi/rekam', [PretasiController::class, 'formPrestasi'])->name('guru.prestasi.rekam');
-    Route::post('/prestasi/store', [PretasiController::class, 'storePrestasi'])->name('guru.prestasi.store');
 
     // Jenis Prestasi Management
     Route::get('/jenis-prestasi', [PelanggaranController::class, 'jenisPrestasi'])->name('pelanggaran.jenis-prestasi');
@@ -236,6 +233,16 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('siswa/template', [SiswaManageController::class, 'downloadTemplate'])->name('siswa.template');
     // Manage Siswa (resource routes)
     Route::resource('siswa', SiswaManageController::class);
+
+    // Import Wali Kelas (Excel) and Template download need to be defined BEFORE the resource
+    // to avoid the resource's {walikelas} wildcard capturing paths like 'template' or 'import'.
+    Route::post('walikelas/import', [WaliKelasManageController::class, 'import'])->name('walikelas.import');
+    // Template download
+    Route::get('walikelas/template', [WaliKelasManageController::class, 'downloadTemplate'])->name('walikelas.template');
+    // Manage Wali Kelas (resource routes)
+    Route::resource('walikelas', WaliKelasManageController::class)->parameters([
+        'walikelas' => 'walikelas',
+    ]);
 
     // Manage Kelas
     Route::resource('kelas', KelasManageController::class)->parameters([
