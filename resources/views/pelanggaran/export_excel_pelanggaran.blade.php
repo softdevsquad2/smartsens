@@ -8,8 +8,6 @@
             <th>Kelas</th>
             <th>Jenis Pelanggaran</th>
             <th>Poin Pelanggaran</th>
-            <th>Jenis Prestasi</th>
-            <th>Poin Prestasi</th>
         </tr>
     </thead>
     <tbody>
@@ -22,8 +20,6 @@
             <td>{{ $rekam->siswa->kelas->nama_kelas ?? 'N/A' }}</td>
             <td>{{ $rekam->pelanggaran->nama_pelanggaran ?? 'N/A' }}</td>
             <td>{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}</td>
-            <td>{{ $rekam->nama_prestasi ?? 'N/A' }}</td>
-            <td>{{ $rekam->total_poin_prestasi ?? 0 }}</td>
         </tr>
         @endforeach
     </tbody>

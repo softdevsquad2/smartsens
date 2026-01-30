@@ -146,6 +146,7 @@ Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(func
     Route::delete('/rekam/{id}', [PelanggaranController::class, 'deleteRekamPelanggaran'])->name('pelanggaran.rekam.delete');
 
     // List Pelanggaran
+        Route::get('/prestasi/list', [PelanggaranController::class, 'listPrestasi'])->name('pelanggaran.prestasi.list');
     Route::get('/list-pelanggaran', [PelanggaranController::class, 'listPelanggaran'])->name('pelanggaran.list');
 
     // Jenis Prestasi Management

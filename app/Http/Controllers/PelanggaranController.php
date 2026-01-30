@@ -231,7 +231,7 @@ class PelanggaranController extends Controller
 
     public function listRekamPelanggaran()
     {
-        $rekamPelanggaran = rekam_pelanggaran::with(['siswa', 'pelanggaran', 'petugas'])->get();
+        $rekamPelanggaran = rekam_pelanggaran::with(['siswa', 'pelanggaran', 'petugas'])->paginate(20);
         return view('pelanggaran.list_rekam', compact('rekamPelanggaran'));
     }
 
@@ -248,25 +248,52 @@ class PelanggaranController extends Controller
 
     public function exportPDF(Request $request)
     {
-        $query = rekam_pelanggaran::with(['siswa.kelas', 'pelanggaran']);
+        $queryPelanggaran = rekam_pelanggaran::with(['siswa.kelas', 'pelanggaran']);
 
         if ($request->kelas) {
-            $query->whereHas('siswa', function($q) use ($request) {
+            $queryPelanggaran->whereHas('siswa', function($q) use ($request) {
                 $q->where('id_kelas', $request->kelas);
             });
         }
 
         if ($request->jenis) {
-            $query->where('id_pelanggaran', $request->jenis);
+            $queryPelanggaran->where('id_pelanggaran', $request->jenis);
         }
 
         if ($request->tanggal) {
-            $query->whereDate('tanggal_pelanggaran', $request->tanggal);
+            $queryPelanggaran->whereDate('tanggal_pelanggaran', $request->tanggal);
         }
 
-        $dataPelanggaran = $query->get();
+        $dataPelanggaran = $queryPelanggaran->get();
 
-        $pdf = \PDF::loadView('pelanggaran.export_pdf', compact('dataPelanggaran'));
+        // Add prestasi points untuk setiap siswa
+        $dataPelanggaran->transform(function($item) {
+            $totalPoinPrestasi = \App\Models\RekamPrestasi::where('id_siswa', $item->siswa->id_siswa)
+                ->with('jenisPrestasi')
+                ->get()
+                ->sum(function($prestasi) {
+                    return $prestasi->jenisPrestasi->poin_prestasi ?? 0;
+                });
+            $item->total_poin_prestasi = $totalPoinPrestasi;
+            return $item;
+        });
+
+        // Fetch prestasi data
+        $queryPrestasi = \App\Models\RekamPrestasi::with(['siswa.kelas', 'jenisPrestasi', 'petugas']);
+
+        if ($request->kelas) {
+            $queryPrestasi->whereHas('siswa', function($q) use ($request) {
+                $q->where('id_kelas', $request->kelas);
+            });
+        }
+
+        if ($request->tanggal) {
+            $queryPrestasi->whereDate('tanggal_prestasi', $request->tanggal);
+        }
+
+        $dataPrestasi = $queryPrestasi->get();
+
+        $pdf = \PDF::loadView('pelanggaran.export_pdf', compact('dataPelanggaran', 'dataPrestasi'));
         return $pdf->download('laporan_pelanggaran.pdf');
     }
 

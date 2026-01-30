@@ -1,6 +1,6 @@
 @extends('layouts.pelanggaran')
-@section('page-title', 'Unduh Laporan Pelanggaran')
-@section('page-description', 'Unduh Laporan Pelanggaran Siswa dalam Berbagai Format')
+@section('page-title', 'Unduh Laporan ')
+@section('page-description', 'Unduh Laporan  Siswa dalam Berbagai Format')
 @section('content')
 <div class="space-y-6">
 
@@ -8,7 +8,7 @@
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h3 class="text-2xl font-bold text-gray-800">
-                Unduh Laporan Pelanggaran
+                Unduh Laporan
             </h3>
 
             <div class="flex gap-3">

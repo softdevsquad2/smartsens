@@ -72,6 +72,9 @@
         </div>
     </div>
 </div>
+<div>
+    {{ $rekamPelanggaran->links() }}
+</div>
 @endsection
 
 @push('scripts')
