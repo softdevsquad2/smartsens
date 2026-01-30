@@ -32,7 +32,7 @@
         <span>Laporan Absensi</span>
     </a>
 
-  
+
 @endsection
 
 @section('content')
@@ -78,9 +78,9 @@
 
             <label for="id_jenis_prestasi" class="block text-sm font-medium text-gray-700 mb-2">Jenis Prestasi <span
                     class="text-red-600">*</span></label>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        (function() {
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                     <script>
+                        (function() {
             // attach handler to the specific prestasi form
             const formEl = document.getElementById('prestasiForm');
             if (!formEl) return;

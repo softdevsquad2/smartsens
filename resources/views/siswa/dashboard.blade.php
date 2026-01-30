@@ -151,6 +151,17 @@
                         </p>
                     </div>
             </div>
+                <div class="flex items-center mb-2">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-trophy text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Poin Prestasi</p>
+                        <p class="text-md font-semibold text-gray-900 text-green-700">
+                            {{ $jumlahPoinPrestasi ?? 0 }} Poin
+                        </p>
+                    </div>
+            </div>
         </div>
 
 
