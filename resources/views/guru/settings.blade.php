@@ -2,37 +2,39 @@
 
 @section('title', 'Pengaturan - SmartSens')
 @section('page-title', 'Pengaturan')
-{{-- @section('page-description', 'Kelola pengaturan akun siswa') --}}
+@section('page-description', 'Kelola pengaturan akun guru')
 
 @section('sidebar')
-    <!-- Beranda -->
-    <a href="/siswa/dashboard"
+    <!-- Dashboard -->
+    <a href="{{ route('guru.dashboard') }}"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-tachometer-alt"></i>
-        <span>Beranda</span>
+        <span>Dashboard</span>
     </a>
 
-    <!-- Absensi -->
-    <a href="/siswa/absen"
+    <!-- Daftar Siswa -->
+    <a href="{{ route('guru.siswa.index') }}"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-fingerprint"></i>
-        <span>Absensi</span>
+        <i class="fas fa-users"></i>
+        <span>Daftar Siswa</span>
     </a>
 
-    <!-- Riwayat Absensi -->
-    <a href="/siswa/riwayat-absensi"
+    <!-- Absensi Hari Ini -->
+    <a href="{{ route('guru.absensi.hari-ini') }}"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-history"></i>
-        <span>Riwayat Absensi</span>
+        <i class="fas fa-calendar-day"></i>
+        <span>Absensi Hari Ini</span>
     </a>
-    {{-- <a href="/siswa/riwayat-sholat"
+
+    <!-- Laporan Absensi -->
+    <a href="{{ route('guru.absensi.laporan') }}"
         class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-history"></i>
-        <span>Riwayat sholat</span>
-    </a> --}}
+        <i class="fas fa-chart-bar"></i>
+        <span>Laporan Absensi</span>
+    </a>
 
     <!-- Pengaturan -->
-    <a href="/siswa/settings" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
+    <a href="{{ route('guru.settings') }}" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
         <i class="fas fa-cog"></i>
         <span>Pengaturan</span>
     </a>
@@ -40,7 +42,12 @@
 
 @section('content')
     <!-- Header -->
-
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Pengaturan Akun</h1>
+            <p class="mt-1 text-sm text-gray-600">Kelola informasi akun Anda</p>
+        </div>
+    </div>
 
     @if (session('success'))
         <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
@@ -98,102 +105,95 @@
                     <i class="fas fa-user text-blue-600"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Nama Lengkap</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->nama }}</p>
+                    <p class="text-sm font-medium text-gray-500">Username</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ $user->username }}</p>
                 </div>
             </div>
 
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-id-card text-green-600"></i>
+                    <i class="fas fa-shield-alt text-green-600"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">NISN</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->nisn }}</p>
+                    <p class="text-sm font-medium text-gray-500">Role</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ ucfirst($user->role) }}</p>
                 </div>
             </div>
 
+            @if($waliKelas)
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-chalkboard text-purple-600"></i>
+                    <i class="fas fa-chalkboard-teacher text-purple-600"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Kelas</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->kelas->nama_kelas }}</p>
+                    <p class="text-sm font-medium text-gray-500">Nama Lengkap</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ $waliKelas->nama }}</p>
                 </div>
             </div>
 
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-graduation-cap text-indigo-600"></i>
+                    <i class="fas fa-school text-indigo-600"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Jurusan</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->kelas->jurusan->nama_jurusan }}</p>
+                    <p class="text-sm font-medium text-gray-500">Kelas</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ $waliKelas->kelas->nama_kelas ?? '-' }}</p>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 
-    <!-- Pengaturan Akun Section -->
-    <div class="mt-8 border-t pt-8">
-        <div class="flex items-center justify-between mb-6">
+    <!-- Form Pengaturan -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-user-cog mr-2 text-blue-500"></i>
+            Ubah Username & Password
+        </h3>
+
+        <form id="credential-form" class="space-y-4">
+            @csrf
+
             <div>
-                <h2 class="text-xl font-bold text-gray-900">Pengaturan Akun</h2>
-                <p class="text-gray-600 mt-1">Kelola username dan password akun Anda</p>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Username Saat Ini</label>
+                <p class="text-sm font-semibold text-gray-900 px-4 py-2 bg-gray-50 rounded-lg">{{ auth()->user()->username }}</p>
             </div>
-        </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-user-cog mr-2 text-blue-500"></i>
-                Ubah Username & Password
-            </h3>
+            <div>
+                <label for="username_baru" class="block text-sm font-medium text-gray-700 mb-2">Username Baru</label>
+                <input id="username_baru" name="username_baru" type="text" placeholder="Masukkan username baru (opsional)"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-            <form id="credential-form" class="space-y-4">
-                @csrf
+            <div>
+                <label for="password_lama" class="block text-sm font-medium text-gray-700 mb-2">Password Saat Ini <span class="text-red-500">*</span></label>
+                <input id="password_lama" name="password_lama" type="password" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Username Saat Ini</label>
-                    <p class="text-sm font-semibold text-gray-900 px-4 py-2 bg-gray-50 rounded-lg">{{ auth()->user()->username }}</p>
-                </div>
+            <div>
+                <label for="password_baru" class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
+                <input id="password_baru" name="password_baru" type="password"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="text-xs text-gray-500 mt-1">Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, angka, dan simbol (@$!%*?&).</p>
+            </div>
 
-                <div>
-                    <label for="username_baru" class="block text-sm font-medium text-gray-700 mb-2">Username Baru</label>
-                    <input id="username_baru" name="username_baru" type="text" placeholder="Masukkan username baru (opsional)"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
+            <div>
+                <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password Baru</label>
+                <input id="password_confirm" name="password_confirm" type="password"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-                <div>
-                    <label for="password_lama" class="block text-sm font-medium text-gray-700 mb-2">Password Saat Ini <span class="text-red-500">*</span></label>
-                    <input id="password_lama" name="password_lama" type="password" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
+            <div id="credential-errors" class="text-sm text-red-600"></div>
 
-                <div>
-                    <label for="password_baru" class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
-                    <input id="password_baru" name="password_baru" type="password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <p class="text-xs text-gray-500 mt-1">Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, angka, dan simbol (@$!%*?&).</p>
-                </div>
-
-                <div>
-                    <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password Baru</label>
-                    <input id="password_confirm" name="password_confirm" type="password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <div id="credential-errors" class="text-sm text-red-600"></div>
-
-                <div class="flex items-center justify-end space-x-3 pt-4">
-                    <button type="submit" id="btn-credential-submit"
-                        class="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
-                        <i class="fas fa-save mr-2"></i>
-                        Simpan Perubahan
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex items-center justify-end space-x-3 pt-4">
+                <button type="submit" id="btn-credential-submit"
+                    class="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                    <i class="fas fa-save mr-2"></i>
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 
     <script>
@@ -210,7 +210,7 @@
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
 
-                const url = "{{ route('siswa.profile.update-credentials', ['userId' => auth()->id()]) }}";
+                const url = "{{ route('guru.profile.update-credentials', ['userId' => auth()->id()]) }}";
                 const formData = new FormData(form);
 
                 try {

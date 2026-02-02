@@ -14,10 +14,17 @@ class WaliKelasManageController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->get('search');
         $perpage = $request->get('per_page', 10);
-        $waliKelas = WaliKelas::with(['kelas.jurusan', 'user'])->paginate($perpage);
 
-        return view('admin.walikelas.index', compact('waliKelas', 'perpage'));
+        $waliKelas = WaliKelas::with(['kelas.jurusan', 'user'])
+            ->when($search, function ($query) use ($search) {
+                return $query->where('nama', 'like', '%' . $search . '%')
+                    ->orWhere('nip', 'like', '%' . $search . '%');
+            })
+            ->paginate($perpage);
+
+        return view('admin.walikelas.index', compact('waliKelas', 'search', 'perpage'));
     }
 
     public function create()

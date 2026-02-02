@@ -93,16 +93,32 @@
     <!-- Users Table -->
     <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <form method="GET" class="p-4">
-                <label for="per_page" class="text-sm text-gray-700 mr-2">Tampilkan</label>
-                <select name="per_page" id="per_page" onchange="this.form.submit()"
-                    class="border border-gray-300 px-2 py-1 rounded">
-                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                </select>
-                <span class="text-sm text-gray-700 ml-2">data per halaman</span>
+            <form method="GET" class="p-4 flex flex-wrap items-center gap-4">
+                <div class="flex items-center">
+                    <label for="search" class="text-sm text-gray-700 mr-2">Cari:</label>
+                    <input type="text" name="search" id="search" value="{{ $search ?? '' }}"
+                        placeholder="Cari username atau role..."
+                        class="border border-gray-300 px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex items-center">
+                    <label for="per_page" class="text-sm text-gray-700 mr-2">Tampilkan</label>
+                    <select name="per_page" id="per_page" onchange="this.form.submit()"
+                        class="border border-gray-300 px-2 py-1 rounded">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    <span class="text-sm text-gray-700 ml-2">data per halaman</span>
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search mr-1"></i>Cari
+                </button>
+                @if(($search ?? ''))
+                    <a href="{{ route('user.index') }}" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times mr-1"></i>Reset
+                    </a>
+                @endif
             </form>
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -137,14 +153,14 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                 @if ($user->role == 'admin') bg-red-100 text-red-800
                                 @elseif($user->role == 'guru') bg-blue-100 text-blue-800
                                 @elseif($user->role == 'operator') bg-indigo-100 text-indigo-800
                                 @elseif($user->role == 'siswa') bg-green-100 text-green-800
                                 @else bg-gray-100 text-gray-800 @endif">
                                     <i
-                                        class="fas 
+                                        class="fas
                                     @if ($user->role == 'admin') fa-crown
                                     @elseif($user->role == 'guru') fa-chalkboard-teacher
                                     @elseif($user->role == 'operator') fa-user-cog

@@ -1,46 +1,15 @@
-@extends('layouts.app')
+@extends('layouts.pelanggaran')
 
 @section('title', 'Pengaturan - SmartSens')
 @section('page-title', 'Pengaturan')
-{{-- @section('page-description', 'Kelola pengaturan akun siswa') --}}
-
-@section('sidebar')
-    <!-- Beranda -->
-    <a href="/siswa/dashboard"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Beranda</span>
-    </a>
-
-    <!-- Absensi -->
-    <a href="/siswa/absen"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-fingerprint"></i>
-        <span>Absensi</span>
-    </a>
-
-    <!-- Riwayat Absensi -->
-    <a href="/siswa/riwayat-absensi"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-history"></i>
-        <span>Riwayat Absensi</span>
-    </a>
-    {{-- <a href="/siswa/riwayat-sholat"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-history"></i>
-        <span>Riwayat sholat</span>
-    </a> --}}
-
-    <!-- Pengaturan -->
-    <a href="/siswa/settings" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
-@endsection
+@section('page-description', 'Kelola pengaturan akun kesiswaan')
 
 @section('content')
     <!-- Header -->
-
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Pengaturan Akun</h1>
+        <p class="mt-2 text-gray-600">Kelola pengaturan dan keamanan akun Anda</p>
+    </div>
 
     @if (session('success'))
         <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
@@ -86,60 +55,43 @@
         </div>
     @endif
 
-    <!-- Informasi Akun -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            <i class="fas fa-user mr-2 text-blue-500"></i>
+    <!-- User Info Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-6">
+            <i class="fas fa-user-circle mr-2 text-blue-500"></i>
             Informasi Akun
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        </h2>
+
+        <div class="space-y-4">
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <i class="fas fa-user text-blue-600"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Nama Lengkap</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->nama }}</p>
+                    <p class="text-sm font-medium text-gray-500">Username</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->username }}</p>
                 </div>
             </div>
 
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-id-card text-green-600"></i>
+                <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-briefcase text-cyan-600"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">NISN</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->nisn }}</p>
+                    <p class="text-sm font-medium text-gray-500">Role</p>
+                    <p class="text-sm font-semibold text-gray-900">Kedisiplinan</p>
                 </div>
             </div>
 
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-chalkboard text-purple-600"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Kelas</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->kelas->nama_kelas }}</p>
-                </div>
-            </div>
 
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-graduation-cap text-indigo-600"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Jurusan</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $siswa->kelas->jurusan->nama_jurusan }}</p>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Pengaturan Akun Section -->
-    <div class="mt-8 border-t pt-8">
+    <div class="border-t pt-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h2 class="text-xl font-bold text-gray-900">Pengaturan Akun</h2>
+                <h2 class="text-xl font-bold text-gray-900">Pengaturan Keamanan</h2>
                 <p class="text-gray-600 mt-1">Kelola username dan password akun Anda</p>
             </div>
         </div>
@@ -195,7 +147,8 @@
             </form>
         </div>
     </div>
-
+@endsection
+@section('scripts')
     <script>
         (function () {
             const form = document.getElementById('credential-form');
@@ -210,7 +163,7 @@
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
 
-                const url = "{{ route('siswa.profile.update-credentials', ['userId' => auth()->id()]) }}";
+                const url = "{{ route('pelanggaran.profile.update-credentials', ['userId' => auth()->id()]) }}";
                 const formData = new FormData(form);
 
                 try {

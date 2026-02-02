@@ -125,8 +125,9 @@
                 <a href="{{ route('pelanggaran.riwayat') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg
                    {{ request()->routeIs('pelanggaran.riwayat') || request()->routeIs('pelanggaran.riwayat.detail') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
-                    <i class="fas fa-history"></i>
-                    <span>Riwayat Pelanggaran</span>
+                  <i class="fas fa-user-graduate"></i>
+<span>Data Siswa</span>
+
                 </a>
                 <a href="{{ route('pelanggaran.unduh') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg
@@ -197,11 +198,17 @@
 
                     </div>
                 </div>
-
+ <a href="{{ route('pelanggaran.settings') }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg mb-3
+                   {{ request()->routeIs('pelanggaran.settings') ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-slate-700 hover:text-white' }}">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
             </nav>
 
             <!-- LOGOUT -->
             <div class="logout-section p-4">
+
                 <form method="POST" action="/logout">
                     @csrf
                     <button
@@ -261,8 +268,52 @@
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- SweetAlert helper functions -->
+    <script>
+        function showSuccess(message, title = 'Berhasil!') {
+            Swal.fire({ icon: 'success', title: title, text: message, confirmButtonText: 'OK', confirmButtonColor: '#10b981' });
+        }
+
+        function showError(message, title = 'Error!') {
+            Swal.fire({ icon: 'error', title: title, text: message, confirmButtonText: 'OK', confirmButtonColor: '#ef4444' });
+        }
+
+        function showWarning(message, title = 'Peringatan!') {
+            Swal.fire({ icon: 'warning', title: title, text: message, confirmButtonText: 'OK', confirmButtonColor: '#f59e0b' });
+        }
+
+        function showInfo(message, title = 'Informasi') {
+            Swal.fire({ icon: 'info', title: title, text: message, confirmButtonText: 'OK', confirmButtonColor: '#3b82f6' });
+        }
+
+        // Display flash messages if present
+        @if (session('success'))
+            showSuccess('{{ session('success') }}');
+        @endif
+
+        @if (session('error'))
+            showError('{{ session('error') }}');
+        @endif
+
+        @if (session('warning'))
+            showWarning('{{ session('warning') }}');
+        @endif
+
+        @if (session('info'))
+            showInfo('{{ session('info') }}');
+        @endif
+
+        // Display validation errors
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                showError('{{ $error }}');
+            @endforeach
+        @endif
+    </script>
 
     <!-- JS -->
     <script>

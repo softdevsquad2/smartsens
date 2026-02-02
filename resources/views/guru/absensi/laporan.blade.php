@@ -32,7 +32,10 @@
         <i class="fas fa-chart-bar"></i>
         <span>Laporan Absensi</span>
     </a>
-
+ <a href="{{ route('guru.settings') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+        <i class="fas fa-cog"></i>
+        <span>Pengaturan</span>
+    </a>
   
 @endsection
 

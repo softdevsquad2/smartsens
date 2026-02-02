@@ -99,6 +99,45 @@
         </div>
     @endif
 
+    <!-- Search Form -->
+    <form method="GET" class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Siswa</label>
+                <input type="text" name="search" id="search" value="{{ $search ?? '' }}"
+                    placeholder="Nama siswa..."
+                    class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+                <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                <input type="date" name="tanggal" id="tanggal" value="{{ $tanggal ?? '' }}"
+                    class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select name="status" id="status"
+                    class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Semua Status</option>
+                    <option value="hadir" {{ ($status ?? '') == 'hadir' ? 'selected' : '' }}>Hadir</option>
+                    <option value="terlambat" {{ ($status ?? '') == 'terlambat' ? 'selected' : '' }}>Terlambat</option>
+                    <option value="sakit" {{ ($status ?? '') == 'sakit' ? 'selected' : '' }}>Sakit</option>
+                    <option value="izin" {{ ($status ?? '') == 'izin' ? 'selected' : '' }}>Izin</option>
+                    <option value="sakit_izin" {{ ($status ?? '') == 'sakit_izin' ? 'selected' : '' }}>Sakit/Izin</option>
+                </select>
+            </div>
+            <div class="flex items-end space-x-2">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search mr-1"></i>Cari
+                </button>
+                @if(($search ?? '') || ($tanggal ?? '') || ($status ?? ''))
+                    <a href="{{ route('admin.absensi') }}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        <i class="fas fa-times mr-1"></i>Reset
+                    </a>
+                @endif
+            </div>
+        </div>
+    </form>
+
     <!-- Attendance Table -->
     <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">

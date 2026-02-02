@@ -16,6 +16,7 @@ class CreateTblSiswaTable extends Migration
             $table->string('nisn', 225)->nullable();
             $table->string('card_code', 20)->nullable();
             $table->string('no_hp_ortu', 20)->nullable();
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }

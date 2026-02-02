@@ -177,4 +177,29 @@ class WaliKelasController extends Controller
 
         return Excel::download(new AbsensiReportExport($kelas->id_kelas, $startDate, $endDate), $filename);
     }
+
+    public function settings()
+    {
+        $user = auth()->user();
+        $waliKelas = $user->waliKelas ?? null;
+        return view('guru.settings', compact('user', 'waliKelas'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:tbl_user,username,' . auth()->id() . ',id_user',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user = auth()->user();
+
+        $userData = ['username' => $request->username];
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->password);
+        }
+        $user->update($userData);
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui');
+    }
 }

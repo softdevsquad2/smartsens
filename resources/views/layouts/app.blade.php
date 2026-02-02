@@ -178,13 +178,24 @@
                 <!-- User Info -->
                 <div class="flex items-center space-x-4">
                     <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900">{{ auth()->user()->username ?? 'Admin' }}</p>
-                        <p class="text-xs text-gray-500 capitalize">{{ auth()->user()->role ?? 'admin' }}</p>
+                        @php
+                            $user = auth()->user();
+                            $displayName = optional($user->siswa)->nama ?? optional($user->waliKelas)->nama ?? $user->username ?? 'Admin';
+                        @endphp
+                        <p class="text-sm font-medium text-gray-900">{{ $displayName }}</p>
+                        <p class="text-xs text-gray-500 capitalize">{{ $user->role ?? 'admin' }}</p>
                     </div>
-                    <div
-                        class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-white text-sm"></i>
-                    </div>
+                    {{-- avatar / foto siswa --}}
+                    @php $foto = optional($user->siswa)->foto; @endphp
+                    @if($foto)
+                        <img src="{{ asset('storage/foto/' . $foto) }}" alt="{{ $displayName }}"
+                            class="w-8 h-8 rounded-full object-cover border">
+                    @else
+                        <div
+                            class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

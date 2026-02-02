@@ -285,4 +285,17 @@
         </div>
 
     </div>
+
+    <!-- (Credentials modal removed to reduce memory usage) -->
+    <div class="mt-12 border-t pt-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">Pengaturan Akun</h2>
+                <p class="text-gray-600 mt-1">Kelola username dan password akun Anda</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Pengaturan kredensial dinonaktifkan sementara untuk mengurangi penggunaan memori.</p>
+            </div>
+        </div>
+    </div>
 @endsection

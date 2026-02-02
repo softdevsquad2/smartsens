@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -665,5 +666,29 @@ class UksController extends Controller
     {
         $obat = Obat::all();
         return view('uks.rekam-medis.create', compact('obat'));
+    }
+
+    public function settings()
+    {
+        $user = auth()->user();
+        return view('uks.settings', compact('user'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:tbl_user,username,' . auth()->id() . ',id_user',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user = auth()->user();
+
+        $userData = ['username' => $request->username];
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->password);
+        }
+        $user->update($userData);
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui');
     }
 }

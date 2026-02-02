@@ -18,11 +18,36 @@ use Maatwebsite\Excel\Excel;
 
 class AbsensiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $absensi = Absensi::with('siswa.kelas.jurusan')->orderBy('tanggal', 'desc')->paginate(20);
+        $query = Absensi::with('siswa.kelas.jurusan');
 
-        return view('admin.absensi.index', compact('absensi'));
+        // Search by student name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('siswa', function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter by date
+        if ($request->filled('tanggal')) {
+            $query->where('tanggal', $request->tanggal);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status_masuk', $request->status);
+        }
+
+        $absensi = $query->orderBy('tanggal', 'desc')->paginate(20)->withQueryString();
+
+        // Get filter values for view
+        $search = $request->get('search');
+        $tanggal = $request->get('tanggal');
+        $status = $request->get('status');
+
+        return view('admin.absensi.index', compact('absensi', 'search', 'tanggal', 'status'));
     }
 
     public function show($id)

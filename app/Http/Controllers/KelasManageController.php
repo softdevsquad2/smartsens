@@ -10,10 +10,19 @@ class KelasManageController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->get('search');
         $perpage = $request->get('per_page', 10);
-        $kelas = Kelas::with('jurusan')->paginate($perpage);
 
-        return view('admin.kelas.index', compact('kelas', 'perpage'));
+        $kelas = Kelas::with('jurusan')
+            ->when($search, function ($query) use ($search) {
+                return $query->where('nama_kelas', 'like', '%' . $search . '%')
+                    ->orWhereHas('jurusan', function ($q) use ($search) {
+                        $q->where('nama_jurusan', 'like', '%' . $search . '%');
+                    });
+            })
+            ->paginate($perpage);
+
+        return view('admin.kelas.index', compact('kelas', 'search', 'perpage'));
     }
 
     public function create()

@@ -46,4 +46,10 @@
         <i class="fas fa-door-open"></i>
         <span>Izin Pulang</span>
     </a>
+
+    <a href="{{ route('uks.profile.settings', ['userId' => auth()->id()]) }}"
+        class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-green-700 {{ request()->routeIs('uks.profile.settings') ? 'bg-green-700 text-white' : 'text-gray-200' }}">
+        <i class="fas fa-cog"></i>
+        <span>Pengaturan</span>
+    </a>
 @endsection

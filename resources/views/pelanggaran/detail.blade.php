@@ -8,10 +8,11 @@
     <div class="bg-white shadow-md rounded-lg p-4 mb-6">
         <div class="flex items
 -center mb-4">
-            <img src="{{ asset('storage/foto/' . ($siswa->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . $siswa->id_siswa . '.jpg')) }}" alt="Foto Profil"
-         class="w-24 h-24  mr-4
-                object-cover object-top
-                transition-transform duration-300 hover:scale-110">
+            @php
+                $fotoSrc = $siswa->foto ? asset('storage/foto/' . $siswa->foto) : asset('storage/foto/' . ($siswa->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . $siswa->id_siswa . '.jpg'));
+            @endphp
+            <img src="{{ $fotoSrc }}" alt="Foto Profil"
+                class="w-24 h-24 mr-4 object-cover object-top transition-transform duration-300 hover:scale-110">
             <div>
                 <h2 class="text-xl font-bold"> {{ $siswa->nama }}</h2>
                 <p>NIS: {{ $siswa->nisn }}</p>

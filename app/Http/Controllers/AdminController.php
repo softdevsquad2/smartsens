@@ -124,4 +124,28 @@ class AdminController extends Controller
     {
         return view('admin.restore'); // kita buat view-nya di langkah berikut
     }
+
+    public function settings()
+    {
+        $user = auth()->user();
+        return view('admin.settings', compact('user'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:tbl_user,username,' . auth()->id() . ',id_user',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user = auth()->user();
+
+        $userData = ['username' => $request->username];
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->password);
+        }
+        $user->update($userData);
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui');
+    }
 }

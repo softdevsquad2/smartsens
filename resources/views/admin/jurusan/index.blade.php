@@ -62,7 +62,7 @@
         <p class="mt-1 text-sm text-gray-600">Manajemen data jurusan dalam sistem</p>
     </div>
     <div class="mt-4 sm:mt-0">
-        <a href="{{ route('jurusan.create') }}" 
+        <a href="{{ route('jurusan.create') }}"
            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
             <i class="fas fa-plus mr-2"></i>
             Tambah Jurusan
@@ -82,6 +82,37 @@
         </div>
     </div>
 @endif
+
+<!-- Search Form -->
+<form method="GET" class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center">
+            <label for="search" class="text-sm text-gray-700 mr-2">Cari Jurusan:</label>
+            <input type="text" name="search" id="search" value="{{ $search ?? '' }}"
+                placeholder="Nama jurusan..."
+                class="border border-gray-300 px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div class="flex items-center">
+            <label for="per_page" class="text-sm text-gray-700 mr-2">Tampilkan</label>
+            <select name="per_page" id="per_page" onchange="this.form.submit()"
+                class="border border-gray-300 px-2 py-1 rounded">
+                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+            </select>
+            <span class="text-sm text-gray-700 ml-2">data per halaman</span>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <i class="fas fa-search mr-1"></i>Cari
+        </button>
+        @if(($search ?? ''))
+            <a href="{{ route('jurusan.index') }}" class="text-gray-600 hover:text-gray-800">
+                <i class="fas fa-times mr-1"></i>Reset
+            </a>
+        @endif
+    </div>
+</form>
 
 <!-- Majors Table -->
 <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
@@ -116,18 +147,18 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex items-center space-x-2">
-                                <a href="{{ route('jurusan.edit', $j->id_jurusan) }}" 
+                                <a href="{{ route('jurusan.edit', $j->id_jurusan) }}"
                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors">
                                     <i class="fas fa-edit mr-1"></i>
                                     Edit
                                 </a>
-                                <form action="{{ route('jurusan.destroy', $j->id_jurusan) }}" 
-                                      method="POST" 
+                                <form action="{{ route('jurusan.destroy', $j->id_jurusan) }}"
+                                      method="POST"
                                       class="inline"
                                       onsubmit="return confirmDelete('Yakin ingin menghapus jurusan ini?', 'Konfirmasi Hapus Jurusan')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" 
+                                    <button type="submit"
                                             class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                         <i class="fas fa-trash mr-1"></i>
                                         Hapus
@@ -143,7 +174,7 @@
                                 <i class="fas fa-graduation-cap text-gray-400 text-4xl mb-4"></i>
                                 <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada data jurusan</h3>
                                 <p class="text-gray-500 mb-4">Mulai dengan menambahkan jurusan pertama</p>
-                                <a href="{{ route('jurusan.create') }}" 
+                                <a href="{{ route('jurusan.create') }}"
                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     <i class="fas fa-plus mr-2"></i>
                                     Tambah Jurusan
@@ -155,7 +186,7 @@
             </tbody>
         </table>
     </div>
-    
+
     <!-- Pagination -->
     @if($jurusan->hasPages())
         <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
@@ -170,7 +201,7 @@
                             Previous
                         </a>
                     @endif
-                    
+
                     @if($jurusan->hasMorePages())
                         <a href="{{ $jurusan->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Next
@@ -181,7 +212,7 @@
                         </span>
                     @endif
                 </div>
-                
+
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
                         <p class="text-sm text-gray-700">

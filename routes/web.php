@@ -1,27 +1,28 @@
 <?php
 
-use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BarangController;
-use App\Http\Controllers\ExternalRedirectController;
-use App\Http\Controllers\PelanggaranController;
-use App\Http\Controllers\Guru\PelanggaranController as GuruPelanggaranController;
-use App\Http\Controllers\Guru\PretasiController;
-use App\Http\Controllers\JurusanManageController;
-use App\Http\Controllers\KelasManageController;
-use App\Http\Controllers\PiketController;
-use App\Http\Controllers\ScanController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\SiswaManageController;
-use App\Http\Controllers\ToolmanController;
-use App\Http\Controllers\UksController;
-use App\Http\Controllers\UserManageController;
-use App\Http\Controllers\WaliKelasController;
-use App\Http\Controllers\WaliKelasManageController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UksController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ScanController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PiketController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ToolmanController;
+use App\Http\Controllers\WaliKelasController;
+use App\Http\Controllers\UserManageController;
+use App\Http\Controllers\KelasManageController;
+use App\Http\Controllers\PelanggaranController;
+use App\Http\Controllers\SiswaManageController;
+use App\Http\Controllers\Guru\PretasiController;
+use App\Http\Controllers\JurusanManageController;
+use App\Http\Controllers\WaliKelasManageController;
+use App\Http\Controllers\ExternalRedirectController;
+use App\Http\Controllers\Guru\PelanggaranController as GuruPelanggaranController;
 
 // Route untuk absensi GPS - redirect ke login
 Route::get('/', function () {
@@ -131,6 +132,10 @@ Route::get('/api/rfid/{code}', function ($code) {
 Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(function () {
 
     Route::get('/dashboard', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
+    Route::get('/settings', [PelanggaranController::class, 'settings'])->name('pelanggaran.settings');
+    Route::post('/profile/{userId}/update-credentials', [ProfileController::class, 'updateCredentials'])
+        ->name('pelanggaran.profile.update-credentials')
+        ->where('userId', '[0-9]+');
     Route::get('/pelanggaran', [PelanggaranController::class, 'pelanggaran'])->name('pelanggaran.pelanggaran');
     Route::post('/pelanggaran', [PelanggaranController::class, 'storePelanggaranJenis'])->name('pelanggaran.pelanggaran.store');
     Route::put('/pelanggaran/{id}', [PelanggaranController::class, 'updatePelanggaranJenis'])->name('pelanggaran.pelanggaran.update');
@@ -269,6 +274,12 @@ Route::prefix('guru')->middleware(['auth', 'role:guru'])->group(function () {
     Route::get('/absensi/hari-ini', [WaliKelasController::class, 'absensiHariIni'])->name('guru.absensi.hari-ini');
     Route::get('/absensi/laporan', [WaliKelasController::class, 'laporanAbsensi'])->name('guru.absensi.laporan');
     Route::get('/absensi/laporan/export', [WaliKelasController::class, 'exportAbsensiXlsx'])->name('guru.absensi.laporan.export');
+    Route::get('/settings', [WaliKelasController::class, 'settings'])->name('guru.settings');
+
+    // Profile & Credentials Management
+    Route::post('/profile/{userId}/update-credentials', [ProfileController::class, 'updateCredentials'])
+        ->name('guru.profile.update-credentials')
+        ->where('userId', '[0-9]+');
 
     // Rekam Pelanggaran dan Prestasi
     Route::get('/rekam/pilih', [GuruPelanggaranController::class, 'pilihJenis'])->name('guru.rekam.pilih');
@@ -379,3 +390,7 @@ Route::prefix('piket')->middleware(['auth', 'role:piket'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/uks/api/search-siswa', [SiswaController::class, 'searchSiswa'])->name('uks.api.search-siswa');
 });
+
+Route::post('/profile/{userId}/update-credentials', [ProfileController::class, 'updateCredentials'])
+    ->name('siswa.profile.update-credentials')
+    ->where('userId', '[0-9]+');

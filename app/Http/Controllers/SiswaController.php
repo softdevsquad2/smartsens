@@ -7,26 +7,49 @@ use App\Models\Sholat;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\rekam_pelanggaran;
+use App\Models\RekamPelanggaran;
+use Illuminate\Support\Facades\Schema;
 use App\Models\RekamPrestasi;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class SiswaController extends Controller
 {
     public function dashboard()
     {
-        $siswa = auth()->user()->siswa;
+        $user = auth()->user();
+        $siswa = $user->siswa ?? null;
+
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
         $absensiHariIni = Absensi::where('id_siswa', $siswa->id_siswa)
             ->where('tanggal', Carbon::today())
             ->first();
-            $jumlahPoin = rekam_pelanggaran::where('id_siswa', $siswa->id_siswa)->count();
 
-        $jumlahPoin = rekam_pelanggaran::where('id_siswa', $siswa->id_siswa)
-            ->join('tbl_pelanggaran', 'tbl_rekam_pelanggaran.id_pelanggaran', '=', 'tbl_pelanggaran.id')
-            ->sum('poin_pelanggaran');
-        $jumlahPoinPrestasi = RekamPrestasi::where('id_siswa', $siswa->id_siswa)
-            ->join('tbl_jenis_prestasi', 'tbl_rekam_prestasi_siswa.id_jenis_prestasi', '=', 'tbl_jenis_prestasi.id')
-            ->sum('poin_prestasi');
+        // Guard database queries in case tables are not migrated yet
+        $jumlahPoin = 0;
+        $jumlahPoinPrestasi = 0;
+
+        try {
+            if (Schema::hasTable('tbl_rekam_pelanggaran') && Schema::hasTable('tbl_pelanggaran')) {
+                $jumlahPoin = RekamPelanggaran::where('id_siswa', $siswa->id_siswa)
+                    ->join('tbl_pelanggaran', 'tbl_rekam_pelanggaran.id_pelanggaran', '=', 'tbl_pelanggaran.id')
+                    ->sum('poin_pelanggaran');
+            }
+
+            if (Schema::hasTable('tbl_rekam_prestasi_siswa') && Schema::hasTable('tbl_jenis_prestasi')) {
+                $jumlahPoinPrestasi = RekamPrestasi::where('id_siswa', $siswa->id_siswa)
+                    ->join('tbl_jenis_prestasi', 'tbl_rekam_prestasi_siswa.id_jenis_prestasi', '=', 'tbl_jenis_prestasi.id')
+                    ->sum('poin_prestasi');
+            }
+        } catch (\Exception $e) {
+            // Log and fallback to zero points when tables are missing or other DB errors occur
+            \Illuminate\Support\Facades\Log::warning('Error fetching poin for siswa dashboard: ' . $e->getMessage());
+            $jumlahPoin = 0;
+            $jumlahPoinPrestasi = 0;
+        }
 
         $absensiBulanIni = Absensi::where('id_siswa', $siswa->id_siswa)
             ->whereMonth('tanggal', Carbon::now()->month)
@@ -38,7 +61,14 @@ class SiswaController extends Controller
 
     public function riwayatSholat()
     {
-        $siswaId = auth()->user()->siswa->id_siswa;
+        $user = auth()->user();
+        $siswa = $user->siswa ?? null;
+
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        $siswaId = $siswa->id_siswa;
         $tanggalHariIni = Carbon::today()->toDateString();
 
         // Ambil hanya data sholat hari ini
@@ -96,7 +126,12 @@ class SiswaController extends Controller
 
     public function riwayatAbsensi(Request $request)
     {
-        $siswa = auth()->user()->siswa;
+        $user = auth()->user();
+        $siswa = $user->siswa ?? null;
+
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan.');
+        }
 
         // Default bulan dan tahun saat ini
         $bulan = $request->get('bulan', Carbon::now()->month);
@@ -146,7 +181,12 @@ class SiswaController extends Controller
 
     public function settings()
     {
-        $siswa = auth()->user()->siswa;
+        $user = auth()->user();
+        $siswa = $user->siswa ?? null;
+
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan.');
+        }
 
         return view('siswa.settings', compact('siswa'));
     }
@@ -154,10 +194,26 @@ class SiswaController extends Controller
     public function updateSettings(Request $request)
     {
         $request->validate([
+            'username' => 'required|string|max:255|unique:tbl_user,username,' . auth()->id() . ',id_user',
+            'password' => 'nullable|string|min:6',
             'no_hp_ortu' => 'nullable|string|max:20|regex:/^[0-9+\-\s()]+$/',
         ]);
 
-        $siswa = auth()->user()->siswa;
+        $user = auth()->user();
+        $siswa = $user->siswa ?? null;
+
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        // Update user data
+        $userData = ['username' => $request->username];
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->password);
+        }
+        $user->update($userData);
+
+        // Update siswa data
         $siswa->update([
             'no_hp_ortu' => $request->no_hp_ortu,
         ]);

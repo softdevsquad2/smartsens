@@ -17,11 +17,11 @@
         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3">
             @foreach ($siswa as $s)
                 <a class="bg-white shadow-md rounded-lg p-4" href="{{ route('pelanggaran.riwayat.detail', $s->nama) }}">
-                    <img src="{{ asset('storage/foto/' . ($s->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . ($loop->index + 1) . '.jpg')) }}"
-                        alt="Foto Profil"
-                        class="w-24 h-24  mx-auto mb-4
-            object-cover object-top
-            transition-transform duration-300 hover:scale-110">
+                    @php
+                        $fotoSrc = $s->foto ? asset('storage/foto/' . $s->foto) : asset('storage/foto/' . ($s->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . ($loop->index + 1) . '.jpg'));
+                    @endphp
+                    <img src="{{ $fotoSrc }}" alt="Foto Profil"
+                        class="w-24 h-24 mx-auto mb-4 object-cover object-top transition-transform duration-300 hover:scale-110">
                     <h2 class="text-md font-bold mb-2">{{ $s->nama }}</h2>
                     <p class="mb-1">Kelas: {{ $s->kelas->nama_kelas ?? 'N/A' }}</p>
                     <p class="text-red-600 font-semibold">Poin: {{ $s->total_poin }}</p>

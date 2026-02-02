@@ -98,6 +98,12 @@
                 <i class="fas fa-file-excel w-5"></i>
                 <span class="ml-3">Unduh Laporan</span>
             </a>
+
+            <a href="/piket/settings"
+                class="{{ $menuClass }} {{ request()->routeIs('piket.profile.settings') ? $activeClass : '' }}">
+                <i class="fas fa-cog w-5"></i>
+                <span class="ml-3">Pengaturan</span>
+            </a>
         </nav>
 
         <!-- USER -->

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Facades\Excel as ExcelFacade;
 
@@ -84,11 +85,19 @@ class SiswaManageController extends Controller
             'nisn' => 'required|numeric|unique:tbl_siswa,nisn',
             'card_code' => 'nullable|numeric|unique:tbl_siswa,card_code',
             'no_hp_ortu' => 'nullable|string|max:20',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'id_kelas' => 'required|exists:tbl_kelas,id_kelas',
         ]);
 
         try {
             // 1️⃣ Simpan siswa baru
+            // Handle foto upload if provided
+            $fotoName = null;
+            if ($request->hasFile('foto')) {
+                $path = $request->file('foto')->store('foto', 'public');
+                $fotoName = basename($path);
+            }
+
             $siswa = Siswa::create([
                 'id_kelas' => $request->id_kelas,
                 'nama' => trim($request->nama),
@@ -96,6 +105,7 @@ class SiswaManageController extends Controller
                 'nisn' => $request->nisn,
                 'card_code' => $request->card_code,
                 'no_hp_ortu' => $request->no_hp_ortu,
+                'foto' => $fotoName,
             ]);
 
             Log::info('Siswa berhasil dibuat dengan ID: ' . $siswa->id_siswa);
@@ -135,12 +145,32 @@ class SiswaManageController extends Controller
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'nisn' => 'required|numeric|unique:tbl_siswa,nisn,' . $siswa->id_siswa . ',id_siswa',
-            'card_code' => 'nullable|numeric',
-            'no_hp_ortu' => 'nullable|string|max:20',
+            'card_code' => 'nullable|numeric|unique:tbl_siswa,card_code,' . $siswa->id_siswa . ',id_siswa',
+            'no_hp_ortu' => 'nullable|string|max:20|regex:/^[0-9+\-\s()]+$/',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'id_kelas' => 'required|exists:tbl_kelas,id_kelas',
         ]);
 
-        $siswa->update($request->all());
+        // Handle foto upload update
+        $data = $request->only(['id_kelas', 'nama', 'jenis_kelamin', 'nisn', 'card_code', 'no_hp_ortu']);
+        if ($request->hasFile('foto')) {
+            // store new foto
+            $path = $request->file('foto')->store('foto', 'public');
+            $fotoName = basename($path);
+
+            // delete old foto if exists
+            if ($siswa->foto) {
+                try {
+                    Storage::disk('public')->delete('foto/' . $siswa->foto);
+                } catch (\Exception $e) {
+                    Log::warning('Gagal menghapus foto lama: ' . $e->getMessage());
+                }
+            }
+
+            $data['foto'] = $fotoName;
+        }
+
+        $siswa->update($data);
 
         return redirect()->route('siswa.index')->with('success', 'Siswa berhasil diperbarui');
     }
@@ -160,9 +190,13 @@ class SiswaManageController extends Controller
 
     public function import(Request $request)
     {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:10240', // Max 10MB
+        ]);
+
         // Timeout 10 menit untuk handle 3000+ rows
         set_time_limit(600);
-        
+
         // Disable query log untuk performa
         DB::disableQueryLog();
 

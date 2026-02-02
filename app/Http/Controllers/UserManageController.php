@@ -12,10 +12,17 @@ class UserManageController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->get('search');
         $perpage = $request->get('per_page', 10);
-        $users = User::with(['siswa.kelas.jurusan', 'waliKelas.kelas.jurusan'])->paginate($perpage);
 
-        return view('admin.user.index', compact('users', 'perpage'));
+        $users = User::with(['siswa.kelas.jurusan', 'waliKelas.kelas.jurusan'])
+            ->when($search, function ($query) use ($search) {
+                return $query->where('username', 'like', '%' . $search . '%')
+                    ->orWhere('role', 'like', '%' . $search . '%');
+            })
+            ->paginate($perpage);
+
+        return view('admin.user.index', compact('users', 'search', 'perpage'));
     }
 
     public function create()

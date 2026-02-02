@@ -432,4 +432,10 @@ class PelanggaranController extends Controller
 
         return redirect()->route('pelanggaran.prestasi.manage')->with('success', 'Prestasi berhasil dihapus.');
     }
+
+    public function settings()
+    {
+        $user = auth()->user();
+        return view('pelanggaran.settings', compact('user'));
+    }
 }

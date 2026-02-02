@@ -88,7 +88,7 @@
             <p class="mt-1 text-sm text-gray-500">Isi form di bawah ini untuk menambahkan siswa baru</p>
         </div>
 
-        <form action="{{ route('siswa.store') }}" method="POST" class="p-6">
+        <form action="{{ route('siswa.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -183,6 +183,17 @@
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     <p class="mt-1 text-sm text-gray-500">Nomor HP orang tua untuk notifikasi WhatsApp absensi</p>
+                </div>
+
+                <!-- Foto Profil -->
+                <div>
+                    <label for="foto" class="block text-sm font-medium text-gray-700 mb-2">Foto Profil (jpg/png, max 2MB)</label>
+                    <input type="file" name="foto" id="foto" accept="image/*"
+                        class="w-full text-sm text-gray-700 file:border-0 file:bg-gray-100 file:rounded file:px-3 file:py-2" />
+                    @error('foto')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">Opsional. Jika diisi, foto akan disimpan dan ditampilkan pada halaman siswa.</p>
                 </div>
             </div>
 

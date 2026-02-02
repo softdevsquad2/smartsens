@@ -40,6 +40,10 @@
                     class="block px-4 py-2 rounded hover:bg-blue-900 {{ request()->routeIs('toolman.unduh') ? 'bg-blue-700' : '' }}">
                     Unduh Riwayat Peminjaman
                 </a>
+                <a href="/toolman/settings"
+                    class="block px-4 py-2 rounded hover:bg-blue-900 {{ request()->routeIs('toolman.profile.settings') ? 'bg-blue-700' : '' }}">
+                    Pengaturan
+                </a>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

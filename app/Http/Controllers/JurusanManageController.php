@@ -7,11 +7,16 @@ use Illuminate\Http\Request;
 
 class JurusanManageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jurusan = Jurusan::paginate(10);
+        $search = $request->get('search');
+        $perpage = $request->get('per_page', 10);
 
-        return view('admin.jurusan.index', compact('jurusan'));
+        $jurusan = Jurusan::when($search, function ($query) use ($search) {
+            return $query->where('nama_jurusan', 'like', '%' . $search . '%');
+        })->paginate($perpage);
+
+        return view('admin.jurusan.index', compact('jurusan', 'search', 'perpage'));
     }
 
     public function create()
