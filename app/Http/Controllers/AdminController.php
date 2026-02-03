@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Kelas;
@@ -41,6 +42,9 @@ class AdminController extends Controller
             ->whereYear('tanggal', Carbon::now()->year)
             ->count();
 
+        // Status attendance system
+        $isAttendanceEnabled = Setting::getSetting('enable_student_attendance') ?? 1;
+
         // Grafik absensi 7 hari terakhir
         $absensi7Hari = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -66,7 +70,8 @@ class AdminController extends Controller
             'siswaHadirHariIni',
             'siswaTerlambatHariIni',
             'absensiBulanIni',
-            'absensi7Hari'
+            'absensi7Hari',
+            'isAttendanceEnabled'
         ));
     }
     public function backup()

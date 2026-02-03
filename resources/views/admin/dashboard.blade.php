@@ -256,10 +256,12 @@
 
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                            <div class="w-3 h-3 rounded-full mr-3 {{ $isAttendanceEnabled ? 'bg-green-500' : 'bg-red-500' }}"></div>
                             <span class="text-sm font-medium text-gray-900">Absensi System</span>
                         </div>
-                        <span class="text-sm text-green-600 font-medium">Aktif</span>
+                        <span class="text-sm font-medium {{ $isAttendanceEnabled ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $isAttendanceEnabled ? 'Aktif' : 'Nonaktif' }}
+                        </span>
                     </div>
 
 

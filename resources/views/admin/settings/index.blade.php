@@ -209,61 +209,129 @@
                 </div>
             </div>
 
-            <!-- Pagination Settings -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <h3 class="md:col-span-3 text-lg font-semibold text-gray-800 mb-4">
-                    <i class="fas fa-list mr-2 text-blue-500"></i>
-                    Pengaturan Pagination
+            <!-- Attendance Control Settings -->
+            <div class="grid grid-cols-1 gap-6 mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-user-check mr-2 text-green-500"></i>
+                    Pengaturan Absensi Siswa
                 </h3>
 
-                <!-- Pagination Pelanggaran -->
-                <div>
-                    <label for="pagination_pelanggaran" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
-                        Data Pelanggaran per Halaman <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="pagination_pelanggaran" id="pagination_pelanggaran"
-                        value="{{ old('pagination_pelanggaran', $settings['pagination_pelanggaran']) }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pagination_pelanggaran') border-red-500 @enderror"
-                        min="5" max="100" required>
-                    @error('pagination_pelanggaran')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-sm text-gray-500">Jumlah data per halaman di halaman kelola pelanggaran</p>
+                <!-- Enable Student Attendance -->
+                <div class="bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 rounded-xl border-2 border-green-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <!-- Left Section: Text -->
+                        <div class="flex-1">
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">
+                                <i class="fas fa-bell mr-2 text-green-600"></i>
+                                Kontrol Absensi Siswa
+                            </h4>
+                            <p class="text-sm text-gray-700 leading-relaxed mb-3">
+                                Aktifkan atau nonaktifkan sistem absensi untuk semua siswa. Saat dinonaktifkan, siswa akan melihat pemberitahuan dan tidak dapat melakukan absensi.
+                            </p>
+                            <div class="flex items-center gap-3 text-xs text-gray-600">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span>Perubahan akan langsung berlaku untuk semua pengguna</span>
+                            </div>
+                        </div>
+
+                        <!-- Right Section: Toggle -->
+                        <div class="flex flex-col items-center md:items-end gap-3 flex-shrink-0">
+                            <!-- Status Badge -->
+                            <div id="status-container" class="flex items-center gap-2">
+                                <i id="status-icon" class="fas fa-check-circle text-3xl text-green-500"></i>
+                                <div class="text-right">
+                                    <div id="status-text" class="text-2xl font-bold text-green-600">Aktif</div>
+                                    <div class="text-xs text-gray-600">Sistem Berjalan</div>
+                                </div>
+                            </div>
+
+                            <!-- Toggle Switch -->
+                            <label class="relative inline-flex items-center cursor-pointer mt-2">
+                                <input type="checkbox" name="enable_student_attendance" id="enable_student_attendance"
+                                    value="1" {{ old('enable_student_attendance', $settings['enable_student_attendance'] ?? 1) ? 'checked' : '' }}
+                                    class="sr-only peer">
+                                <div class="w-16 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:border after:border-gray-300 after:transition-all after:duration-300 peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-green-600 transition-all duration-300 shadow-md"></div>
+                                <span class="ml-3 text-sm font-medium text-gray-700 hidden"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Pagination Riwayat -->
-                <div>
-                    <label for="pagination_riwayat" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-history mr-2 text-green-500"></i>
-                        Riwayat Siswa per Halaman <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="pagination_riwayat" id="pagination_riwayat"
-                        value="{{ old('pagination_riwayat', $settings['pagination_riwayat']) }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pagination_riwayat') border-red-500 @enderror"
-                        min="5" max="100" required>
-                    @error('pagination_riwayat')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-sm text-gray-500">Jumlah data per halaman di halaman riwayat siswa</p>
-                </div>
+                <style>
+                    #enable_student_attendance:focus {
+                        outline: none;
+                    }
+                </style>
 
-                <!-- Pagination Unduh -->
-                <div>
-                    <label for="pagination_unduh" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-download mr-2 text-purple-500"></i>
-                        Laporan per Halaman <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="pagination_unduh" id="pagination_unduh"
-                        value="{{ old('pagination_unduh', $settings['pagination_unduh']) }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pagination_unduh') border-red-500 @enderror"
-                        min="5" max="100" required>
-                    @error('pagination_unduh')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-sm text-gray-500">Jumlah data per halaman di halaman unduh laporan</p>
-                </div>
+                <script>
+                    // Initialize status
+                    function updateStatusUI() {
+                        const checkbox = document.getElementById('enable_student_attendance');
+                        const statusText = document.getElementById('status-text');
+                        const statusIcon = document.getElementById('status-icon');
+                        const statusContainer = document.getElementById('status-container');
+
+                        if (checkbox.checked) {
+                            statusText.textContent = 'Aktif';
+                            statusText.className = 'text-2xl font-bold text-green-600';
+                            statusIcon.className = 'fas fa-check-circle text-3xl text-green-500 animate-pulse';
+                            statusContainer.className = 'flex items-center gap-2 animate-in';
+                        } else {
+                            statusText.textContent = 'Nonaktif';
+                            statusText.className = 'text-2xl font-bold text-red-600';
+                            statusIcon.className = 'fas fa-times-circle text-3xl text-red-500';
+                            statusContainer.className = 'flex items-center gap-2';
+                        }
+                    }
+
+                    // Update when toggle changes
+                    document.getElementById('enable_student_attendance').addEventListener('change', function() {
+                        updateStatusUI();
+                    });
+
+                    // Set initial state
+                    updateStatusUI();
+
+                    // Add smooth animation on page load
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const statusContainer = document.getElementById('status-container');
+                        statusContainer.style.animation = 'slideIn 0.5s ease-out';
+                    });
+                </script>
+
+                <style>
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateX(20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+
+                    #status-icon.animate-pulse {
+                        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                    }
+
+                    @keyframes pulse {
+                        0%, 100% {
+                            opacity: 1;
+                        }
+                        50% {
+                            opacity: 0.7;
+                        }
+                    }
+
+                    /* Improve toggle accessibility */
+                    label:focus-within {
+                        outline: 2px solid #10b981;
+                        outline-offset: 2px;
+                    }
+                </style>
             </div>
+
 
             <!-- Action Buttons -->
             <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
@@ -334,9 +402,7 @@
                     document.getElementById('waktu_masuk').value = '07:00';
                     document.getElementById('waktu_terlambat').value = '07:30';
                     document.getElementById('waktu_pulang').value = '15:00';
-                    document.getElementById('pagination_pelanggaran').value = '10';
-                    document.getElementById('pagination_riwayat').value = '10';
-                    document.getElementById('pagination_unduh').value = '15';
+                    document.getElementById('enable_student_attendance').checked = true;
                 }
             });
         }

@@ -79,6 +79,21 @@
         </div>
     @endif
 
+    <!-- Attendance Disabled Notice -->
+    <div id="attendance-disabled-notice" class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4" style="display: none;">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Absensi Dinonaktifkan</h3>
+                <p class="mt-2 text-sm text-yellow-700">
+                    Sistem absensi siswa sedang dinonaktifkan oleh administrator. Silakan hubungi guru atau wali kelas untuk informasi lebih lanjut.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Current Time and Location -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Current Time -->
@@ -92,9 +107,17 @@
                 <div class="text-sm text-gray-500" id="current-date">--</div>
             </div>
         </div>
-
+<div id="weekend-notice" class="mt-6 p-4 rounded-lg bg-green-50 border border-green-200" style="display: none;">
+            <h4 class="text-sm font-medium text-green-900 mb-2">
+                <i class="fas fa-sun mr-2"></i>
+                Selamat Hari Libur!
+            </h4>
+            <p class="text-sm text-green-800">
+                Nikmati waktu istirahat Anda di akhir pekan. Sistem absensi akan aktif kembali pada hari Senin.
+            </p>
+        </div>
         <!-- Current Location -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div id="div-lokasi" class=" bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
                 <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
                 Lokasi Anda
@@ -122,7 +145,7 @@
     </div>
 
     <!-- Attendance Form -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div id="div-absen" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">
             <i class="fas fa-fingerprint mr-2 text-green-500"></i>
             Lakukan Absensi
@@ -231,8 +254,11 @@
             </button>
         </div>
 
+        <!-- Weekend Notice -->
+
+
         <!-- Instructions -->
-        <div class="mt-6 p-4 rounded-lg" style="background-color: #e9ecef;">
+        {{-- <div class="mt-6 p-4 rounded-lg" style="background-color: #e9ecef;">
             <h4 class="text-sm font-medium text-blue-900 mb-2">
                 <i class="fas fa-info-circle mr-2"></i>
                 Petunjuk Absensi:
@@ -245,8 +271,9 @@
                 <li>• Absen masuk sebelum jam masuk sekolah</li>
                 <li>• Absen pulang setelah jam pulang sekolah</li>
                 <li>• Tunggu konfirmasi sebelum menutup halaman</li>
+                <li>• Absensi hanya dapat dilakukan pada hari Senin - Jumat</li>
             </ul>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Loading Overlay -->
@@ -259,8 +286,10 @@
     </div>
 
     <script>
+        let isWeekend = false;
         let currentLatitude = null;
         let currentLongitude = null;
+        let isAttendanceEnabled = true; // Track attendance system status
 
         // Helper functions for SweetAlert
         function showError(message, title = 'Error') {
@@ -316,6 +345,12 @@
 
         // Get current location
         function getCurrentLocation() {
+            if (isWeekend) {
+                console.log('LIBUR: lokasi diabaikan');
+                document.getElementById('div-lokasi').style.display = 'none';
+                document.getElementById('div-absen').style.display = 'none';
+                return;
+            }
             if (navigator.geolocation) {
                 // Disable refresh button and show loading state
                 const refreshBtn = document.getElementById('refreshLocationBtn');
@@ -407,6 +442,13 @@
             fetch('/api/settings')
                 .then(response => response.json())
                 .then(data => {
+                    // First check if attendance is enabled
+                    const isEnabled = parseInt(data.enable_student_attendance) === 1;
+                    if (!isEnabled) {
+                        // Attendance is disabled, don't proceed with radius checking
+                        return;
+                    }
+
                     const schoolLat = parseFloat(data.school_latitude);
                     const schoolLng = parseFloat(data.school_longitude);
                     const radius = parseInt(data.attendance_radius) || 100;
@@ -464,6 +506,15 @@
 
         // Update button states based on location and photo upload
         function updateButtonStates() {
+            // If attendance is disabled, don't enable any buttons
+            if (!isAttendanceEnabled) {
+                document.getElementById('absenMasukBtn').disabled = true;
+                document.getElementById('absenPulangBtn').disabled = true;
+                document.getElementById('absenSakitBtn').disabled = true;
+                document.getElementById('absenIzinBtn').disabled = true;
+                return;
+            }
+
             const photoInput = document.getElementById('photo-upload');
             const hasPhoto = photoInput.files.length > 0;
 
@@ -896,10 +947,92 @@
             }
         }
 
+        // Check attendance status
+        function checkAttendanceStatus() {
+            return fetch('/api/settings')
+                .then(response => response.json())
+                .then(data => {
+                    const isEnabled = parseInt(data.enable_student_attendance) === 1;
+
+                    // Set global flag
+                    isAttendanceEnabled = isEnabled;
+
+                    if (!isEnabled) {
+                        // Show attendance disabled notice
+                        document.getElementById('attendance-disabled-notice').style.display = 'block';
+                        document.getElementById('div-absen').style.display = 'none';
+                        // Disable all attendance functionality
+                        document.getElementById('absenMasukBtn').disabled = true;
+                        document.getElementById('absenPulangBtn').disabled = true;
+                        document.getElementById('absenSakitBtn').disabled = true;
+                        document.getElementById('absenIzinBtn').disabled = true;
+
+                        // Hide photo upload section
+                        document.getElementById('photo-upload-section').style.display = 'none';
+
+                        // Update location status
+                        document.getElementById('location-status').textContent = 'Absensi dinonaktifkan';
+                        document.getElementById('location-status').className = 'text-sm font-medium text-gray-600';
+
+                        // Disable refresh location button
+                        document.getElementById('refreshLocationBtn').disabled = true;
+                        document.getElementById('refreshBtnText').textContent = 'Dinonaktifkan';
+
+                        return false; // Attendance is disabled
+                    } else {
+                        // Hide attendance disabled notice
+                        document.getElementById('attendance-disabled-notice').style.display = 'none';
+                        return true; // Attendance is enabled
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking attendance status:', error);
+                    // Default to enabled on error
+                    isAttendanceEnabled = true;
+                    document.getElementById('attendance-disabled-notice').style.display = 'none';
+                    return true;
+                });
+        }
+
+        // Check if it's weekend
+        function checkWeekend() {
+            const now = new Date();
+            const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
+            // console.log('CHECK WEEKEND JALAN, dayOfWeek =', dayOfWeek);
+            if (dayOfWeek === 0 || dayOfWeek == 6) {
+                isWeekend = true;
+                // It's weekend - disable all attendance buttons and show notice
+                document.getElementById('absenMasukBtn').disabled = true;
+                document.getElementById('absenPulangBtn').disabled = true;
+                document.getElementById('absenSakitBtn').disabled = true;
+                document.getElementById('absenIzinBtn').disabled = true;
+
+                // Hide photo upload section
+                document.getElementById('photo-upload-section').style.display = 'none';
+
+                // Show weekend notice
+                document.getElementById('weekend-notice').style.display = 'block';
+
+                // Update location status
+                document.getElementById('location-status').textContent = 'Absensi tidak aktif di akhir pekan';
+                document.getElementById('location-status').className = 'text-sm font-medium text-gray-600';
+
+                // Disable refresh location button
+                document.getElementById('refreshLocationBtn').disabled = true;
+                document.getElementById('refreshBtnText').textContent = 'Tidak Aktif';
+                return;
+            } else {
+                // It's weekday - hide weekend notice
+                document.getElementById('weekend-notice').style.display = 'none';
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateTime();
             setInterval(updateTime, 1000);
+            checkAttendanceStatus(); // Check attendance status first
+            checkWeekend(); // Check if weekend first
             getCurrentLocation();
             checkPulangTime();
             setInterval(checkPulangTime, 60000); // Check every minute
