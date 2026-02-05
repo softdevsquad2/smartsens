@@ -15,6 +15,10 @@ class Kernel extends ConsoleKernel
         // Mark absent students every day at 4 PM
         $schedule->command('attendance:mark-absent')
             ->dailyAt('16:00');
+
+        // Check and mark students who did not checkout after 17:00
+        $schedule->command('attendance:check-bolos')
+            ->dailyAt('09:56');
     }
 
     /**

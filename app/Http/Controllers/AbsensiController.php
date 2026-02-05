@@ -393,6 +393,96 @@ class AbsensiController extends Controller
         // return; // Non-aktifkan proses penandaan alpha
     }
 
+    /**
+     * Cek dan tandai siswa yang tidak absen pulang hingga jam 17:00 dengan pelanggaran "bolos"
+     * Method ini bisa di-trigger dari scheduled task atau endpoint
+     */
+    public function checkAndMarkAbsenBolos()
+    {
+        try {
+            Log::info('Starting bolos attendance check...');
+
+            // Cari siswa yang sudah absen masuk hari ini tapi belum absen pulang
+            $siswaBolos = Absensi::where('tanggal', Carbon::today())
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_pulang')
+                ->whereIn('status_masuk', ['hadir', 'terlambat'])
+                ->get();
+
+            Log::info('Found ' . $siswaBolos->count() . ' candidate(s) for bolos');
+
+            // Get pelanggaran record once
+            $pelanggaranBolos = Pelanggaran::where('nama_pelanggaran', 'Bolos')->first();
+            if (!$pelanggaranBolos) {
+                Log::warning('Pelanggaran "Bolos" tidak ditemukan di database');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pelanggaran "Bolos" tidak ditemukan di database',
+                ]);
+            }
+
+            Log::info('Pelanggaran Bolos id: ' . $pelanggaranBolos->id);
+
+            $countBolos = 0;
+
+            foreach ($siswaBolos as $absensi) {
+                Log::info('Processing siswa: ' . $absensi->id_siswa);
+
+                // Cek apakah sudah ada record pelanggaran bolos untuk siswa ini hari ini
+                $rekamBolosSudahAda = RekamPelanggaran::where('id_siswa', $absensi->id_siswa)
+                    ->where('id_pelanggaran', $pelanggaranBolos->id)
+                    ->whereDate('tanggal_pelanggaran', Carbon::today())
+                    ->first();
+
+                Log::info('Existing RekamPelanggaran: ' . ($rekamBolosSudahAda ? 'YES' : 'NO'));
+
+                if (!$rekamBolosSudahAda) {
+                    try {
+                        // Buat record pelanggaran bolos
+                        $rekam = RekamPelanggaran::create([
+                            'id_siswa' => $absensi->id_siswa,
+                            'id_pelanggaran' => $pelanggaranBolos->id,
+                            'tanggal_pelanggaran' => Carbon::today(),
+                            'foto_pelanggaran' => null,
+                            'id_user' => null,
+                            'pelapor' => 'system',
+                        ]);
+
+                        Log::info('Created RekamPelanggaran for siswa ' . $absensi->id_siswa);
+
+                        // Update status pulang menjadi 'bolos' HANYA JIKA RekamPelanggaran berhasil dibuat
+                        $absensi->update([
+                            'status_pulang' => 'bolos',
+                        ]);
+
+                        Log::info('Updated status_pulang to bolos for siswa: ' . $absensi->id_siswa);
+
+                        $countBolos++;
+                    } catch (\Exception $e) {
+                        Log::error('Error creating RekamPelanggaran for siswa ' . $absensi->id_siswa . ': ' . $e->getMessage());
+                    }
+                } else {
+                    Log::info('RekamPelanggaran sudah ada untuk siswa: ' . $absensi->id_siswa);
+                }
+            }
+
+            Log::info('Bolos attendance check completed', ['total_marked' => $countBolos]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Pengecekan bolos selesai. Total {$countBolos} siswa ditandai bolos.",
+                'total_marked' => $countBolos,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in checkAndMarkAbsenBolos: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     private function isWithinRadius($lat1, $lng1, $lat2, $lng2, $radius)
     {
         if (! $lat2 || ! $lng2) {

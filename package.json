@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "scheduler": "node scheduler.js",
+        "start": "concurrently \"npm run dev\" \"npm run scheduler\""
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
@@ -15,6 +17,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "sweetalert2": "^11.26.17"
+        "sweetalert2": "^11.26.17",
+        "node-cron": "^3.0.3"
     }
 }

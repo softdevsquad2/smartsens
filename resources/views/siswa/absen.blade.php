@@ -504,7 +504,7 @@
             return earthRadius * c;
         }
 
-        // Update button states based on location and photo upload
+        // Update button states based on location, photo upload, time and existing attendance
         function updateButtonStates() {
             // If attendance is disabled, don't enable any buttons
             if (!isAttendanceEnabled) {
@@ -518,56 +518,71 @@
             const photoInput = document.getElementById('photo-upload');
             const hasPhoto = photoInput.files.length > 0;
 
-            // Get school settings to determine radius
-            fetch('/api/settings')
-                .then(response => response.json())
-                .then(data => {
-                    const schoolLat = parseFloat(data.school_latitude);
-                    const schoolLng = parseFloat(data.school_longitude);
-                    const radius = parseInt(data.attendance_radius) || 100;
+            // Fetch both settings and current attendance status
+            Promise.all([
+                fetch('/api/settings').then(response => response.json()),
+                fetch('/api/status-absensi').then(response => response.json())
+            ])
+            .then(([settings, status]) => {
+                const schoolLat = parseFloat(settings.school_latitude);
+                const schoolLng = parseFloat(settings.school_longitude);
+                const radius = parseInt(settings.attendance_radius) || 100;
 
-                    let distance = 0;
-                    if (currentLatitude && currentLongitude) {
-                        distance = calculateDistance(currentLatitude, currentLongitude, schoolLat, schoolLng);
-                    }
+                let distance = 0;
+                if (currentLatitude && currentLongitude) {
+                    distance = calculateDistance(currentLatitude, currentLongitude, schoolLat, schoolLng);
+                }
 
-                    const isWithinRadius = distance <= radius;
+                const isWithinRadius = distance <= radius;
 
-                    // Check if it's time for pulang
+                // Check if it's time for pulang
+                const now = new Date();
+                const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString()
+                    .padStart(2, '0');
+                const jamPulang = '{{ \App\Models\Setting::getSetting('jam_pulang') ?? '15:00' }}';
+                const isPulangTime = currentTime >= jamPulang;
+
+                const hasWaktuMasuk = !!status.waktu_masuk;
+                const hasWaktuPulang = !!status.waktu_pulang;
+
+                // Disable Masuk/Pulang buttons if already absen
+                if (isWithinRadius) {
+                    document.getElementById('absenMasukBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                    document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || !hasPhoto || !isPulangTime;
+                    document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk; // cannot mark sakit if already masuk
+                    document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk; // cannot mark izin if already masuk
+                } else {
+                    document.getElementById('absenMasukBtn').disabled = true;
+                    // If already punned (waktu_pulang), keep pulang disabled; otherwise still require pulang time
+                    document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || true;
+                    document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                    document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                }
+            })
+            .catch(error => {
+                console.error('Error updating button states:', error);
+                // Fallback: keep original behavior but still disable if status endpoint unavailable
+                fetch('/api/status-absensi').then(r => r.json()).then(status => {
+                    const hasWaktuMasuk = !!status.waktu_masuk;
+                    const hasWaktuPulang = !!status.waktu_pulang;
                     const now = new Date();
                     const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString()
                         .padStart(2, '0');
                     const jamPulang = '{{ \App\Models\Setting::getSetting('jam_pulang') ?? '15:00' }}';
                     const isPulangTime = currentTime >= jamPulang;
-
-                    // Enable/disable buttons based on location, photo, and time
-                    if (isWithinRadius) {
-                        document.getElementById('absenMasukBtn').disabled = !hasPhoto;
-                        document.getElementById('absenPulangBtn').disabled = !hasPhoto || !isPulangTime;
-                        document.getElementById('absenSakitBtn').disabled = true;
-                        document.getElementById('absenIzinBtn').disabled = true;
-                    } else {
-                        document.getElementById('absenMasukBtn').disabled = true;
-                        document.getElementById('absenPulangBtn').disabled = true;
-                        document.getElementById('absenSakitBtn').disabled = !hasPhoto;
-                        document.getElementById('absenIzinBtn').disabled = !hasPhoto;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating button states:', error);
-                    // Default to normal buttons enabled if photo is uploaded
-                    const hasPhoto = photoInput.files.length > 0;
-                    const now = new Date();
-                    const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString()
-                        .padStart(2, '0');
-                    const jamPulang = '{{ \App\Models\Setting::getSetting('jam_pulang') ?? '15:00' }}';
-                    const isPulangTime = currentTime >= jamPulang;
-
-                    document.getElementById('absenMasukBtn').disabled = !hasPhoto;
-                    document.getElementById('absenPulangBtn').disabled = !hasPhoto || !isPulangTime;
+                    document.getElementById('absenMasukBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                    document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || !hasPhoto || !isPulangTime;
+                    document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk;
+                    document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk;
+                }).catch(err => {
+                    // Last resort: disable buttons if photo missing
+                    const hasPhoto2 = photoInput.files.length > 0;
+                    document.getElementById('absenMasukBtn').disabled = !hasPhoto2;
+                    document.getElementById('absenPulangBtn').disabled = !hasPhoto2;
                     document.getElementById('absenSakitBtn').disabled = true;
                     document.getElementById('absenIzinBtn').disabled = true;
                 });
+            });
         }
 
         // Compress image if too large

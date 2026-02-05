@@ -31,6 +31,7 @@ cd Smartsens
 ### 2. Install Dependencies
 ```bash
 composer install
+npm install
 ```
 
 ### 3. Setup Environment
@@ -66,6 +67,10 @@ php artisan storage:link
 php artisan serve
 ```
 
+### 8. Jalankan Fungsi Pengecekan siswa bolos
+```bash
+node scheduler.js
+```
 Aplikasi akan berjalan di `http://localhost:8000`
 
 ## 🎯 Akun Default
@@ -189,11 +194,12 @@ Jika mengalami masalah, silakan:
 2. Pastikan semua persyaratan terpenuhi
 3. Cek konfigurasi database
 4. Pastikan GPS aktif di perangkat
+5. Contact Person 081990706575
 
 ## 📄 Lisensi
 
 Aplikasi ini dibuat untuk keperluan pendidikan minta izin terlebih dahulu sebelum di gunakan.
-
+081990706575
 ---
 
 **SmartSens** - Sistem Absensi GPS yang Modern dan Efisien 🎓

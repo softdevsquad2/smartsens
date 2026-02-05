@@ -209,6 +209,13 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::get('/settings', [SettingController::class, 'getCurrentSettings']);
     Route::get('/status-absensi', [SiswaController::class, 'getStatusAbsensi']);
     Route::post('/mark-absent', [AbsensiController::class, 'markAbsentStudents']);
+    Route::post('/check-absen-bolos', [AbsensiController::class, 'checkAndMarkAbsenBolos']);
+});
+
+// Scheduler Routes (tanpa auth dan CSRF untuk automation)
+Route::prefix('scheduler')->withoutMiddleware(['web'])->group(function () {
+    Route::match(['get', 'post'], '/mark-absent', [AbsensiController::class, 'markAbsentStudents']);
+    Route::match(['get', 'post'], '/check-bolos', [AbsensiController::class, 'checkAndMarkAbsenBolos']);
 });
 
 // Admin Routes

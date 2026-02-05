@@ -21,7 +21,7 @@ class CreateTblAbsensiTable extends Migration
             $table->decimal('latitude_pulang', 10, 7)->nullable();
             $table->string('foto_pulang')->nullable();
             $table->enum('status_masuk', ['hadir', 'terlambat', 'sakit', 'izin', 'sakit_izin', 'izin_pulang', 'alfa'])->nullable();
-            $table->enum('status_pulang', ['pulang', 'tidak_pulang', 'izin_pulang', 'pulang_sakit'])->nullable();
+            $table->enum('status_pulang', ['bolos','pulang', 'tidak_pulang', 'izin_pulang', 'pulang_sakit'])->nullable();
             $table->timestamps();
         });
     }

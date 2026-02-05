@@ -214,16 +214,25 @@
                             </div>
                         </div>
                         <div>
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            @if ($absensiHariIni->status_pulang == 'pulang') bg-blue-100 text-blue-800
-                            @else bg-gray-100 text-gray-800 @endif">
-                                <i
-                                    class="fas
-                                @if ($absensiHariIni->status_pulang == 'pulang') fa-check-circle
-                                @else fa-times-circle @endif mr-1"></i>
-                                {{ ucfirst($absensiHariIni->status_pulang ?? 'N/A') }}
-                            </span>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+    @if ($absensiHariIni->status_pulang === 'pulang')
+        bg-blue-100 text-blue-800
+    @elseif ($absensiHariIni->status_pulang === 'bolos')
+        bg-red-100 text-red-800
+    @else
+        bg-gray-100 text-gray-800
+    @endif
+">
+    <i class="fas
+        @if ($absensiHariIni->status_pulang === 'pulang')
+            fa-check-circle
+        @elseif ($absensiHariIni->status_pulang === 'bolos')
+            fa-exclamation-triangle
+        @else
+            fa-times-circle
+        @endif mr-1"></i>
+    {{ ucfirst($absensiHariIni->status_pulang ?? 'N/A') }}
+</span>
                         </div>
                     </div>
                 </div>

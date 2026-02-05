@@ -19,6 +19,10 @@ class TblPelanggaranSeeder extends Seeder
                 'poin_pelanggaran' => '5',
             ],
             [
+                'nama_pelanggaran' => 'Bolos',
+                'poin_pelanggaran' => '5',
+            ],
+            [
                 'nama_pelanggaran' => 'Tidak Memakai Seragam',
                 'poin_pelanggaran' => '10',
             ],
