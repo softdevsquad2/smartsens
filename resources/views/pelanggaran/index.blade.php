@@ -48,16 +48,16 @@
                 </thead>
 
                 <tbody class="divide-y">
-                    @foreach($terbaruPelanggaran as $index => $rekam)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-2 py-3 text-center">{{ $index + 1 }}</td>
-                        <td class="px-4 py-3">{{ $rekam->siswa->nisn ?? 'N/A' }}</td>
-                        <td class="px-4 py-3">{{ $rekam->siswa->nama ?? 'N/A' }}</td>
-                        <td class="px-4 py-3">{{ $rekam->siswa->kelas->nama_kelas ?? 'N/A' }}</td>
-                        <td class="px-4 py-3">{{ $rekam->pelanggaran->nama_pelanggaran ?? 'N/A' }}</td>
-                        <td class="px-4 py-3">{{ $rekam->tanggal_pelanggaran }}</td>
-                        <td class="px-4 py-3 text-center font-semibold text-red-600">{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}</td>
-                    </tr>
+                    @foreach ($terbaruPelanggaran as $index => $rekam)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-2 py-3 text-center">{{ $index + 1 }}</td>
+                            <td class="px-4 py-3">{{ $rekam->siswa->nisn ?? 'N/A' }}</td>
+                            <td class="px-4 py-3">{{ $rekam->siswa->nama ?? 'N/A' }}</td>
+                            <td class="px-4 py-3">{{ $rekam->siswa->kelas->nama_kelas ?? 'N/A' }}</td>
+                            <td class="px-4 py-3">{{ $rekam->pelanggaran->nama_pelanggaran ?? 'N/A' }}</td>
+                            <td class="px-4 py-3">{{ $rekam->tanggal_pelanggaran }}</td>
+                            {{-- <td class="px-4 py-3 text-center font-semibold text-red-600">{{ $rekam->pelanggaran->poin_pelanggaran ?? 'N/A' }}</td> --}}
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -77,12 +77,13 @@
 
                 <tbody class="divide-y">
                     @php $no = 1 @endphp
-                    @foreach($poinTertinggi as $index => $data)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-2 py-3 text-center">{{ $no++ }}</td>
-                        <td class="px-4 py-3">{{ $data['siswa']->nama }} ({{ $data['siswa']->kelas->nama_kelas ?? 'N/A' }})</td>
-                        <td class="px-4 py-3 text-center font-semibold text-red-600">{{ $data['total_poin'] }}</td>
-                    </tr>
+                    @foreach ($poinTertinggi as $index => $data)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-2 py-3 text-center">{{ $no++ }}</td>
+                            <td class="px-4 py-3">{{ $data['siswa']->nama }}
+                                ({{ $data['siswa']->kelas->nama_kelas ?? 'N/A' }})</td>
+                            <td class="px-4 py-3 text-center font-semibold text-red-600">{{ $data['total_poin'] }}</td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>

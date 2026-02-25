@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_siswa');
             $table->unsignedBigInteger('id_pelanggaran');
             $table->date('tanggal_pelanggaran');
+            $table->integer('poin_diberikan');
             $table->timestamps();
 
             $table->foreign('id_siswa')->references('id_siswa')->on('tbl_siswa')->onDelete('cascade');

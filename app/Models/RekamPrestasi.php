@@ -17,6 +17,7 @@ class RekamPrestasi extends Model
         'keterangan',
         'id_user',
         'pembimbing',
+        'poin_diberikan',
     ];
 
     protected $casts = [

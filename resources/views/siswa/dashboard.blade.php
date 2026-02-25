@@ -72,7 +72,7 @@
 
     <!-- Student Info Card -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-         <!-- Quick Action -->
+        <!-- Quick Action -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
                 <i class="fas fa-bolt mr-2 text-yellow-500"></i>
@@ -145,22 +145,53 @@
                         <i class="fas fa-exclamation-triangle text-red-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Total Poin Pelanggaran</p>
+                        <p class="text-sm font-medium text-gray-500">Skor Perilaku Siswa</p>
                         <p class="text-md font-semibold text-gray-900 text-red-700">
-                            {{ $jumlahPoin ?? 0 }} Poin
+                            @php
+                                $skor = $siswa->total_poin;
+                            @endphp
+                            @if ($skor > 0)
+                                <span class="text-green-600  font-bold">+{{ $skor }}</span>
+                            @elseif ($skor < 0)
+                                <span class="text-red-600  font-bold">{{ $skor }}</span>
+                            @else
+                                <span class="text-gray-600  font-bold">0</span>
+                            @endif
                         </p>
                     </div>
-            </div>
+                </div>
                 <div class="flex items-center mb-2">
-                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-trophy text-green-600"></i>
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Total Poin Prestasi</p>
+                        <p class="text-sm font-medium text-gray-500">Status Peringatan</p>
+                        @if ($siswa->sp_tertinggi == 'SP1')
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-yellow-100 text-yellow-800">
+                                </i> SP 1
+                            </span>
+                        @elseif ($siswa->sp_tertinggi == 'SP2')
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-orange-100 text-orange-800">
+                                </i> SP 2
+                            </span>
+                        @elseif ($siswa->sp_tertinggi == 'SP3')
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-800">
+                                </i> SP 3
+                            </span>
+                        @else
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full  font-medium bg-green-100 text-green-800">
+                                Tidak Ada Peringatan
+                            </span>
+                        @endif
                         <p class="text-md font-semibold text-gray-900 text-green-700">
-                            {{ $jumlahPoinPrestasi ?? 0 }} Poin
+
                         </p>
                     </div>
+                </div>
             </div>
         </div>
 
@@ -214,25 +245,23 @@
                             </div>
                         </div>
                         <div>
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-    @if ($absensiHariIni->status_pulang === 'pulang')
-        bg-blue-100 text-blue-800
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+    @if ($absensiHariIni->status_pulang === 'pulang') bg-blue-100 text-blue-800
     @elseif ($absensiHariIni->status_pulang === 'bolos')
         bg-red-100 text-red-800
     @else
-        bg-gray-100 text-gray-800
-    @endif
+        bg-gray-100 text-gray-800 @endif
 ">
-    <i class="fas
-        @if ($absensiHariIni->status_pulang === 'pulang')
-            fa-check-circle
+                                <i
+                                    class="fas
+        @if ($absensiHariIni->status_pulang === 'pulang') fa-check-circle
         @elseif ($absensiHariIni->status_pulang === 'bolos')
             fa-exclamation-triangle
         @else
-            fa-times-circle
-        @endif mr-1"></i>
-    {{ ucfirst($absensiHariIni->status_pulang ?? 'N/A') }}
-</span>
+            fa-times-circle @endif mr-1"></i>
+                                {{ ucfirst($absensiHariIni->status_pulang ?? 'N/A') }}
+                            </span>
                         </div>
                     </div>
                 </div>

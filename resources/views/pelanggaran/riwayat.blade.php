@@ -18,7 +18,12 @@
             @foreach ($siswa as $s)
                 <a class="bg-white shadow-md rounded-lg p-4" href="{{ route('pelanggaran.riwayat.detail', $s->nama) }}">
                     @php
-                        $fotoSrc = $s->foto ? asset('storage/foto/' . $s->foto) : asset('storage/foto/' . ($s->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . ($loop->index + 1) . '.jpg'));
+                        $fotoSrc = $s->foto
+                            ? asset('storage/foto/' . $s->foto)
+                            : asset(
+                                'storage/foto/' .
+                                    ($s->nama == 'FIKRI MUAFI' ? 'fikri.jpeg' : 'siswa' . ($loop->index + 1) . '.jpg'),
+                            );
                     @endphp
                     <img src="{{ $fotoSrc }}" alt="Foto Profil"
                         class="w-24 h-24 mx-auto mb-4 object-cover object-top transition-transform duration-300 hover:scale-110">
@@ -36,7 +41,8 @@
                 <select id="per_page" name="per_page" onchange="changePerPage(this.value)"
                     class="border border-gray-300 rounded px-2 py-1 text-sm">
                     <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5</option>
-                    <option value="10" {{ request('per_page') == 10 || !request('per_page') ? 'selected' : '' }}>10</option>
+                    <option value="10" {{ request('per_page') == 10 || !request('per_page') ? 'selected' : '' }}>10
+                    </option>
                     <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
                     <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>

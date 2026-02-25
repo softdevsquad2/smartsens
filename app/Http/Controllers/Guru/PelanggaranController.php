@@ -8,7 +8,7 @@ use App\Models\RekamPelanggaran;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class PelanggaranController extends Controller
 {
@@ -22,7 +22,7 @@ class PelanggaranController extends Controller
         $user = Auth::user();
         $waliKelas = $user->waliKelas;
 
-        if (!$waliKelas) {
+        if (! $waliKelas) {
             return redirect()->route('guru.dashboard')->with('error', 'Anda tidak memiliki akses sebagai wali kelas.');
         }
 
@@ -42,7 +42,6 @@ class PelanggaranController extends Controller
                 'pelanggaran.*' => 'exists:tbl_pelanggaran,id',
                 'foto_pelanggaran' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
 
-
             ]);
 
             $user = Auth::user();
@@ -51,30 +50,85 @@ class PelanggaranController extends Controller
             // Simpan foto jika ada
             if ($request->hasFile('foto_pelanggaran')) {
                 $file = $request->file('foto_pelanggaran');
-                $filename = 'pelanggaran_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filename = 'pelanggaran_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
                 $fotoPath = $file->storeAs('pelanggaran', $filename, 'public');
             }
 
             // Simpan data pelanggaran untuk setiap jenis yang dipilih
-            foreach ($request->pelanggaran as $idPelanggaran) {
-                RekamPelanggaran::create([
-                    'id_siswa' => $request->id_siswa,
-                    'id_pelanggaran' => $idPelanggaran,
-                    'tanggal_pelanggaran' => today(),
-                    'foto_pelanggaran' => $fotoPath,
-                    'id_user' => $user->id_user,
 
-                ]);
-            }
+            DB::transaction(function () use ($request, $user, $fotoPath) {
+
+                foreach ($request->pelanggaran as $idPelanggaran) {
+
+                    $pelanggaran = Pelanggaran::findOrFail($idPelanggaran);
+
+                    $jumlah = RekamPelanggaran::where('id_siswa', $request->id_siswa)
+                        ->where('id_pelanggaran', $idPelanggaran)
+                        ->count();
+
+                    if ($jumlah == 0) {
+                        $poin = $pelanggaran->poin_1;
+                    } elseif ($jumlah == 1) {
+                        $poin = $pelanggaran->poin_2;
+                    } else {
+                        $poin = $pelanggaran->poin_3;
+                    }
+
+                    RekamPelanggaran::create([
+                        'id_siswa' => $request->id_siswa,
+                        'id_pelanggaran' => $idPelanggaran,
+                        'tanggal_pelanggaran' => today(),
+                        'foto_pelanggaran' => $fotoPath,
+                        'id_user' => $user->id_user,
+                        'poin_diberikan' => $poin,
+                    ]);
+
+                    $siswa = Siswa::where('id_siswa', $request->id_siswa)
+                        ->lockForUpdate()
+                        ->first();
+
+                    $totalBaru = $siswa->total_poin - $poin;
+
+                    $spBaru = null;
+
+                    if ($totalBaru <= -76) {
+                        $spBaru = 'SP3';
+                    } elseif ($totalBaru <= -51) {
+                        $spBaru = 'SP2';
+                    } elseif ($totalBaru <= -25) {
+                        $spBaru = 'SP1';
+                    }
+
+                    $urutan = [
+                        null => 0,
+                        'SP1' => 1,
+                        'SP2' => 2,
+                        'SP3' => 3,
+                    ];
+
+                    $spFinal = $siswa->sp_tertinggi;
+
+                    if ($urutan[$spBaru] > $urutan[$siswa->sp_tertinggi]) {
+                        $spFinal = $spBaru;
+                    }
+
+                    $siswa->update([
+                        'total_poin' => $totalBaru,
+                        'status_sp' => $spFinal,
+                        'sp_tertinggi' => $spFinal,
+                    ]);
+                }
+
+            });
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => true, 'message' => 'Pelanggaran berhasil direkam.']);
             }
 
             return response()->json([
-        'success' => true,
-        'message' => 'Prestasi berhasil direkam.'
-    ]);
+                'success' => true,
+                'message' => 'Prestasi berhasil direkam.',
+            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'errors' => $e->errors()], 422);
@@ -84,10 +138,10 @@ class PelanggaranController extends Controller
                 ->withInput();
         } catch (\Exception $e) {
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: '.$e->getMessage()], 500);
             }
 
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return back()->with('error', 'Terjadi kesalahan: '.$e->getMessage())->withInput();
         }
     }
 }

@@ -7,7 +7,8 @@
 @section('sidebar')
 
     <!-- Dashboard -->
-    <a href="{{ route('guru.dashboard') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+    <a href="{{ route('guru.dashboard') }}"
+        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-tachometer-alt"></i>
         <span>Dashboard</span>
     </a>
@@ -33,7 +34,8 @@
         <span>Laporan Absensi</span>
     </a>
 
-    <a href="{{ route('guru.settings') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+    <a href="{{ route('guru.settings') }}"
+        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-cog"></i>
         <span>Pengaturan</span>
     </a>
@@ -78,7 +80,7 @@
             @enderror
         </div>
 
-            <!-- (Tanggal, Pelapor, dan Kelas disembunyikan; diisi otomatis server-side) -->
+        <!-- (Tanggal, Pelapor, dan Kelas disembunyikan; diisi otomatis server-side) -->
 
         <!-- Foto Pelanggaran -->
         <div class="mb-6">
@@ -90,7 +92,8 @@
                     required>
                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
                 <p class="text-gray-600 font-medium">Klik atau seret foto ke sini</p>
-                <p class="text-sm text-gray-500 mt-1">Format: JPEG, PNG, JPG, GIF (Maks: 2MB). Foto akan otomatis dikompres menjadi ~250KB sebelum diupload.</p>
+                <p class="text-sm text-gray-500 mt-1">Format: JPEG, PNG, JPG, GIF (Maks: 2MB). Foto akan otomatis dikompres
+                    menjadi ~250KB sebelum diupload.</p>
                 <div id="fotoPreview" class="mt-4 hidden">
                     <img id="previewImage" src="" alt="Preview" class="mx-auto max-h-48 rounded-lg">
                     <button type="button" id="removeFoto"
@@ -195,7 +198,9 @@
                     const ab = new ArrayBuffer(byteString.length);
                     const ia = new Uint8Array(ab);
                     for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-                    return new Blob([ab], { type: mimeType });
+                    return new Blob([ab], {
+                        type: mimeType
+                    });
                 }
 
                 return new Promise((resolve) => {
@@ -225,18 +230,21 @@
                             const targetBytes = maxKB * 1024;
 
                             async function tryExport() {
-                                return new Promise(res => canvas.toBlob(res, mimeType, quality));
+                                return new Promise(res => canvas.toBlob(res, mimeType,
+                                    quality));
                             }
 
                             let blob = await tryExport();
                             // reduce quality until size ok or quality too low
-                            while (blob && blob.size > targetBytes && quality > minQuality) {
+                            while (blob && blob.size > targetBytes && quality >
+                                minQuality) {
                                 quality -= 0.08;
                                 blob = await tryExport();
                             }
 
                             // if still too big, progressively downscale canvas
-                            while (blob && blob.size > targetBytes && (canvas.width > 400 || canvas.height > 400)) {
+                            while (blob && blob.size > targetBytes && (canvas.width > 400 ||
+                                    canvas.height > 400)) {
                                 // reduce dimensions by 80%
                                 const newW = Math.round(canvas.width * 0.8);
                                 const newH = Math.round(canvas.height * 0.8);
@@ -247,12 +255,13 @@
                                 tctx.drawImage(canvas, 0, 0, newW, newH);
                                 canvas.width = newW;
                                 canvas.height = newH;
-                                ctx.clearRect(0,0,canvas.width,canvas.height);
-                                ctx.drawImage(tmpCanvas, 0,0);
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                ctx.drawImage(tmpCanvas, 0, 0);
                                 // try export again from current quality
                                 blob = await tryExport();
                                 // if not enough, lower quality further a bit
-                                if (blob && blob.size > targetBytes && quality > minQuality) {
+                                if (blob && blob.size > targetBytes && quality >
+                                    minQuality) {
                                     quality = Math.max(minQuality, quality - 0.05);
                                     blob = await tryExport();
                                 }
@@ -272,7 +281,10 @@
 
                             // create a File from blob so it can be sent via form
                             try {
-                                const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.jpg', { type: mimeType });
+                                const newFile = new File([blob], file.name.replace(
+                                    /\.[^/.]+$/, '') + '.jpg', {
+                                    type: mimeType
+                                });
                                 resolve(newFile);
                             } catch (e) {
                                 // older browsers fallback
@@ -298,7 +310,9 @@
                     const dataTransfer = new DataTransfer();
                     if (compressed instanceof Blob && !(compressed instanceof File)) {
                         const fileName = originalFile.name.replace(/\.[^/.]+$/, '') + '.jpg';
-                        dataTransfer.items.add(new File([compressed], fileName, { type: 'image/jpeg' }));
+                        dataTransfer.items.add(new File([compressed], fileName, {
+                            type: 'image/jpeg'
+                        }));
                     } else {
                         dataTransfer.items.add(compressed);
                     }
@@ -320,7 +334,7 @@
             // target the specific pelanggaran form to avoid attaching to other forms (eg. logout form)
             const formEl = document.getElementById('pelanggaranForm');
             if (formEl) {
-                formEl.addEventListener('submit', async function (e) {
+                formEl.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const confirmed = await Swal.fire({
                         title: 'Sudah benar semua?',
@@ -371,32 +385,64 @@
                                 // try to parse server response even when status is an error to show meaningful message
                                 let text = xhr.responseText || '';
                                 let data = null;
-                                try { data = JSON.parse(text); } catch (e) { /* ignore parse error */ }
+                                try {
+                                    data = JSON.parse(text);
+                                } catch (e) {
+                                    /* ignore parse error */ }
 
                                 if (xhr.status >= 200 && xhr.status < 300) {
                                     if (data && data.success) {
-                                        Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message || 'Pelanggaran berhasil direkam.' });
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil',
+                                            text: data.message ||
+                                                'Pelanggaran berhasil direkam.'
+                                        });
                                         formEl.reset();
                                         preview.classList.add('hidden');
                                         $('#id_siswa').val(null).trigger('change');
                                         resolve();
                                     } else if (xhr.status === 422 && data && data.errors) {
-                                        const msgs = Object.values(data.errors).flat().join('\n');
-                                        Swal.fire({ icon: 'error', title: 'Validasi', text: msgs });
+                                        const msgs = Object.values(data.errors).flat().join(
+                                            '\n');
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Validasi',
+                                            text: msgs
+                                        });
                                         reject(new Error('validation'));
                                     } else {
-                                        Swal.fire({ icon: 'error', title: 'Gagal', text: data && data.message ? data.message : 'Terjadi kesalahan saat menyimpan.' });
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Gagal',
+                                            text: data && data.message ? data
+                                                .message :
+                                                'Terjadi kesalahan saat menyimpan.'
+                                        });
                                         reject(new Error('server'));
                                     }
                                 } else {
                                     // non-2xx status: prefer server-provided message, otherwise show generic and log response
-                                    const msg = (data && data.message) ? data.message : (text || 'Terjadi kesalahan server.');
-                                    console.error('Server error response:', xhr.status, text);
-                                    Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+                                    const msg = (data && data.message) ? data.message : (
+                                        text || 'Terjadi kesalahan server.');
+                                    console.error('Server error response:', xhr.status,
+                                        text);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal',
+                                        text: msg
+                                    });
                                     reject(new Error('http'));
                                 }
                             };
-                            xhr.onerror = function() { Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan.' }); reject(new Error('network')); };
+                            xhr.onerror = function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: 'Terjadi kesalahan jaringan.'
+                                });
+                                reject(new Error('network'));
+                            };
                             xhr.send(fd);
                         });
                     } catch (err) {
@@ -407,7 +453,7 @@
         });
     </script>
     {{-- Show store status via SweetAlert (flash messages) --}}
-    @if(session('success'))
+    @if (session('success'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -419,7 +465,7 @@
         </script>
     @endif
 
-    @if(session('error'))
+    @if (session('error'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({

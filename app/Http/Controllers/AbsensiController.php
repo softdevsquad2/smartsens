@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\AbsensiExport;
 use App\Models\Absensi;
 use App\Models\Pelanggaran;
 use App\Models\RekamPelanggaran;
@@ -14,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Excel;
 
 class AbsensiController extends Controller
 {
@@ -26,7 +24,7 @@ class AbsensiController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('siswa', function ($q) use ($search) {
-                $q->where('nama', 'like', '%' . $search . '%');
+                $q->where('nama', 'like', '%'.$search.'%');
             });
         }
 
@@ -109,12 +107,12 @@ class AbsensiController extends Controller
             $errors = $e->errors();
             $errorMessages = [];
             foreach ($errors as $field => $messages) {
-                $errorMessages[] = $field . ': ' . implode(', ', $messages);
+                $errorMessages[] = $field.': '.implode(', ', $messages);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal: ' . implode('; ', $errorMessages),
+                'message' => 'Validasi gagal: '.implode('; ', $errorMessages),
             ], 422);
         }
 
@@ -162,6 +160,10 @@ class AbsensiController extends Controller
             $waktuSekarangStr = $waktuSekarang->format('H:i');
             $statusMasuk = 'hadir';
             $photoPath = null;
+            $jamMasuk = Setting::getSetting('jam_masuk') ?? '06:00';
+
+            $waktuSekarang = Carbon::now();
+            $waktuMasuk = Carbon::createFromFormat('H:i', $jamMasuk);
 
             // Cek apakah terlambat
             if ($waktuSekarangStr > $jamTerlambat) {
@@ -173,7 +175,7 @@ class AbsensiController extends Controller
             if ($request->hasFile('photo')) {
                 try {
                     $photo = $request->file('photo');
-                    $photoName = time() . '_' . $request->id_siswa . '_masuk.' . $photo->getClientOriginalExtension();
+                    $photoName = time().'_'.$request->id_siswa.'_masuk.'.$photo->getClientOriginalExtension();
                     $photoPath = $photo->storeAs('attendance_photos', $photoName, 'public');
                     Log::info('Photo uploaded successfully:', ['path' => $photoPath]);
                 } catch (\Exception $e) {
@@ -181,7 +183,7 @@ class AbsensiController extends Controller
 
                     return response()->json([
                         'success' => false,
-                        'message' => 'Gagal mengupload foto: ' . $e->getMessage(),
+                        'message' => 'Gagal mengupload foto: '.$e->getMessage(),
                     ], 500);
                 }
             }
@@ -222,19 +224,100 @@ class AbsensiController extends Controller
                     Log::info('Absensi created successfully');
                 }
 
-                // Jika terlambat, tambahkan pelanggaran
                 if ($statusMasuk === 'terlambat') {
-                    $pelanggaranTerlambat = Pelanggaran::where('nama_pelanggaran', 'Terlambat Masuk Sekolah')->first();
-                    if ($pelanggaranTerlambat) {
+
+                    try {
+
+                        $selisihMenit = $waktuMasuk->diffInMinutes($waktuSekarang);
+
+                        // Tentukan pelanggaran berdasarkan menit
+                        if ($selisihMenit <= 10) {
+                            $pelanggaran = Pelanggaran::where('nama_pelanggaran', 'Terlambat Kurang dari 10 menit')->first();
+                        } elseif ($selisihMenit <= 30) {
+                            $pelanggaran = Pelanggaran::where('nama_pelanggaran', 'Terlambat Lebih dari 10 menit')->first();
+                        } else {
+                            $pelanggaran = Pelanggaran::where('nama_pelanggaran', 'Terlambat Lebih dari 30 menit')->first();
+                        }
+
+                        if (! $pelanggaran) {
+                            Log::error('Pelanggaran tidak ditemukan untuk keterlambatan', [
+                                'selisih_menit' => $selisihMenit,
+                            ]);
+
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Data pelanggaran keterlambatan tidak ditemukan di database',
+                            ], 500);
+                        }
+
+                        $jumlah = RekamPelanggaran::where('id_siswa', $request->id_siswa)
+                            ->where('id_pelanggaran', $pelanggaran->id)
+                            ->count();
+
+                        if ($jumlah == 0) {
+                            $poin = $pelanggaran->poin_1;
+                        } elseif ($jumlah == 1) {
+                            $poin = $pelanggaran->poin_2;
+                        } else {
+                            $poin = $pelanggaran->poin_3;
+                        }
+
                         RekamPelanggaran::create([
                             'id_siswa' => $request->id_siswa,
-                            'id_pelanggaran' => $pelanggaranTerlambat->id,
+                            'id_pelanggaran' => $pelanggaran->id,
                             'tanggal_pelanggaran' => Carbon::today(),
+                            'poin_diberikan' => $poin,
                             'foto_pelanggaran' => null,
-                            'id_user' => null,
+                            'id_user' => Auth::id(),
                             'pelapor' => 'system',
                         ]);
-                        Log::info('Pelanggaran terlambat recorded for student:', ['id_siswa' => $request->id_siswa]);
+                        $siswa = Siswa::where('id_siswa', $request->id_siswa)
+                            ->lockForUpdate()
+                            ->first();
+
+                        $totalBaru = $siswa->total_poin - $poin;
+
+                        $spBaru = null;
+
+                        if ($totalBaru <= -76) {
+                            $spBaru = 'SP3';
+                        } elseif ($totalBaru <= -51) {
+                            $spBaru = 'SP2';
+                        } elseif ($totalBaru <= -25) {
+                            $spBaru = 'SP1';
+                        }
+
+                        $urutan = [
+                            null => 0,
+                            'SP1' => 1,
+                            'SP2' => 2,
+                            'SP3' => 3,
+                        ];
+
+                        $spFinal = $siswa->sp_tertinggi;
+
+                        if ($urutan[$spBaru] > $urutan[$siswa->sp_tertinggi]) {
+                            $spFinal = $spBaru;
+                        }
+
+                        $siswa->update([
+                            'total_poin' => $totalBaru,
+                            'status_sp' => $spFinal,
+                            'sp_tertinggi' => $spFinal,
+                        ]);
+
+                        Log::info('Rekam pelanggaran berhasil disimpan', [
+                            'id_siswa' => $request->id_siswa,
+                            'poin' => $poin,
+                        ]);
+
+                    } catch (\Exception $e) {
+                        Log::error('ERROR SAAT SIMPAN REKAM PELANGGARAN: '.$e->getMessage());
+
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Gagal menyimpan rekam pelanggaran: '.$e->getMessage(),
+                        ], 500);
                     }
                 }
             } catch (\Exception $e) {
@@ -242,9 +325,10 @@ class AbsensiController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menyimpan absensi: ' . $e->getMessage(),
+                    'message' => 'Gagal menyimpan absensi: '.$e->getMessage(),
                 ], 500);
             }
+
             // return redirect()->route('siswa.dashboard')->with('success', 'Absensi masuk berhasil');
             return response()->json([
                 'success' => true,
@@ -252,11 +336,11 @@ class AbsensiController extends Controller
                 'status' => $statusMasuk,
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in absenMasuk: ' . $e->getMessage());
+            Log::error('Error in absenMasuk: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan server: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -276,12 +360,12 @@ class AbsensiController extends Controller
             $errors = $e->errors();
             $errorMessages = [];
             foreach ($errors as $field => $messages) {
-                $errorMessages[] = $field . ': ' . implode(', ', $messages);
+                $errorMessages[] = $field.': '.implode(', ', $messages);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal: ' . implode('; ', $errorMessages),
+                'message' => 'Validasi gagal: '.implode('; ', $errorMessages),
             ], 422);
         }
 
@@ -303,7 +387,7 @@ class AbsensiController extends Controller
                 ->where('tanggal', Carbon::today())
                 ->first();
 
-            if (!$absensiHariIni || !$absensiHariIni->waktu_masuk) {
+            if (! $absensiHariIni || ! $absensiHariIni->waktu_masuk) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda belum melakukan absensi masuk hari ini',
@@ -348,7 +432,7 @@ class AbsensiController extends Controller
                 $radius
             );
 
-            if (!$isWithinRadius) {
+            if (! $isWithinRadius) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda berada di luar radius sekolah. Absen pulang tidak diperbolehkan.',
@@ -359,7 +443,7 @@ class AbsensiController extends Controller
             $photoPath = null;
             if ($request->hasFile('photo')) {
                 $photo = $request->file('photo');
-                $photoName = time() . '_' . $request->id_siswa . '_pulang.' . $photo->getClientOriginalExtension();
+                $photoName = time().'_'.$request->id_siswa.'_pulang.'.$photo->getClientOriginalExtension();
                 $photoPath = $photo->storeAs('attendance_photos', $photoName, 'public');
             }
 
@@ -377,11 +461,11 @@ class AbsensiController extends Controller
                 'message' => 'Absensi pulang berhasil',
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in absenPulang: ' . $e->getMessage());
+            Log::error('Error in absenPulang: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan server: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -409,24 +493,25 @@ class AbsensiController extends Controller
                 ->whereIn('status_masuk', ['hadir', 'terlambat'])
                 ->get();
 
-            Log::info('Found ' . $siswaBolos->count() . ' candidate(s) for bolos');
+            Log::info('Found '.$siswaBolos->count().' candidate(s) for bolos');
 
             // Get pelanggaran record once
             $pelanggaranBolos = Pelanggaran::where('nama_pelanggaran', 'Bolos')->first();
-            if (!$pelanggaranBolos) {
+            if (! $pelanggaranBolos) {
                 Log::warning('Pelanggaran "Bolos" tidak ditemukan di database');
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Pelanggaran "Bolos" tidak ditemukan di database',
                 ]);
             }
 
-            Log::info('Pelanggaran Bolos id: ' . $pelanggaranBolos->id);
+            Log::info('Pelanggaran Bolos id: '.$pelanggaranBolos->id);
 
             $countBolos = 0;
 
             foreach ($siswaBolos as $absensi) {
-                Log::info('Processing siswa: ' . $absensi->id_siswa);
+                Log::info('Processing siswa: '.$absensi->id_siswa);
 
                 // Cek apakah sudah ada record pelanggaran bolos untuk siswa ini hari ini
                 $rekamBolosSudahAda = RekamPelanggaran::where('id_siswa', $absensi->id_siswa)
@@ -434,9 +519,9 @@ class AbsensiController extends Controller
                     ->whereDate('tanggal_pelanggaran', Carbon::today())
                     ->first();
 
-                Log::info('Existing RekamPelanggaran: ' . ($rekamBolosSudahAda ? 'YES' : 'NO'));
+                Log::info('Existing RekamPelanggaran: '.($rekamBolosSudahAda ? 'YES' : 'NO'));
 
-                if (!$rekamBolosSudahAda) {
+                if (! $rekamBolosSudahAda) {
                     try {
                         // Buat record pelanggaran bolos
                         $rekam = RekamPelanggaran::create([
@@ -448,21 +533,21 @@ class AbsensiController extends Controller
                             'pelapor' => 'system',
                         ]);
 
-                        Log::info('Created RekamPelanggaran for siswa ' . $absensi->id_siswa);
+                        Log::info('Created RekamPelanggaran for siswa '.$absensi->id_siswa);
 
                         // Update status pulang menjadi 'bolos' HANYA JIKA RekamPelanggaran berhasil dibuat
                         $absensi->update([
                             'status_pulang' => 'bolos',
                         ]);
 
-                        Log::info('Updated status_pulang to bolos for siswa: ' . $absensi->id_siswa);
+                        Log::info('Updated status_pulang to bolos for siswa: '.$absensi->id_siswa);
 
                         $countBolos++;
                     } catch (\Exception $e) {
-                        Log::error('Error creating RekamPelanggaran for siswa ' . $absensi->id_siswa . ': ' . $e->getMessage());
+                        Log::error('Error creating RekamPelanggaran for siswa '.$absensi->id_siswa.': '.$e->getMessage());
                     }
                 } else {
-                    Log::info('RekamPelanggaran sudah ada untuk siswa: ' . $absensi->id_siswa);
+                    Log::info('RekamPelanggaran sudah ada untuk siswa: '.$absensi->id_siswa);
                 }
             }
 
@@ -474,11 +559,11 @@ class AbsensiController extends Controller
                 'total_marked' => $countBolos,
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in checkAndMarkAbsenBolos: ' . $e->getMessage());
+            Log::error('Error in checkAndMarkAbsenBolos: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan server: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -506,6 +591,7 @@ class AbsensiController extends Controller
 
         return $distance <= $radius;
     }
+
     public function showDetail($id)
     {
         $absen = Absensi::with(['siswa.kelas.jurusan'])->findOrFail($id);
@@ -542,8 +628,8 @@ class AbsensiController extends Controller
             'jurusan' => $absen->siswa->kelas->jurusan->nama_jurusan ?? '-',
             'tanggal' => \Carbon\Carbon::parse($absen->tanggal)->format('d M Y'),
             'waktu_masuk' => $absen->waktu_masuk ?? '-',
-            'photo_path' => $absen->foto_masuk ? asset('storage/' . $absen->foto_masuk) : null,
-            'photo_path_pulang' => $absen->foto_pulang ? asset('storage/' . $absen->foto_pulang) : null,
+            'photo_path' => $absen->foto_masuk ? asset('storage/'.$absen->foto_masuk) : null,
+            'photo_path_pulang' => $absen->foto_pulang ? asset('storage/'.$absen->foto_pulang) : null,
             'lokasi' => $lokasi,
         ]);
     }

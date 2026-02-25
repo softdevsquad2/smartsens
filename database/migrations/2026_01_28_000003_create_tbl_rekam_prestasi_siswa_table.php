@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
             $table->unsignedBigInteger('id_user');
             $table->timestamps();
-
+            $table->integer('poin_diberikan');
             $table->foreign('id_siswa')->references('id_siswa')->on('tbl_siswa')->onDelete('cascade');
             $table->foreign('id_jenis_prestasi')->references('id')->on('tbl_jenis_prestasi')->onDelete('cascade');
             $table->foreign('id_user')->references('id_user')->on('tbl_user')->onDelete('cascade');

@@ -12,22 +12,28 @@
                 <!-- Search -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cari Siswa</label>
-                    <input type="text" name="search" placeholder="Nama atau NISN" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ request('search') }}">
+                    <input type="text" name="search" placeholder="Nama atau NISN"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value="{{ request('search') }}">
                 </div>
 
                 <!-- Tanggal -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                    <input type="date" name="tanggal" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ request('tanggal') }}">
+                    <input type="date" name="tanggal"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value="{{ request('tanggal') }}">
                 </div>
 
                 <!-- Jenis Pelanggaran -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Pelanggaran</label>
-                    <select name="id_pelanggaran" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select name="id_pelanggaran"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Semua Jenis</option>
-                        @foreach($jenisPelanggaran as $jp)
-                            <option value="{{ $jp->id }}" {{ request('id_pelanggaran') == $jp->id ? 'selected' : '' }}>
+                        @foreach ($jenisPelanggaran as $jp)
+                            <option value="{{ $jp->id }}"
+                                {{ request('id_pelanggaran') == $jp->id ? 'selected' : '' }}>
                                 {{ $jp->nama_pelanggaran }}
                             </option>
                         @endforeach
@@ -36,10 +42,12 @@
 
                 <!-- Tombol -->
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                         <i class="fas fa-search mr-1"></i>Filter
                     </button>
-                    <a href="{{ route('pelanggaran.rekam.list') }}" class="flex-1 px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors text-sm font-medium text-center">
+                    <a href="{{ route('pelanggaran.rekam.list') }}"
+                        class="flex-1 px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors text-sm font-medium text-center">
                         <i class="fas fa-redo mr-1"></i>Reset
                     </a>
                 </div>
@@ -87,7 +95,8 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                                <span
+                                    class="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
                                     {{ $data->pelanggaran->nama_pelanggaran }}
                                 </span>
                             </td>
@@ -98,8 +107,9 @@
                                 {{ $data->pelapor ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
-                                @if($data->foto_pelanggaran)
-                                    <button class="text-blue-600 hover:text-blue-800 font-medium text-sm" onclick="showFoto('{{ asset('storage/' . $data->foto_pelanggaran) }}')">
+                                @if ($data->foto_pelanggaran)
+                                    <button class="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                        onclick="showFoto('{{ asset('storage/' . $data->foto_pelanggaran) }}')">
                                         <i class="fas fa-image mr-1"></i>Lihat Foto
                                     </button>
                                 @else
@@ -107,13 +117,16 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                                    {{ $data->pelanggaran->poin_pelanggaran }} poin
+                                <span
+                                    class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                    {{ $data->pelanggaran->poin_diberikan }} poin
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <button onclick="showDetail('{{ $data->siswa->nama }}', '{{ $data->pelanggaran->nama_pelanggaran }}', '{{ $data->tanggal_pelanggaran }}', '{{ $data->pelapor }}', '{{ $data->pelanggaran->poin_pelanggaran }}')" class="text-blue-600 hover:text-blue-800">
+                                    <button
+                                        onclick="showDetail('{{ $data->siswa->nama }}', '{{ $data->pelanggaran->nama_pelanggaran }}', '{{ $data->tanggal_pelanggaran }}', '{{ $data->pelapor }}', '{{ $data->pelanggaran->poin_pelanggaran }}')"
+                                        class="text-blue-600 hover:text-blue-800">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -154,25 +167,25 @@
 @endsection
 
 @push('scripts')
-<script>
-    function showFoto(src) {
-        document.getElementById('fotoImage').src = src;
-        document.getElementById('fotoModal').classList.remove('hidden');
-    }
+    <script>
+        function showFoto(src) {
+            document.getElementById('fotoImage').src = src;
+            document.getElementById('fotoModal').classList.remove('hidden');
+        }
 
-    function closeFoto() {
-        document.getElementById('fotoModal').classList.add('hidden');
-    }
+        function closeFoto() {
+            document.getElementById('fotoModal').classList.add('hidden');
+        }
 
-    function showDetail(siswa, pelanggaran, tanggal, pelapor, poin) {
-        const detailText = `
+        function showDetail(siswa, pelanggaran, tanggal, pelapor, poin) {
+            const detailText = `
 Siswa: ${siswa}
 Pelanggaran: ${pelanggaran}
 Tanggal: ${tanggal}
 Pelapor: ${pelapor || '-'}
 Poin: ${poin}
         `;
-        alert(detailText);
-    }
-</script>
+            alert(detailText);
+        }
+    </script>
 @endpush

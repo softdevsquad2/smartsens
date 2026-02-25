@@ -13,7 +13,7 @@ class Siswa extends Model
 
     protected $primaryKey = 'id_siswa';
 
-    protected $fillable = ['id_kelas', 'nama', 'jenis_kelamin', 'nisn', 'card_code', 'no_hp_ortu', 'foto'];
+    protected $fillable = ['id_kelas', 'nama', 'jenis_kelamin', 'nisn', 'card_code', 'no_hp_ortu', 'foto', 'total_poin', 'status_sp', 'sp_tertinggi'];
 
     public function kelas()
     {

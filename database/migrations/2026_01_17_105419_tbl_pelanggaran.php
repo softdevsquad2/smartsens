@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('tbl_pelanggaran', function (Blueprint $table) {
             $table->id();
+            $table->string('kode');        // contoh: P1
+            $table->string('sub_kode');    // contoh: 1.1
             $table->string('nama_pelanggaran');
-            $table->string('poin_pelanggaran');
+
+            $table->integer('poin_1');
+            $table->integer('poin_2');
+            $table->integer('poin_3');
             $table->timestamps();
-           
+
         });
     }
 

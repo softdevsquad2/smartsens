@@ -17,6 +17,9 @@ class CreateTblSiswaTable extends Migration
             $table->string('card_code', 20)->nullable();
             $table->string('no_hp_ortu', 20)->nullable();
             $table->string('foto')->nullable();
+            $table->integer('total_poin')->default(0);
+            $table->string('status_sp')->nullable();
+            $table->string('sp_tertinggi')->nullable();
             $table->timestamps();
         });
     }

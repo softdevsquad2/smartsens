@@ -16,6 +16,8 @@ class RekamPelanggaran extends Model
         'foto_pelanggaran',
         'id_user',
         'pelapor',
+        'poin_diberikan',
+
     ];
 
     protected $casts = [

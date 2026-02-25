@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Pelanggaran;
-use App\Models\Siswa;
-use App\Models\Setting;
 use App\Models\Kelas;
+use App\Models\Pelanggaran;
 use App\Models\rekam_pelanggaran;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Setting;
+use App\Models\Siswa;
+use Illuminate\Http\Request;
 
 class PelanggaranController extends Controller
 {
@@ -28,10 +27,10 @@ class PelanggaranController extends Controller
             ->selectRaw('id_pelanggaran, COUNT(*) as jumlah')
             ->groupBy('id_pelanggaran')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'nama' => $item->pelanggaran->nama_pelanggaran ?? 'Unknown',
-                    'jumlah' => $item->jumlah
+                    'jumlah' => $item->jumlah,
                 ];
             });
 
@@ -44,13 +43,14 @@ class PelanggaranController extends Controller
         // Poin tertinggi siswa
         $poinTertinggi = Siswa::with('kelas')
             ->get()
-            ->map(function($s) {
+            ->map(function ($s) {
                 $totalPoin = rekam_pelanggaran::where('id_siswa', $s->id_siswa)
                     ->join('tbl_pelanggaran', 'tbl_rekam_pelanggaran.id_pelanggaran', '=', 'tbl_pelanggaran.id')
-                    ->sum('poin_pelanggaran');
+                    ->sum('poin_1', 'poin_2', 'poin_3'); // Sesuaikan dengan struktur poin di tabel pelanggaran
+
                 return [
                     'siswa' => $s,
-                    'total_poin' => $totalPoin
+                    'total_poin' => $totalPoin,
                 ];
             })
             ->sortByDesc('total_poin')
@@ -58,25 +58,32 @@ class PelanggaranController extends Controller
 
         return view('pelanggaran.index', compact('pelanggaranPerBulan', 'jenisPelanggaran', 'terbaruPelanggaran', 'poinTertinggi'));
     }
+
     public function store(Request $request)
     {
         // Logic to store pelanggaran data
     }
+
     public function pelanggaran(Request $request)
     {
         $perPage = $request->get('per_page', Setting::getSetting('pagination_pelanggaran') ?? 10);
         $pelanggaran = Pelanggaran::paginate($perPage);
+
         return view('pelanggaran.pelanggaran', compact('pelanggaran'));
     }
 
     public function storePelanggaranJenis(Request $request)
     {
         $request->validate([
+            'kode' => 'required|string|max:10|unique:tbl_pelanggaran,kode',
+            'sub_kode' => 'required|string|max:10',
             'nama_pelanggaran' => 'required|string|max:255',
-            'poin_pelanggaran' => 'required|integer|min:1',
+            'poin_1' => 'required|integer|min:1',
+            'poin_2' => 'required|integer|min:1',
+            'poin_3' => 'required|integer|min:1',
         ]);
 
-        Pelanggaran::create($request->only(['nama_pelanggaran', 'poin_pelanggaran']));
+        Pelanggaran::create($request->only(['kode', 'sub_kode', 'nama_pelanggaran', 'poin_1', 'poin_2', 'poin_3']));
 
         return redirect()->route('pelanggaran.pelanggaran')->with('success', 'Pelanggaran berhasil ditambahkan.');
     }
@@ -85,11 +92,13 @@ class PelanggaranController extends Controller
     {
         $request->validate([
             'nama_pelanggaran' => 'required|string|max:255',
-            'poin_pelanggaran' => 'required|integer|min:1',
+            'poin_1' => 'required|integer|min:1',
+            'poin_2' => 'required|integer|min:1',
+            'poin_3' => 'required|integer|min:1',
         ]);
 
         $pelanggaran = Pelanggaran::findOrFail($id);
-        $pelanggaran->update($request->only(['nama_pelanggaran', 'poin_pelanggaran']));
+        $pelanggaran->update($request->only(['nama_pelanggaran', 'poin_1', 'poin_2', 'poin_3']));
 
         return redirect()->route('pelanggaran.pelanggaran')->with('success', 'Pelanggaran berhasil diupdate.');
     }
@@ -101,55 +110,48 @@ class PelanggaranController extends Controller
 
         return redirect()->route('pelanggaran.pelanggaran')->with('success', 'Pelanggaran berhasil dihapus.');
     }
+
     public function riwayat(Request $request)
     {
         $perPage = $request->get('per_page', Setting::getSetting('pagination_riwayat') ?? 10);
 
         $query = Siswa::with(['kelas']);
 
-        if ($request->has('search') && !empty($request->search)) {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+        if ($request->has('search') && ! empty($request->search)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'like', '%'.$request->search.'%')
+                    ->orWhere('nisn', 'like', '%'.$request->search.'%');
+            });
         }
 
-        $siswa = $query->paginate($perPage)->through(function($s) {
-            $totalPoin = rekam_pelanggaran::where('id_siswa', $s->id_siswa)
-                ->join('tbl_pelanggaran', 'tbl_rekam_pelanggaran.id_pelanggaran', '=', 'tbl_pelanggaran.id')
-                ->sum('poin_pelanggaran');
-            $s->total_poin = $totalPoin;
-            return $s;
-        });
+        $siswa = $query->paginate($perPage);
 
         return view('pelanggaran.riwayat', compact('siswa'));
     }
+
     public function detail($nama)
     {
         // URL decode the name parameter in case it contains spaces or special characters
         $nama = urldecode($nama);
 
-        $siswa = Siswa::where('nama', 'like', '%' . $nama . '%')->first();
+        $siswa = Siswa::where('nama', 'like', '%'.$nama.'%')->first();
 
-        if (!$siswa) {
+        if (! $siswa) {
             // If no student found with partial match, try exact match
             $siswa = Siswa::where('nama', $nama)->first();
         }
 
-        if (!$siswa) {
+        if (! $siswa) {
             abort(404, 'Siswa tidak ditemukan');
         }
-
-        $totalPoin = rekam_pelanggaran::where('id_siswa', $siswa->id_siswa)
-            ->join('tbl_pelanggaran', 'tbl_rekam_pelanggaran.id_pelanggaran', '=', 'tbl_pelanggaran.id')
-            ->sum('poin_pelanggaran');
 
         $riwayatPelanggaran = rekam_pelanggaran::with('pelanggaran')
             ->where('id_siswa', $siswa->id_siswa)
             ->orderBy('tanggal_pelanggaran', 'desc')
             ->get();
 
-        return view('pelanggaran.detail', compact('siswa', 'totalPoin', 'riwayatPelanggaran'));
+        return view('pelanggaran.detail', compact('siswa', 'riwayatPelanggaran'));
     }
-
 
     public function unduh(Request $request)
     {
@@ -158,7 +160,7 @@ class PelanggaranController extends Controller
         $query = rekam_pelanggaran::with(['siswa.kelas', 'pelanggaran']);
 
         if ($request->kelas) {
-            $query->whereHas('siswa', function($q) use ($request) {
+            $query->whereHas('siswa', function ($q) use ($request) {
                 $q->where('id_kelas', $request->kelas);
             });
         }
@@ -174,14 +176,15 @@ class PelanggaranController extends Controller
         $dataPelanggaran = $query->paginate($perPage);
 
         // Add prestasi points untuk setiap siswa
-        $dataPelanggaran->getCollection()->transform(function($item) {
+        $dataPelanggaran->getCollection()->transform(function ($item) {
             $totalPoinPrestasi = \App\Models\RekamPrestasi::where('id_siswa', $item->siswa->id_siswa)
                 ->with('jenisPrestasi')
                 ->get()
-                ->sum(function($prestasi) {
+                ->sum(function ($prestasi) {
                     return $prestasi->jenisPrestasi->poin_prestasi ?? 0;
                 });
             $item->total_poin_prestasi = $totalPoinPrestasi;
+
             return $item;
         });
 
@@ -196,6 +199,7 @@ class PelanggaranController extends Controller
     {
         $siswa = Siswa::all();
         $pelanggaran = Pelanggaran::all();
+
         return view('pelanggaran.rekam', compact('siswa', 'pelanggaran'));
     }
 
@@ -212,26 +216,46 @@ class PelanggaranController extends Controller
             $tanggal = now()->toDateString();
 
             foreach ($request->pelanggaran as $idPelanggaran) {
+                // Hitung jumlah pelanggaran jenis ini yang sudah dilakukan siswa
+                $jumlahPelanggaranSebelumnya = rekam_pelanggaran::where('id_siswa', $request->id_siswa)
+                    ->where('id_pelanggaran', $idPelanggaran)
+                    ->count();
+
+                // Tentukan poin berdasarkan jumlah pelanggaran sebelumnya
+                $pelanggaran = Pelanggaran::find($idPelanggaran);
+                if ($jumlahPelanggaranSebelumnya == 0) {
+                    $poinDiberikan = $pelanggaran->poin_1;
+                } elseif ($jumlahPelanggaranSebelumnya == 1) {
+                    $poinDiberikan = $pelanggaran->poin_2;
+                } else {
+                    $poinDiberikan = $pelanggaran->poin_3;
+                }
+
                 rekam_pelanggaran::create([
                     'id_siswa' => $request->id_siswa,
                     'id_pelanggaran' => $idPelanggaran,
                     'tanggal_pelanggaran' => $tanggal,
+                    'poin_diberikan' => $poinDiberikan,
                 ]);
             }
+
             // dd($request->all());
             return response()->json(['success' => true, 'message' => 'Pelanggaran berhasil direkam.']);
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Validation Error in PelanggaranController:', $e->errors());
-            return response()->json(['success' => false, 'message' => 'Validasi gagal: ' . implode(', ', $e->errors()['pelanggaran'] ?? $e->errors()['id_siswa'] ?? ['Data tidak valid'])]);
+
+            return response()->json(['success' => false, 'message' => 'Validasi gagal: '.implode(', ', $e->errors()['pelanggaran'] ?? $e->errors()['id_siswa'] ?? ['Data tidak valid'])]);
         } catch (\Exception $e) {
             \Log::error('Exception in PelanggaranController:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: '.$e->getMessage()]);
         }
     }
 
     public function listRekamPelanggaran()
     {
         $rekamPelanggaran = rekam_pelanggaran::with(['siswa', 'pelanggaran', 'petugas'])->paginate(20);
+
         return view('pelanggaran.list_rekam', compact('rekamPelanggaran'));
     }
 
@@ -240,9 +264,10 @@ class PelanggaranController extends Controller
         try {
             $rekam = rekam_pelanggaran::findOrFail($id);
             $rekam->delete();
+
             return response()->json(['success' => true, 'message' => 'Pelanggaran berhasil dihapus.']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus: '.$e->getMessage()]);
         }
     }
 
@@ -251,7 +276,7 @@ class PelanggaranController extends Controller
         $queryPelanggaran = rekam_pelanggaran::with(['siswa.kelas', 'pelanggaran']);
 
         if ($request->kelas) {
-            $queryPelanggaran->whereHas('siswa', function($q) use ($request) {
+            $queryPelanggaran->whereHas('siswa', function ($q) use ($request) {
                 $q->where('id_kelas', $request->kelas);
             });
         }
@@ -267,14 +292,15 @@ class PelanggaranController extends Controller
         $dataPelanggaran = $queryPelanggaran->get();
 
         // Add prestasi points untuk setiap siswa
-        $dataPelanggaran->transform(function($item) {
+        $dataPelanggaran->transform(function ($item) {
             $totalPoinPrestasi = \App\Models\RekamPrestasi::where('id_siswa', $item->siswa->id_siswa)
                 ->with('jenisPrestasi')
                 ->get()
-                ->sum(function($prestasi) {
+                ->sum(function ($prestasi) {
                     return $prestasi->jenisPrestasi->poin_prestasi ?? 0;
                 });
             $item->total_poin_prestasi = $totalPoinPrestasi;
+
             return $item;
         });
 
@@ -282,7 +308,7 @@ class PelanggaranController extends Controller
         $queryPrestasi = \App\Models\RekamPrestasi::with(['siswa.kelas', 'jenisPrestasi', 'petugas']);
 
         if ($request->kelas) {
-            $queryPrestasi->whereHas('siswa', function($q) use ($request) {
+            $queryPrestasi->whereHas('siswa', function ($q) use ($request) {
                 $q->where('id_kelas', $request->kelas);
             });
         }
@@ -294,6 +320,7 @@ class PelanggaranController extends Controller
         $dataPrestasi = $queryPrestasi->get();
 
         $pdf = \PDF::loadView('pelanggaran.export_pdf', compact('dataPelanggaran', 'dataPrestasi'));
+
         return $pdf->download('laporan_pelanggaran.pdf');
     }
 
@@ -308,9 +335,9 @@ class PelanggaranController extends Controller
 
         // Filter berdasarkan search
         if ($request->search) {
-            $query->whereHas('siswa', function($q) use ($request) {
-                $q->where('nama', 'like', '%' . $request->search . '%')
-                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+            $query->whereHas('siswa', function ($q) use ($request) {
+                $q->where('nama', 'like', '%'.$request->search.'%')
+                    ->orWhere('nisn', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -336,9 +363,9 @@ class PelanggaranController extends Controller
 
         // Filter berdasarkan search
         if ($request->search) {
-            $query->whereHas('siswa', function($q) use ($request) {
-                $q->where('nama', 'like', '%' . $request->search . '%')
-                  ->orWhere('nisn', 'like', '%' . $request->search . '%');
+            $query->whereHas('siswa', function ($q) use ($request) {
+                $q->where('nama', 'like', '%'.$request->search.'%')
+                    ->orWhere('nisn', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -361,6 +388,7 @@ class PelanggaranController extends Controller
     public function jenisPrestasi()
     {
         $jenisPrestasi = \App\Models\JenisPrestasi::all();
+
         return view('pelanggaran.kelola_prestasi', compact('jenisPrestasi'));
     }
 
@@ -408,6 +436,7 @@ class PelanggaranController extends Controller
     public function managePrestasi(Request $request)
     {
         $jenisPrestasi = \App\Models\JenisPrestasi::all();
+
         return view('pelanggaran.kelola_prestasi', compact('jenisPrestasi'));
     }
 
@@ -436,6 +465,7 @@ class PelanggaranController extends Controller
     public function settings()
     {
         $user = auth()->user();
+
         return view('pelanggaran.settings', compact('user'));
     }
 }

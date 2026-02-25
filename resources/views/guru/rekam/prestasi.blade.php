@@ -6,7 +6,8 @@
 
 @section('sidebar')
     <!-- Dashboard -->
-    <a href="{{ route('guru.dashboard') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+    <a href="{{ route('guru.dashboard') }}"
+        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-tachometer-alt"></i>
         <span>Dashboard</span>
     </a>
@@ -31,7 +32,8 @@
         <i class="fas fa-chart-bar"></i>
         <span>Laporan Absensi</span>
     </a>
- <a href="{{ route('guru.settings') }}" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+    <a href="{{ route('guru.settings') }}"
+        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
         <i class="fas fa-cog"></i>
         <span>Pengaturan</span>
     </a>
@@ -81,98 +83,140 @@
 
             <label for="id_jenis_prestasi" class="block text-sm font-medium text-gray-700 mb-2">Jenis Prestasi <span
                     class="text-red-600">*</span></label>
-                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                     <script>
-                        (function() {
-            // attach handler to the specific prestasi form
-            const formEl = document.getElementById('prestasiForm');
-            if (!formEl) return;
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                (function() {
+                    // attach handler to the specific prestasi form
+                    const formEl = document.getElementById('prestasiForm');
+                    if (!formEl) return;
 
-            formEl.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const confirmed = await Swal.fire({
-                    title: 'Sudah benar semua?',
-                    text: 'Periksa data dan bukti. Apakah sudah sesuai?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    cancelButtonText: 'Batal',
-                    confirmButtonText: 'Ya, simpan',
-                    reverseButtons: true
-                });
+                    formEl.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        const confirmed = await Swal.fire({
+                            title: 'Sudah benar semua?',
+                            text: 'Periksa data dan bukti. Apakah sudah sesuai?',
+                            icon: 'question',
+                            showCancelButton: true,
+                            cancelButtonText: 'Batal',
+                            confirmButtonText: 'Ya, simpan',
+                            reverseButtons: true
+                        });
 
-                if (!confirmed.isConfirmed) return;
+                        if (!confirmed.isConfirmed) return;
 
-                // show progress swal with bar
-                Swal.fire({
-                    title: 'Mengunggah...',
-                    html: '<div style="margin-top:8px"><div id="uploadBarP" style="width:100%;height:12px;background:#eee;border-radius:6px;"><div id="uploadBarFillP" style="width:0%;height:100%;background:#34d399;border-radius:6px;"></div></div><div id="uploadPercentP" style="margin-top:8px;font-size:13px;color:#444">0%</div></div>',
-                    showConfirmButton: false,
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
-
-                try {
-                    const fd = new FormData(formEl);
-
-                    await new Promise((resolve, reject) => {
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', formEl.action);
-                        xhr.withCredentials = true;
-                        xhr.upload.onprogress = function(e) {
-                            if (e.lengthComputable) {
-                                const pct = Math.round((e.loaded / e.total) * 100);
-                                const fill = document.getElementById('uploadBarFillP');
-                                const pctEl = document.getElementById('uploadPercentP');
-                                if (fill) fill.style.width = pct + '%';
-                                if (pctEl) pctEl.textContent = pct + '%';
+                        // show progress swal with bar
+                        Swal.fire({
+                            title: 'Mengunggah...',
+                            html: '<div style="margin-top:8px"><div id="uploadBarP" style="width:100%;height:12px;background:#eee;border-radius:6px;"><div id="uploadBarFillP" style="width:0%;height:100%;background:#34d399;border-radius:6px;"></div></div><div id="uploadPercentP" style="margin-top:8px;font-size:13px;color:#444">0%</div></div>',
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                        };
-                        xhr.onload = function() {
-                            let text = xhr.responseText || '';
-                            let data = null;
-                            try { data = JSON.parse(text); } catch (e) { /* ignore */ }
+                        });
 
-                            if (xhr.status >= 200 && xhr.status < 300) {
-                                if (data && data.success) {
-                                    Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message || 'Prestasi berhasil direkam.' });
-                                    formEl.reset();
-                                    document.getElementById('buktiPreview').classList.add('hidden');
-                                    $('#id_siswa, #id_jenis_prestasi').val(null).trigger('change');
-                                    resolve();
-                                } else if (xhr.status === 422 && data && data.errors) {
-                                    const msgs = Object.values(data.errors).flat().join('\n');
-                                    Swal.fire({ icon: 'error', title: 'Validasi', text: msgs });
-                                    reject(new Error('validation'));
-                                } else {
-                                    Swal.fire({ icon: 'error', title: 'Gagal', text: data && data.message ? data.message : 'Terjadi kesalahan saat menyimpan.' });
-                                    reject(new Error('server'));
-                                }
-                            } else {
-                                const msg = (data && data.message) ? data.message : (text || 'Terjadi kesalahan server.');
-                                console.error('Server error response:', xhr.status, text);
-                                Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
-                                reject(new Error('http'));
-                            }
-                        };
-                        xhr.onerror = function() { Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan.' }); reject(new Error('network')); };
-                        xhr.send(fd);
+                        try {
+                            const fd = new FormData(formEl);
+
+                            await new Promise((resolve, reject) => {
+                                const xhr = new XMLHttpRequest();
+                                xhr.open('POST', formEl.action);
+                                xhr.withCredentials = true;
+                                xhr.upload.onprogress = function(e) {
+                                    if (e.lengthComputable) {
+                                        const pct = Math.round((e.loaded / e.total) * 100);
+                                        const fill = document.getElementById('uploadBarFillP');
+                                        const pctEl = document.getElementById('uploadPercentP');
+                                        if (fill) fill.style.width = pct + '%';
+                                        if (pctEl) pctEl.textContent = pct + '%';
+                                    }
+                                };
+                                xhr.onload = function() {
+                                    let text = xhr.responseText || '';
+                                    let data = null;
+                                    try {
+                                        data = JSON.parse(text);
+                                    } catch (e) {
+                                        /* ignore */
+                                    }
+
+                                    if (xhr.status >= 200 && xhr.status < 300) {
+                                        if (data && data.success) {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Berhasil',
+                                                text: data.message ||
+                                                    'Prestasi berhasil direkam.'
+                                            });
+                                            formEl.reset();
+                                            document.getElementById('buktiPreview').classList.add(
+                                                'hidden');
+                                            $('#id_siswa, #id_jenis_prestasi').val(null).trigger(
+                                                'change');
+                                            resolve();
+                                        } else if (xhr.status === 422 && data && data.errors) {
+                                            const msgs = Object.values(data.errors).flat().join('\n');
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Validasi',
+                                                text: msgs
+                                            });
+                                            reject(new Error('validation'));
+                                        } else {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Gagal',
+                                                text: data && data.message ? data.message :
+                                                    'Terjadi kesalahan saat menyimpan.'
+                                            });
+                                            reject(new Error('server'));
+                                        }
+                                    } else {
+                                        const msg = (data && data.message) ? data.message : (text ||
+                                            'Terjadi kesalahan server.');
+                                        console.error('Server error response:', xhr.status, text);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Gagal',
+                                            text: msg
+                                        });
+                                        reject(new Error('http'));
+                                    }
+                                };
+                                xhr.onerror = function() {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal',
+                                        text: 'Terjadi kesalahan jaringan.'
+                                    });
+                                    reject(new Error('network'));
+                                };
+                                xhr.send(fd);
+                            });
+                        } catch (err) {
+                            // handled above
+                        }
                     });
-                } catch (err) {
-                    // handled above
-                }
-            });
 
-            // Flash fallback using session (if redirect used)
-            document.addEventListener('DOMContentLoaded', function() {
-                @if(session('success'))
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: @json(session('success')) });
-                @endif
-                @if(session('error'))
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: @json(session('error')) });
-                @endif
-            });
-        })();
-    </script>
+                    // Flash fallback using session (if redirect used)
+                    document.addEventListener('DOMContentLoaded', function() {
+                        @if (session('success'))
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: @json(session('success'))
+                            });
+                        @endif
+                        @if (session('error'))
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: @json(session('error'))
+                            });
+                        @endif
+                    });
+                })();
+            </script>
             <select id="id_jenis_prestasi" name="id_jenis_prestasi" class="searchable-select w-full" required>
                 <option value="">-- Pilih Jenis Prestasi --</option>
                 @foreach ($jenisPrestasi as $jp)
@@ -190,7 +234,8 @@
 
         <!-- Bukti Prestasi (Opsional) -->
         <div class="mb-6">
-            <label for="bukti_prestasi" class="block text-sm font-medium text-gray-700 mb-2">Bukti Prestasi (Opsional)</label>
+            <label for="bukti_prestasi" class="block text-sm font-medium text-gray-700 mb-2">Bukti Prestasi
+                (Opsional)</label>
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-green-500 transition-colors"
                 id="buktiDropZone">
                 <input type="file" id="bukti_prestasi" name="bukti_prestasi" class="hidden" accept="image/*">
@@ -212,7 +257,9 @@
         <!-- Keterangan -->
         <div class="mb-6">
             <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label>
-            <textarea id="keterangan" name="keterangan" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan keterangan prestasi...">{{ old('keterangan') }}</textarea>
+            <textarea id="keterangan" name="keterangan" rows="4"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Masukkan keterangan prestasi...">{{ old('keterangan') }}</textarea>
             @error('keterangan')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
@@ -270,7 +317,7 @@
                 }
             });
 
-                buktiFileInput.addEventListener('change', () => handleFileSelect());
+            buktiFileInput.addEventListener('change', () => handleFileSelect());
 
             async function compressImage(file, maxKB = 250) {
                 const mimeType = 'image/jpeg';
@@ -294,32 +341,53 @@
                             let quality = 0.92;
                             const minQuality = 0.45;
                             const targetBytes = maxKB * 1024;
-                            async function tryExport() { return new Promise(res => canvas.toBlob(res, mimeType, quality)); }
+                            async function tryExport() {
+                                return new Promise(res => canvas.toBlob(res, mimeType,
+                                    quality));
+                            }
                             let blob = await tryExport();
-                            while (blob && blob.size > targetBytes && quality > minQuality) {
+                            while (blob && blob.size > targetBytes && quality >
+                                minQuality) {
                                 quality -= 0.08;
                                 blob = await tryExport();
                             }
-                            while (blob && blob.size > targetBytes && (canvas.width > 400 || canvas.height > 400)) {
+                            while (blob && blob.size > targetBytes && (canvas.width > 400 ||
+                                    canvas.height > 400)) {
                                 const newW = Math.round(canvas.width * 0.8);
                                 const newH = Math.round(canvas.height * 0.8);
                                 const tmpCanvas = document.createElement('canvas');
-                                tmpCanvas.width = newW; tmpCanvas.height = newH;
+                                tmpCanvas.width = newW;
+                                tmpCanvas.height = newH;
                                 const tctx = tmpCanvas.getContext('2d');
                                 tctx.drawImage(canvas, 0, 0, newW, newH);
-                                canvas.width = newW; canvas.height = newH;
-                                ctx.clearRect(0,0,canvas.width,canvas.height);
-                                ctx.drawImage(tmpCanvas, 0,0);
+                                canvas.width = newW;
+                                canvas.height = newH;
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                ctx.drawImage(tmpCanvas, 0, 0);
                                 blob = await tryExport();
-                                if (blob && blob.size > targetBytes && quality > minQuality) {
+                                if (blob && blob.size > targetBytes && quality >
+                                    minQuality) {
                                     quality = Math.max(minQuality, quality - 0.05);
                                     blob = await tryExport();
                                 }
                             }
-                            if (!blob) { resolve(file); return; }
-                            if (blob.size > file.size) { resolve(file); return; }
-                            try { const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.jpg', { type: mimeType }); resolve(newFile); }
-                            catch (e) { resolve(blob); }
+                            if (!blob) {
+                                resolve(file);
+                                return;
+                            }
+                            if (blob.size > file.size) {
+                                resolve(file);
+                                return;
+                            }
+                            try {
+                                const newFile = new File([blob], file.name.replace(
+                                    /\.[^/.]+$/, '') + '.jpg', {
+                                    type: mimeType
+                                });
+                                resolve(newFile);
+                            } catch (e) {
+                                resolve(blob);
+                            }
                         };
                         img.onerror = () => resolve(file);
                         img.src = e.target.result;
@@ -336,8 +404,12 @@
                     const dt = new DataTransfer();
                     if (compressed instanceof Blob && !(compressed instanceof File)) {
                         const fileName = originalFile.name.replace(/\.[^/.]+$/, '') + '.jpg';
-                        dt.items.add(new File([compressed], fileName, { type: 'image/jpeg' }));
-                    } else { dt.items.add(compressed); }
+                        dt.items.add(new File([compressed], fileName, {
+                            type: 'image/jpeg'
+                        }));
+                    } else {
+                        dt.items.add(compressed);
+                    }
                     buktiFileInput.files = dt.files;
                     const previewUrl = URL.createObjectURL(buktiFileInput.files[0]);
                     previewImageBukti.src = previewUrl;
