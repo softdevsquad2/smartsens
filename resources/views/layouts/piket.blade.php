@@ -44,8 +44,8 @@
     </header>
 
     <!-- SIDEBAR OVERLAY (Mobile) -->
-    <div x-show="sidebarOpen" x-cloak class="fixed inset-0 bg-black/50 z-40 md:hidden"
-        @click="sidebarOpen = false"></div>
+    <div x-show="sidebarOpen" x-cloak class="fixed inset-0 bg-black/50 z-40 md:hidden" @click="sidebarOpen = false">
+    </div>
 
     <!-- SIDEBAR -->
     <aside
@@ -99,11 +99,11 @@
                 <span class="ml-3">Unduh Laporan</span>
             </a>
 
-            <a href="/piket/settings"
+            {{-- <a href="/piket/settings"
                 class="{{ $menuClass }} {{ request()->routeIs('piket.profile.settings') ? $activeClass : '' }}">
                 <i class="fas fa-cog w-5"></i>
                 <span class="ml-3">Pengaturan</span>
-            </a>
+            </a> --}}
         </nav>
 
         <!-- USER -->
