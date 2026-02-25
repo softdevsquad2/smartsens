@@ -5,60 +5,7 @@
 @section('page-description', 'Manajemen data absensi siswa')
 
 @section('sidebar')
-    <!-- Beranda -->
-    <a href="/admin/dashboard"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Beranda</span>
-    </a>
-
-    <!-- Absensi -->
-    <a href="/admin/absensi" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-calendar-check"></i>
-        <span>Absensi</span>
-    </a>
-
-    <!-- Kelola Siswa -->
-    <a href="/admin/siswa"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-users"></i>
-        <span>Kelola Siswa</span>
-    </a>
-
-    <!-- Kelola Kelas -->
-    <a href="/admin/kelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chalkboard"></i>
-        <span>Kelola Kelas</span>
-    </a>
-
-    <!-- Kelola Jurusan -->
-    <a href="/admin/jurusan"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Kelola Jurusan</span>
-    </a>
-
-    <!-- Kelola Wali Kelas -->
-    <a href="/admin/walikelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-tie"></i>
-        <span>Kelola Wali Kelas</span>
-    </a>
-
-    <!-- Kelola User -->
-    <a href="/admin/user"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-cog"></i>
-        <span>Kelola User</span>
-    </a>
-
-    <!-- Pengaturan -->
-    <a href="/admin/settings"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
+    @include('layouts.sidebar')
 
 
 @endsection
@@ -104,8 +51,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Siswa</label>
-                <input type="text" name="search" id="search" value="{{ $search ?? '' }}"
-                    placeholder="Nama siswa..."
+                <input type="text" name="search" id="search" value="{{ $search ?? '' }}" placeholder="Nama siswa..."
                     class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
             <div>
@@ -126,11 +72,13 @@
                 </select>
             </div>
             <div class="flex items-end space-x-2">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <i class="fas fa-search mr-1"></i>Cari
                 </button>
-                @if(($search ?? '') || ($tanggal ?? '') || ($status ?? ''))
-                    <a href="{{ route('admin.absensi') }}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                @if (($search ?? '') || ($tanggal ?? '') || ($status ?? ''))
+                    <a href="{{ route('admin.admin.absensi') }}"
+                        class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
                         <i class="fas fa-times mr-1"></i>Reset
                     </a>
                 @endif
@@ -292,7 +240,7 @@
                                         Detail
                                     </button>
                                     <form id="deleteForm-{{ $absen->id_absensi }}"
-                                        action="{{ route('absensi.destroy', $absen->id_absensi) }}" method="POST"
+                                        action="{{ route('admin.absensi.destroy', $absen->id_absensi) }}" method="POST"
                                         class="inline">
                                         @csrf
                                         @method('DELETE')
@@ -488,7 +436,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal!',
-                        text: 'Tidak dapat memuat detail absensi.',
+                        text: 'Tidak dapat memuat detail admin.absensi.',
                         confirmButtonColor: '#2563eb'
                     });
                 }

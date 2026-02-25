@@ -5,60 +5,7 @@
 @section('page-description', 'Kelola data guru')
 
 @section('sidebar')
-    <!-- Dashboard -->
-    <a href="/admin/dashboard"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
-
-    <!-- Absensi -->
-    <a href="/admin/absensi"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-calendar-check"></i>
-        <span>Absensi</span>
-    </a>
-
-    <!-- Kelola Siswa -->
-    <a href="/admin/siswa"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-users"></i>
-        <span>Kelola Siswa</span>
-    </a>
-
-    <!-- Kelola Kelas -->
-    <a href="/admin/kelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chalkboard"></i>
-        <span>Kelola Kelas</span>
-    </a>
-
-    <!-- Kelola Guru -->
-    <a href="/admin/walikelas" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-user-tie"></i>
-        <span>Kelola Guru</span>
-    </a>
-
-    <!-- Kelola Jurusan -->
-    <a href="/admin/jurusan"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Kelola Jurusan</span>
-    </a>
-
-    <!-- Kelola User -->
-    <a href="/admin/user"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-cog"></i>
-        <span>Kelola User</span>
-    </a>
-
-    <!-- Pengaturan -->
-    <a href="/admin/settings"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
+    @include('layouts.sidebar')
 @endsection
 
 @section('content')
@@ -69,7 +16,7 @@
             <p class="mt-1 text-sm text-gray-600">Kelola data guru di sekolah</p>
         </div>
         <div class="flex space-x-3">
-                <a href="{{ route('walikelas.create') }}"
+            <a href="{{ route('admin.walikelas.create') }}"
                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
                 <i class="fas fa-plus mr-2"></i>
                 Tambah Guru
@@ -118,7 +65,7 @@
                     <h3 class="text-sm font-medium text-yellow-800">Peringatan Import</h3>
                     <div class="mt-2 text-sm text-yellow-700">
                         <ul class="list-disc pl-5 space-y-1">
-                            @foreach(session('import_errors') as $error)
+                            @foreach (session('import_errors') as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
@@ -149,11 +96,12 @@
                     </select>
                     <span class="text-sm text-gray-700 ml-2">data per halaman</span>
                 </div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <i class="fas fa-search mr-1"></i>Cari
                 </button>
-                @if(($search ?? ''))
-                    <a href="{{ route('walikelas.index') }}" class="text-gray-600 hover:text-gray-800">
+                @if ($search ?? '')
+                    <a href="{{ route('admin.walikelas.index') }}" class="text-gray-600 hover:text-gray-800">
                         <i class="fas fa-times mr-1"></i>Reset
                     </a>
                 @endif
@@ -162,7 +110,8 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Guru</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Guru
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas
                         </th>
@@ -201,7 +150,8 @@
                                         <i class="fas fa-chalkboard text-white text-xs"></i>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $wk->kelas->nama_kelas ?? '-' }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $wk->kelas->nama_kelas ?? '-' }}
+                                        </div>
                                         <div class="text-xs text-gray-500">{{ $wk->kelas->jurusan->nama_jurusan ?? 'N/A' }}
                                         </div>
                                     </div>
@@ -224,17 +174,18 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-2">
-                                    <a href="{{ route('walikelas.show', $wk) }}"
+                                    <a href="{{ route('admin.walikelas.show', $wk) }}"
                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                                         <i class="fas fa-eye mr-1"></i>
                                         Detail
                                     </a>
-                                    <a href="{{ route('walikelas.edit', $wk) }}"
+                                    <a href="{{ route('admin.walikelas.edit', $wk) }}"
                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors">
                                         <i class="fas fa-edit mr-1"></i>
                                         Edit
                                     </a>
-                                    <form action="{{ route('walikelas.destroy', $wk) }}" method="POST" class="inline"
+                                    <form action="{{ route('admin.walikelas.destroy', $wk) }}" method="POST"
+                                        class="inline"
                                         onsubmit="return confirmDelete('Yakin ingin menghapus guru ini?', 'Konfirmasi Hapus Guru')">
                                         @csrf
                                         @method('DELETE')
@@ -254,7 +205,7 @@
                                     <i class="fas fa-user-tie text-gray-400 text-4xl mb-4"></i>
                                     <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada guru</h3>
                                     <p class="text-gray-500 mb-4">Mulai dengan menambahkan guru pertama</p>
-                                    <a href="{{ route('walikelas.create') }}"
+                                    <a href="{{ route('admin.walikelas.create') }}"
                                         class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         <i class="fas fa-plus mr-2"></i>
                                         Tambah Guru
@@ -281,7 +232,8 @@
             <!-- Modal Header -->
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mr-3">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mr-3">
                         <i class="fas fa-upload text-white"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">Import Guru</h3>
@@ -292,7 +244,8 @@
             </div>
 
             <!-- Modal Body -->
-            <form action="{{ route('walikelas.import') }}" method="POST" enctype="multipart/form-data" id="importForm">
+            <form action="{{ route('admin.walikelas.import') }}" method="POST" enctype="multipart/form-data"
+                id="importForm">
                 @csrf
 
                 <!-- File Upload Area -->
@@ -300,8 +253,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Pilih File Excel (.xlsx)
                     </label>
-                    <div id="dropZone" class="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors cursor-pointer">
-                        <input type="file" name="file" accept=".xlsx" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                    <div id="dropZone"
+                        class="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors cursor-pointer">
+                        <input type="file" name="file" accept=".xlsx" id="fileInput"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                         <div class="flex flex-col items-center">
                             <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
                             <p class="text-sm text-gray-600 mb-1">Klik untuk memilih file atau seret file ke sini</p>
@@ -323,7 +278,7 @@
                             <p class="text-xs text-blue-700 mb-2">
                                 Pastikan format file sesuai dengan template untuk menghindari kesalahan import.
                             </p>
-                            <a href="{{ route('walikelas.template') }}"
+                            <a href="{{ route('admin.walikelas.template') }}"
                                 class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors">
                                 <i class="fas fa-download mr-1"></i>
                                 Download Template
@@ -337,8 +292,9 @@
                     <div class="flex items-start">
                         <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5 mr-3"></i>
                         <div>
-                                <p class="text-xs text-yellow-700">
-                                <strong>Penting:</strong> Data yang diimport akan menimpa data yang sudah ada jika ada duplikasi.
+                            <p class="text-xs text-yellow-700">
+                                <strong>Penting:</strong> Data yang diimport akan menimpa data yang sudah ada jika ada
+                                duplikasi.
                                 Pastikan file sudah benar sebelum mengupload.
                             </p>
                         </div>
@@ -363,7 +319,7 @@
 
     <script>
         // Safe modal + file input handling for Import Wali Kelas
-        (function () {
+        (function() {
             const modal = document.getElementById('importModal');
             const openButtons = document.querySelectorAll('[command="show-modal"]');
             const closeButton = document.getElementById('closeModal');
@@ -400,7 +356,7 @@
             if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
             // Close when clicking overlay (but not when clicking inside dialog content)
-            modal.addEventListener('click', function (e) {
+            modal.addEventListener('click', function(e) {
                 if (e.target === modal) closeModal();
             });
 
@@ -444,7 +400,9 @@
                     const dt = e.dataTransfer;
                     if (dt && dt.files && dt.files.length) {
                         fileInput.files = dt.files;
-                        const ev = new Event('change', { bubbles: true });
+                        const ev = new Event('change', {
+                            bubbles: true
+                        });
                         fileInput.dispatchEvent(ev);
                     }
                 });

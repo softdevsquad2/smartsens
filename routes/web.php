@@ -1,28 +1,27 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UksController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ScanController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\PiketController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\BarangController;
 use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\ToolmanController;
-use App\Http\Controllers\WaliKelasController;
-use App\Http\Controllers\UserManageController;
-use App\Http\Controllers\KelasManageController;
-use App\Http\Controllers\PelanggaranController;
-use App\Http\Controllers\SiswaManageController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\Guru\PelanggaranController as GuruPelanggaranController;
 use App\Http\Controllers\Guru\PretasiController;
 use App\Http\Controllers\JurusanManageController;
+use App\Http\Controllers\KelasManageController;
+use App\Http\Controllers\PelanggaranController;
+use App\Http\Controllers\PiketController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScanController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\SiswaManageController;
+use App\Http\Controllers\ToolmanController;
+use App\Http\Controllers\UksController;
+use App\Http\Controllers\UserManageController;
+use App\Http\Controllers\WaliKelasController;
 use App\Http\Controllers\WaliKelasManageController;
-use App\Http\Controllers\ExternalRedirectController;
-use App\Http\Controllers\Guru\PelanggaranController as GuruPelanggaranController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 // Route untuk absensi GPS - redirect ke login
 Route::get('/', function () {
@@ -59,7 +58,6 @@ Route::post('/pinjam/checkout/process', [BarangController::class, 'processChecko
 Route::post('/pinjam/remove/{id}', [BarangController::class, 'removeItem'])->name('pinjam.remove');
 // Halaman scan QR (uses ScanController)
 
-
 Route::get('/api/get-siswa-by-nisn/{nisn}', function ($nisn) {
     $siswa = DB::table('tbl_siswa')
         ->join('tbl_kelas', 'tbl_siswa.id_kelas', '=', 'tbl_kelas.id_kelas')
@@ -67,17 +65,15 @@ Route::get('/api/get-siswa-by-nisn/{nisn}', function ($nisn) {
         ->select('tbl_siswa.*', 'tbl_kelas.nama_kelas as kelas')
         ->first();
 
-    if (!$siswa) {
+    if (! $siswa) {
         return response()->json(['status' => false]);
     }
 
     return response()->json([
         'status' => true,
-        'siswa' => $siswa
+        'siswa' => $siswa,
     ]);
 });
-
-
 
 // Store peminjaman (form from scan checkout)
 Route::post('/peminjaman/store', [BarangController::class, 'store'])->name('peminjaman.store');
@@ -85,7 +81,6 @@ Route::post('/peminjaman/store', [BarangController::class, 'store'])->name('pemi
 Route::get('/pinjam/scan', [BarangController::class, 'scanPage'])->name('pinjam.scan');
 Route::post('/pinjam/scan/process', [BarangController::class, 'scanProcess'])->name('pinjam.scan.process');
 Route::post('/pinjam/update-qty', [BarangController::class, 'updateQty'])->name('pinjam.updateQty');
-
 
 // kemablikan barang
 Route::post('/pinjam/kembali/process', [BarangController::class, 'processKembalikan'])->name('pinjam.kembalikan.proses');
@@ -112,10 +107,10 @@ Route::get('/api/rfid/{code}', function ($code) {
         ->select('tbl_user.id_user', 'tbl_siswa.nama')
         ->first();
 
-    if (!$siswa) {
+    if (! $siswa) {
         return response()->json([
             'success' => false,
-            'message' => 'Kartu tidak dikenali!'
+            'message' => 'Kartu tidak dikenali!',
         ]);
     }
 
@@ -123,11 +118,9 @@ Route::get('/api/rfid/{code}', function ($code) {
 
     return response()->json([
         'success' => true,
-        'nama' => $siswa->nama
+        'nama' => $siswa->nama,
     ]);
 });
-
-
 
 Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(function () {
 
@@ -151,7 +144,7 @@ Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(func
     Route::delete('/rekam/{id}', [PelanggaranController::class, 'deleteRekamPelanggaran'])->name('pelanggaran.rekam.delete');
 
     // List Pelanggaran
-        Route::get('/prestasi/list', [PelanggaranController::class, 'listPrestasi'])->name('pelanggaran.prestasi.list');
+    Route::get('/prestasi/list', [PelanggaranController::class, 'listPrestasi'])->name('pelanggaran.prestasi.list');
     Route::get('/list-pelanggaran', [PelanggaranController::class, 'listPelanggaran'])->name('pelanggaran.list');
 
     // Jenis Prestasi Management
@@ -166,7 +159,6 @@ Route::prefix('pelanggaran')->middleware(['auth', 'role:kesiswaan'])->group(func
     Route::delete('/prestasi/{id}', [PelanggaranController::class, 'deletePrestasi'])->name('pelanggaran.prestasi.delete');
 
 });
-
 
 Route::prefix('toolman')->middleware(['auth', 'role:toolman'])->group(function () {
 
@@ -201,7 +193,6 @@ Route::prefix('toolman')->middleware(['auth', 'role:toolman'])->group(function (
         ->name('peminjaman.pdf');
 });
 
-
 // API Routes untuk absensi
 Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::post('/absen-masuk', [AbsensiController::class, 'absenMasuk']);
@@ -219,14 +210,12 @@ Route::prefix('scheduler')->withoutMiddleware(['web'])->group(function () {
 });
 
 // Admin Routes
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/absensi', [AbsensiController::class, 'index'])->name('admin.absensi');
     Route::get('/admin/backup', [AdminController::class, 'backupDatabase'])->name('admin.backup');
     Route::get('/restore', [AdminController::class, 'showRestoreForm'])->name('admin.restore');
     Route::post('/restore', [AdminController::class, 'restoreDatabase'])->name('admin.restore.post');
-
-
 
     Route::get('/backup/download/{filename}', [AdminController::class, 'downloadBackup'])->name('admin.backup.download');
 
@@ -235,29 +224,20 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/absensi/{id}', [AbsensiController::class, 'show'])->name('absensi.show');
     Route::delete('/absensi/{id}', [AbsensiController::class, 'destroy'])->name('absensi.destroy');
-    Route::get('/settings', [SettingController::class, 'index']);
+    Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings');
     Route::post('/settings', [SettingController::class, 'update'])->name('admin.settings.update');
 
-    // Import Siswa (Excel) and Template download need to be defined BEFORE the resource
-    // to avoid the resource's {siswa} wildcard capturing paths like 'template' or 'import'.
     Route::post('siswa/import', [SiswaManageController::class, 'import'])->name('siswa.import');
     Route::post('siswa/import/preview', [SiswaManageController::class, 'previewImport'])->name('siswa.import.preview');
-    // Template download
     Route::get('siswa/template', [SiswaManageController::class, 'downloadTemplate'])->name('siswa.template');
-    // Manage Siswa (resource routes)
     Route::resource('siswa', SiswaManageController::class);
 
-    // Import Wali Kelas (Excel) and Template download need to be defined BEFORE the resource
-    // to avoid the resource's {walikelas} wildcard capturing paths like 'template' or 'import'.
     Route::post('walikelas/import', [WaliKelasManageController::class, 'import'])->name('walikelas.import');
-    // Template download
     Route::get('walikelas/template', [WaliKelasManageController::class, 'downloadTemplate'])->name('walikelas.template');
-    // Manage Wali Kelas (resource routes)
     Route::resource('walikelas', WaliKelasManageController::class)->parameters([
         'walikelas' => 'walikelas',
     ]);
 
-    // Manage Kelas
     Route::resource('kelas', KelasManageController::class)->parameters([
         'kelas' => 'kelas',
     ]);
@@ -269,9 +249,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('user', UserManageController::class);
 
     // Manage Wali Kelas
-    Route::resource('walikelas', WaliKelasManageController::class)->parameters([
-        'walikelas' => 'walikelas',
-    ]);
+    Route::resource('walikelas', WaliKelasManageController::class)->parameters(['walikelas' => 'walikelas']);
 });
 
 // Guru (Wali Kelas) Routes

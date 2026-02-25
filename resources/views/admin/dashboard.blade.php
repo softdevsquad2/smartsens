@@ -5,60 +5,7 @@
 @section('page-description', 'Overview sistem absensi GPS')
 
 @section('sidebar')
-    <!-- Beranda -->
-    <a href="/admin/dashboard" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Beranda</span>
-    </a>
-
-    <!-- Absensi -->
-    <a href="/admin/absensi"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-calendar-check"></i>
-        <span>Absensi</span>
-    </a>
-
-    <!-- Kelola Siswa -->
-    <a href="/admin/siswa"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-users"></i>
-        <span>Kelola Siswa</span>
-    </a>
-
-    <!-- Kelola Kelas -->
-    <a href="/admin/kelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chalkboard"></i>
-        <span>Kelola Kelas</span>
-    </a>
-
-    <!-- Kelola Jurusan -->
-    <a href="/admin/jurusan"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Kelola Jurusan</span>
-    </a>
-
-    <!-- Kelola Wali Kelas -->
-    <a href="/admin/walikelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-tie"></i>
-        <span>Kelola Wali Kelas</span>
-    </a>
-
-    <!-- Kelola User -->
-    <a href="/admin/user"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-cog"></i>
-        <span>Kelola User</span>
-    </a>
-
-    <!-- Pengaturan -->
-    <a href="/admin/settings"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
+    @include('layouts.sidebar')
 @endsection
 
 @section('content')
@@ -256,7 +203,9 @@
 
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-full mr-3 {{ $isAttendanceEnabled ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                            <div
+                                class="w-3 h-3 rounded-full mr-3 {{ $isAttendanceEnabled ? 'bg-green-500' : 'bg-red-500' }}">
+                            </div>
                             <span class="text-sm font-medium text-gray-900">Absensi System</span>
                         </div>
                         <span class="text-sm font-medium {{ $isAttendanceEnabled ? 'text-green-600' : 'text-red-600' }}">
@@ -296,7 +245,8 @@
                 <p class="text-gray-600 mt-1">Kelola username dan password akun Anda</p>
             </div>
             <div>
-                <p class="text-sm text-gray-500">Pengaturan kredensial dinonaktifkan sementara untuk mengurangi penggunaan memori.</p>
+                <p class="text-sm text-gray-500">Pengaturan kredensial dinonaktifkan sementara untuk mengurangi penggunaan
+                    memori.</p>
             </div>
         </div>
     </div>

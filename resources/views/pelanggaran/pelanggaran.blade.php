@@ -183,7 +183,7 @@
                 <div>
                     <label class="text-sm font-medium">Kode</label>
                     <input type="text" id="editKode" name="kode" class="w-full border rounded-md px-3 py-2"
-                        required placeholder="Kode" disabled value="{{ old('kode') }}">
+                        required placeholder="Kode" value="{{ old('kode') }}">
                 </div>
                 @error('kode')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -191,7 +191,7 @@
                 <div>
                     <label class="text-sm font-medium">Sub Kode</label>
                     <input type="text" id="editSubKode" name="sub_kode" class="w-full border rounded-md px-3 py-2"
-                        required placeholder="Sub Kode" disabled value="{{ old('sub_kode') }}">
+                        required placeholder="Sub Kode" value="{{ old('sub_kode') }}">
                 </div>
                 @error('sub_kode')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

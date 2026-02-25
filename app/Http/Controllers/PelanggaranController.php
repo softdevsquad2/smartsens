@@ -75,7 +75,7 @@ class PelanggaranController extends Controller
     public function storePelanggaranJenis(Request $request)
     {
         $request->validate([
-            'kode' => 'required|string|max:10|unique:tbl_pelanggaran,kode',
+            'kode' => 'required|string|max:10',
             'sub_kode' => 'required|string|max:10',
             'nama_pelanggaran' => 'required|string|max:255',
             'poin_1' => 'required|integer|min:1',
@@ -91,6 +91,8 @@ class PelanggaranController extends Controller
     public function updatePelanggaranJenis(Request $request, $id)
     {
         $request->validate([
+            'kode' => 'required|string|max:10',
+            'sub_kode' => 'required|string|max:10',
             'nama_pelanggaran' => 'required|string|max:255',
             'poin_1' => 'required|integer|min:1',
             'poin_2' => 'required|integer|min:1',
@@ -98,7 +100,7 @@ class PelanggaranController extends Controller
         ]);
 
         $pelanggaran = Pelanggaran::findOrFail($id);
-        $pelanggaran->update($request->only(['nama_pelanggaran', 'poin_1', 'poin_2', 'poin_3']));
+        $pelanggaran->update($request->only(['kode', 'sub_kode', 'nama_pelanggaran', 'poin_1', 'poin_2', 'poin_3']));
 
         return redirect()->route('pelanggaran.pelanggaran')->with('success', 'Pelanggaran berhasil diupdate.');
     }

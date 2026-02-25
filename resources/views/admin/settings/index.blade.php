@@ -5,60 +5,7 @@
 @section('page-description', 'Konfigurasi sistem absensi GPS')
 
 @section('sidebar')
-    <!-- Beranda -->
-    <a href="/admin/dashboard"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Beranda</span>
-    </a>
-
-    <!-- Absensi -->
-    <a href="/admin/absensi"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-calendar-check"></i>
-        <span>Absensi</span>
-    </a>
-
-    <!-- Kelola Siswa -->
-    <a href="/admin/siswa"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-users"></i>
-        <span>Kelola Siswa</span>
-    </a>
-
-    <!-- Kelola Kelas -->
-    <a href="/admin/kelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chalkboard"></i>
-        <span>Kelola Kelas</span>
-    </a>
-
-    <!-- Kelola Jurusan -->
-    <a href="/admin/jurusan"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Kelola Jurusan</span>
-    </a>
-
-    <!-- Kelola Wali Kelas -->
-    <a href="/admin/walikelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-tie"></i>
-        <span>Kelola Wali Kelas</span>
-    </a>
-
-    <!-- Kelola User -->
-    <a href="/admin/user"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-cog"></i>
-        <span>Kelola User</span>
-    </a>
-
-    <!-- Pengaturan -->
-    <a href="/admin/settings" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
+    @include('layouts.sidebar')
 @endsection
 
 @section('content')
@@ -108,7 +55,7 @@
             <p class="mt-1 text-sm text-gray-500">Atur koordinat sekolah dan waktu absensi</p>
         </div>
 
-        <form action="{{ route('admin.settings.update') }}" method="POST" class="p-6">
+        <form action="{{ route('admin.admin.settings.update') }}" method="POST" class="p-6">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -217,7 +164,8 @@
                 </h3>
 
                 <!-- Enable Student Attendance -->
-                <div class="bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 rounded-xl border-2 border-green-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div
+                    class="bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 rounded-xl border-2 border-green-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <!-- Left Section: Text -->
                         <div class="flex-1">
@@ -226,7 +174,8 @@
                                 Kontrol Absensi Siswa
                             </h4>
                             <p class="text-sm text-gray-700 leading-relaxed mb-3">
-                                Aktifkan atau nonaktifkan sistem absensi untuk semua siswa. Saat dinonaktifkan, siswa akan melihat pemberitahuan dan tidak dapat melakukan absensi.
+                                Aktifkan atau nonaktifkan sistem absensi untuk semua siswa. Saat dinonaktifkan, siswa akan
+                                melihat pemberitahuan dan tidak dapat melakukan absensi.
                             </p>
                             <div class="flex items-center gap-3 text-xs text-gray-600">
                                 <i class="fas fa-info-circle text-blue-500"></i>
@@ -248,9 +197,12 @@
                             <!-- Toggle Switch -->
                             <label class="relative inline-flex items-center cursor-pointer mt-2">
                                 <input type="checkbox" name="enable_student_attendance" id="enable_student_attendance"
-                                    value="1" {{ old('enable_student_attendance', $settings['enable_student_attendance'] ?? 1) ? 'checked' : '' }}
+                                    value="1"
+                                    {{ old('enable_student_attendance', $settings['enable_student_attendance'] ?? 1) ? 'checked' : '' }}
                                     class="sr-only peer">
-                                <div class="w-16 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:border after:border-gray-300 after:transition-all after:duration-300 peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-green-600 transition-all duration-300 shadow-md"></div>
+                                <div
+                                    class="w-16 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:border after:border-gray-300 after:transition-all after:duration-300 peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-green-600 transition-all duration-300 shadow-md">
+                                </div>
                                 <span class="ml-3 text-sm font-medium text-gray-700 hidden"></span>
                             </label>
                         </div>
@@ -305,6 +257,7 @@
                             opacity: 0;
                             transform: translateX(20px);
                         }
+
                         to {
                             opacity: 1;
                             transform: translateX(0);
@@ -316,9 +269,12 @@
                     }
 
                     @keyframes pulse {
-                        0%, 100% {
+
+                        0%,
+                        100% {
                             opacity: 1;
                         }
+
                         50% {
                             opacity: 0.7;
                         }

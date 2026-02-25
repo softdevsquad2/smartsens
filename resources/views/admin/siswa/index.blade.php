@@ -5,60 +5,7 @@
 @section('page-description', 'Manajemen data siswa')
 
 @section('sidebar')
-    <!-- Dashboard -->
-    <a href="/admin/dashboard"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
-
-    <!-- Absensi -->
-    <a href="/admin/absensi"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-calendar-check"></i>
-        <span>Absensi</span>
-    </a>
-
-    <!-- Kelola Siswa -->
-    <a href="/admin/siswa" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-users"></i>
-        <span>Kelola Siswa</span>
-    </a>
-
-    <!-- Kelola Kelas -->
-    <a href="/admin/kelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chalkboard"></i>
-        <span>Kelola Kelas</span>
-    </a>
-
-    <!-- Kelola Jurusan -->
-    <a href="/admin/jurusan"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Kelola Jurusan</span>
-    </a>
-
-    <!-- Kelola Wali Kelas -->
-    <a href="/admin/walikelas"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-tie"></i>
-        <span>Kelola Wali Kelas</span>
-    </a>
-
-    <!-- Kelola User -->
-    <a href="/admin/user"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-user-cog"></i>
-        <span>Kelola User</span>
-    </a>
-
-    <!-- Pengaturan -->
-    <a href="/admin/settings"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
+    @include('layouts.sidebar')
 @endsection
 
 
@@ -67,7 +14,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
 
         <!-- 🔍 Search & Filter -->
-        <form method="GET" action="{{ route('siswa.index') }}" class="w-full sm:w-auto mb-6 sm:mb-0">
+        <form method="GET" action="{{ route('admin.siswa.index') }}" class="w-full sm:w-auto mb-6 sm:mb-0">
             <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
 
                 <!-- Search -->
@@ -102,17 +49,17 @@
                     Filter
                 </button>
                 @if (request('q') || request('kelas') || request('jurusan'))
-                <a href="{{ route('siswa.index') }}"
-                    class="bg-red-600 hover:bg-red-700 text-center text-white text-sm font-medium px-2 py-2 rounded-lg transition-colors">
-                    Reset
-                </a>
-            @endif
+                    <a href="{{ route('admin.siswa.index') }}"
+                        class="bg-red-600 hover:bg-red-700 text-center text-white text-sm font-medium px-2 py-2 rounded-lg transition-colors">
+                        Reset
+                    </a>
+                @endif
             </div>
 
 
 
         </form>
-        <a href="{{ route('siswa.create') }}"
+        <a href="{{ route('admin.siswa.create') }}"
             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
             <i class="fas fa-plus mr-2"></i> Tambah
         </a>
@@ -252,12 +199,12 @@
 
                             <td class="px-6 py-4 text-sm">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('siswa.edit', $s->id_siswa) }}"
+                                    <a href="{{ route('admin.siswa.edit', $s->id_siswa) }}"
                                         class="px-3 py-1.5 text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200">
                                         <i class="fas fa-edit mr-1"></i> Edit
                                     </a>
 
-                                    <form action="{{ route('siswa.destroy', $s->id_siswa) }}" method="POST"
+                                    <form action="{{ route('admin.siswa.destroy', $s->id_siswa) }}" method="POST"
                                         onsubmit="return confirm('Yakin ingin menghapus siswa ini?')">
                                         @csrf
                                         @method('DELETE')
@@ -276,7 +223,7 @@
                                     <i class="fas fa-users text-gray-400 text-4xl mb-4"></i>
                                     <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada data siswa</h3>
                                     <p class="text-gray-500 mb-4">Mulai dengan menambahkan siswa pertama</p>
-                                    <a href="{{ route('siswa.create') }}"
+                                    <a href="{{ route('admin.siswa.create') }}"
                                         class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
                                         <i class="fas fa-plus mr-1"></i> Tambah Siswa
                                     </a>
@@ -323,14 +270,14 @@
                             Import Siswa
                         </h3>
 
-                        <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.siswa.import') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <input type="file" name="file" accept=".xlsx" class="form-input border w-full"
                                 required>
 
                             <div class="mt-2 text-sm text-gray-500">
-                                <a href="{{ route('siswa.template') }}" class="text-blue-500 underline">
+                                <a href="{{ route('admin.siswa.template') }}" class="text-blue-500 underline">
                                     Download template Excel (.xlsx)
                                 </a>
                             </div>

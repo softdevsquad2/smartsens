@@ -30,11 +30,11 @@
             </table>
         </div>
 
-        <form action="{{ route('siswa.import') }}" method="POST" class="mt-4">
+        <form action="{{ route('admin.siswa.import') }}" method="POST" class="mt-4">
             @csrf
             <input type="hidden" name="stored_file" value="{{ $stored_file }}">
             <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Konfirmasi Import</button>
-            <a href="{{ route('siswa.index') }}" class="ml-3 px-4 py-2 bg-gray-200 rounded">Batal</a>
+            <a href="{{ route('admin.siswa.index') }}" class="ml-3 px-4 py-2 bg-gray-200 rounded">Batal</a>
         </form>
     </div>
 @endsection

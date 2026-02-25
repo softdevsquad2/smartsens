@@ -11,8 +11,12 @@ class CreateTblWaliKelasTable extends Migration
         Schema::create('tbl_wali_kelas', function (Blueprint $table) {
             $table->id('id_wali_kelas');
             $table->string('nama')->nullable();
-            $table->bigInteger('nip')->nullable();
-            $table->foreignid('id_kelas')->constrained('tbl_kelas', 'id_kelas')->onUpdate('cascade')->onDelete('cascade')->nullable();
+            $table->string('nip')->nullable();
+            $table->foreignId('id_kelas')
+                ->nullable()
+                ->constrained('tbl_kelas', 'id_kelas')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
