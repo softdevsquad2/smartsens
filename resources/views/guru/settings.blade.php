@@ -6,38 +6,54 @@
 
 @section('sidebar')
     <!-- Dashboard -->
-    <a href="{{ route('guru.dashboard') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
+    @if (Auth::user()->waliKelas && !Auth::user()->waliKelas->id_kelas)
+        <!-- Logout -->
+        <a href="{{ route('guru.rekam.pilih') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors mt-auto">
+            <i class="fas fa-clipboard-list"></i>
 
-    <!-- Daftar Siswa -->
-    <a href="{{ route('guru.siswa.index') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-users"></i>
-        <span>Daftar Siswa</span>
-    </a>
+            <span>Rekam Siswa</span>
+        </a>
+        <a href="{{ route('guru.settings') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
+            <i class="fas fa-cog"></i>
+            <span>Pengaturan</span>
+        </a>
+    @else
+        <a href="{{ route('guru.dashboard') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
 
-    <!-- Absensi Hari Ini -->
-    <a href="{{ route('guru.absensi.hari-ini') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-calendar-day"></i>
-        <span>Absensi Hari Ini</span>
-    </a>
+        <!-- Daftar Siswa -->
+        <a href="{{ route('guru.siswa.index') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-users"></i>
+            <span>Daftar Siswa</span>
+        </a>
 
-    <!-- Laporan Absensi -->
-    <a href="{{ route('guru.absensi.laporan') }}"
-        class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-        <i class="fas fa-chart-bar"></i>
-        <span>Laporan Absensi</span>
-    </a>
+        <!-- Absensi Hari Ini -->
+        <a href="{{ route('guru.absensi.hari-ini') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-calendar-day"></i>
+            <span>Absensi Hari Ini</span>
+        </a>
 
-    <!-- Pengaturan -->
-    <a href="{{ route('guru.settings') }}" class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
-        <i class="fas fa-cog"></i>
-        <span>Pengaturan</span>
-    </a>
+        <!-- Laporan Absensi -->
+        <a href="{{ route('guru.absensi.laporan') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+            <i class="fas fa-chart-bar"></i>
+            <span>Laporan Absensi</span>
+        </a>
+
+        <!-- Pengaturan -->
+        <a href="{{ route('guru.settings') }}"
+            class="flex items-center space-x-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
+            <i class="fas fa-cog"></i>
+            <span>Pengaturan</span>
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -120,26 +136,26 @@
                 </div>
             </div>
 
-            @if($waliKelas)
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-chalkboard-teacher text-purple-600"></i>
+            @if ($waliKelas)
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-chalkboard-teacher text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Nama Lengkap</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ $waliKelas->nama }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Nama Lengkap</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $waliKelas->nama }}</p>
-                </div>
-            </div>
 
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-school text-indigo-600"></i>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-school text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Kelas</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ $waliKelas->kelas->nama_kelas ?? '-' }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Kelas</p>
-                    <p class="text-sm font-semibold text-gray-900">{{ $waliKelas->kelas->nama_kelas ?? '-' }}</p>
-                </div>
-            </div>
             @endif
         </div>
     </div>
@@ -156,32 +172,51 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Username Saat Ini</label>
-                <p class="text-sm font-semibold text-gray-900 px-4 py-2 bg-gray-50 rounded-lg">{{ auth()->user()->username }}</p>
+                <p class="text-sm font-semibold text-gray-900 px-4 py-2 bg-gray-50 rounded-lg">
+                    {{ auth()->user()->username }}</p>
             </div>
+
 
             <div>
                 <label for="username_baru" class="block text-sm font-medium text-gray-700 mb-2">Username Baru</label>
-                <input id="username_baru" name="username_baru" type="text" placeholder="Masukkan username baru (opsional)"
+                <input id="username_baru" name="username_baru" type="text"
+                    placeholder="Masukkan username baru (opsional)"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                @error('username_baru')
+                    <div class="text-sm text-red-600">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label for="password_lama" class="block text-sm font-medium text-gray-700 mb-2">Password Saat Ini <span class="text-red-500">*</span></label>
+                <label for="password_lama" class="block text-sm font-medium text-gray-700 mb-2">Password Saat Ini <span
+                        class="text-red-500">*</span></label>
                 <input id="password_lama" name="password_lama" type="password" required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                @error('password_lama')
+                    <div class="text-sm text-red-600">{{ $message }}</div>
+                @enderror
             </div>
+
 
             <div>
                 <label for="password_baru" class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
                 <input id="password_baru" name="password_baru" type="password"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <p class="text-xs text-gray-500 mt-1">Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, angka, dan simbol (@$!%*?&).</p>
+                <p class="text-xs text-gray-500 mt-1">Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, angka,
+                    dan simbol (@$!%*?&).</p>
+                @error('password_baru')
+                    <div class="text-sm text-red-600">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password Baru</label>
+                <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password
+                    Baru</label>
                 <input id="password_confirm" name="password_confirm" type="password"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                @error('password_confirm')
+                    <div class="text-sm text-red-600">{{ $message }}</div>
+                @enderror
             </div>
 
             <div id="credential-errors" class="text-sm text-red-600"></div>
@@ -197,12 +232,12 @@
     </div>
 
     <script>
-        (function () {
+        (function() {
             const form = document.getElementById('credential-form');
             const btn = document.getElementById('btn-credential-submit');
             const errorsEl = document.getElementById('credential-errors');
 
-            form.addEventListener('submit', async function (e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 errorsEl.textContent = '';
 
@@ -228,8 +263,11 @@
 
                     if (data.success) {
                         if (data.redirect_url) {
-                            showSuccess(data.message || 'Kredensial berhasil diperbarui. Silakan login kembali.', 'Berhasil');
-                            setTimeout(() => { window.location.href = data.redirect_url; }, 1500);
+                            showSuccess(data.message ||
+                                'Kredensial berhasil diperbarui. Silakan login kembali.', 'Berhasil');
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url;
+                            }, 1500);
                             return;
                         }
 

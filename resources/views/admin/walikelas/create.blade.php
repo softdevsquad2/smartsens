@@ -38,8 +38,8 @@
     <!-- Form -->
     <div class="bg-white shadow-sm rounded-xl border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Informasi Wali Kelas</h3>
-            <p class="mt-1 text-sm text-gray-500">Isi form di bawah ini untuk menambahkan wali kelas baru</p>
+            <h3 class="text-lg font-medium text-gray-900">Informasi Guru</h3>
+            <p class="mt-1 text-sm text-gray-500">Isi form di bawah ini untuk menambahkan guru baru</p>
         </div>
 
         <form action="{{ route('admin.walikelas.store') }}" method="POST" class="p-6">
@@ -53,8 +53,30 @@
                     </label>
                     <input type="text" name="nama" id="nama" value="{{ old('nama') }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nama') border-red-500 @enderror"
-                        placeholder="Masukkan nama lengkap wali kelas" required>
+                        placeholder="Masukkan nama lengkap Guru" required>
                     @error('nama')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                        NIP/NUPTK (Opsional)
+                    </label>
+                    <input type="text" name="nip" id="nip" value="{{ old('nip') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nip') border-red-500 @enderror"
+                        placeholder="Masukkan NIP/NUPTK Guru">
+                    @error('nip')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                        Password Akun Guru <span class="text-red-500">*</span>
+                    </label>
+                    <input type="password" name="password" id="password" value="{{ old('password') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror"
+                        placeholder="Masukkan Password Akun Guru" required>
+                    @error('password')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -79,25 +101,7 @@
                 </div>
 
                 <!-- User (Opsional) -->
-                <div class="md:col-span-2">
-                    <label for="id_user" class="block text-sm font-medium text-gray-700 mb-2">
-                        User Account (Opsional)
-                    </label>
-                    <select name="id_user" id="id_user"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('id_user') border-red-500 @enderror">
-                        <option value="">Pilih User Account (Opsional)</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id_user }}" {{ old('id_user') == $user->id_user ? 'selected' : '' }}>
-                                {{ $user->username }} ({{ $user->role }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('id_user')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-sm text-gray-500">Pilih user account yang sudah ada untuk mengaitkan dengan wali
-                        kelas</p>
-                </div>
+
             </div>
 
             <!-- Action Buttons -->

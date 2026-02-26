@@ -42,16 +42,26 @@ class WaliKelasManageController extends Controller
 
         $request->validate([
             'nama' => 'required|string|max:255',
+            'nip' => 'nullable|string|max:50|unique:tbl_wali_kelas,nip',
+            'password' => 'required|string|min:8',
             // Kelas sekarang opsional untuk Guru
             'id_kelas' => 'nullable|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas',
-            'id_user' => 'nullable|exists:tbl_user,id_user',
+
         ]);
 
         try {
-            $waliKelas = WaliKelas::create($request->all());
+            $waliKelas = WaliKelas::create($request->only('nama', 'nip', 'id_kelas'));
+            $user = User::create([
+                'username' => $request->nama,
+                'password' => bcrypt($request->password),
+                'role' => 'guru',
+                'id_wali_kelas' => $waliKelas->id_wali_kelas,
+
+            ]);
+
             \Log::info('Guru berhasil dibuat dengan ID: '.$waliKelas->id_wali_kelas);
 
-            return redirect()->route('admin.walikelas.index')->with('success', 'Guru berhasil ditambahkan');
+            return redirect()->route('admin.walikelas.index')->with('success', 'Guru dan akun berhasil ditambahkan');
         } catch (\Exception $e) {
             \Log::error('Error creating guru: '.$e->getMessage());
 
@@ -80,11 +90,13 @@ class WaliKelasManageController extends Controller
             'nama' => 'required|string|max:255',
             // Kelas opsional untuk guru
             'id_kelas' => 'nullable|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,'.$walikelas->id_wali_kelas.',id_wali_kelas',
-            'id_user' => 'nullable|exists:tbl_user,id_user',
+            'nip' => 'nullable|string|max:50|unique:tbl_wali_kelas,nip,'.$walikelas->id_wali_kelas.',id_wali_kelas',
+
         ]);
 
         try {
-            $walikelas->update($request->all());
+            $walikelas->update($request->only('nama', 'nip', 'id_kelas'));
+
             \Log::info('Guru berhasil diupdate dengan ID: '.$walikelas->id_wali_kelas);
 
             return redirect()->route('admin.walikelas.index')->with('success', 'Guru berhasil diperbarui');

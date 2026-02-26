@@ -80,27 +80,20 @@
                     @enderror
                 </div>
 
-                <!-- User (Opsional) -->
-                <div class="md:col-span-2">
-                    <label for="id_user" class="block text-sm font-medium text-gray-700 mb-2">
-                        User Account (Opsional)
+                {{-- nip dan password --}}
+                <div>
+                    <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                        NIP/NUPTK (Opsional)
                     </label>
-                    <select name="id_user" id="id_user"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('id_user') border-red-500 @enderror">
-                        <option value="">Pilih User Account (Opsional)</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id_user }}"
-                                {{ old('id_user', $walikelas->id_user) == $user->id_user ? 'selected' : '' }}>
-                                {{ $user->username }} ({{ $user->role }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('id_user')
+                    <input type="text" name="nip" id="nip" value="{{ old('nip', $walikelas->nip) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nip') border-red-500 @enderror"
+                        placeholder="Masukkan NIP/NUPTK Guru">
+                    @error('nip')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-sm text-gray-500">Pilih user account yang sudah ada untuk mengaitkan dengan wali
-                        kelas</p>
                 </div>
+
+
             </div>
 
             <!-- Action Buttons -->

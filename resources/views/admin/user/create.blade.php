@@ -103,11 +103,11 @@
                 <!-- Wali Kelas (Jika Role Guru) -->
                 <div id="wali-kelas-field" style="display: none;">
                     <label for="id_wali_kelas" class="block text-sm font-medium text-gray-700 mb-2">
-                        Wali Kelas <span class="text-red-500">*</span>
+                        Guru <span class="text-red-500">*</span>
                     </label>
                     <select name="id_wali_kelas" id="id_wali_kelas"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('id_wali_kelas') border-red-500 @enderror">
-                        <option value="">Pilih Wali Kelas</option>
+                        <option value="">Pilih Guru</option>
                         @foreach ($waliKelas as $wk)
                             <option value="{{ $wk->id_wali_kelas }}"
                                 {{ old('id_wali_kelas') == $wk->id_wali_kelas ? 'selected' : '' }}>

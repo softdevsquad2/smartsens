@@ -17,8 +17,8 @@ class UserManageController extends Controller
 
         $users = User::with(['siswa.kelas.jurusan', 'waliKelas.kelas.jurusan'])
             ->when($search, function ($query) use ($search) {
-                return $query->where('username', 'like', '%' . $search . '%')
-                    ->orWhere('role', 'like', '%' . $search . '%');
+                return $query->where('username', 'like', '%'.$search.'%')
+                    ->orWhere('role', 'like', '%'.$search.'%');
             })
             ->paginate($perpage);
 
@@ -65,12 +65,12 @@ class UserManageController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'username' => 'required|string|max:255|unique:tbl_user,username,' . $user->id_user . ',id_user',
+            'username' => 'required|string|max:255|unique:tbl_user,username,'.$user->id_user.',id_user',
             'password' => 'nullable|string|min:6',
             'role' => 'required|in:admin,guru,operator,siswa,ketua',
             'id_siswa' => 'nullable|exists:tbl_siswa,id_siswa',
             'id_wali_kelas' => 'nullable|exists:tbl_wali_kelas,id_wali_kelas',
-            'card_code' => 'nullable|numeric|unique:tbl_user,card_code,' . $user->id_user . ',id_user',
+            'card_code' => 'nullable|numeric|unique:tbl_user,card_code,'.$user->id_user.',id_user',
         ]);
 
         $userData = $request->only(['username', 'role', 'id_siswa', 'id_wali_kelas', 'card_code']);
