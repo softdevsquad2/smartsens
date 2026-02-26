@@ -24,7 +24,7 @@ class WaliKelasManageController extends Controller
             })
             ->paginate($perpage);
 
-        return view('admin.admin.walikelas.index', compact('waliKelas', 'search', 'perpage'));
+        return view('admin.walikelas.index', compact('waliKelas', 'search', 'perpage'));
     }
 
     public function create()
