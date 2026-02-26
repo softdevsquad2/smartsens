@@ -27,9 +27,38 @@
                     @endphp
                     <img src="{{ $fotoSrc }}" alt="Foto Profil"
                         class="w-24 h-24 mx-auto mb-4 object-cover object-top transition-transform duration-300 hover:scale-110">
-                    <h2 class="text-md font-bold mb-2">{{ $s->nama }}</h2>
+                    <h2 class="text-md font-bold mb-2">{{ Illuminate\Support\Str::limit($s->nama, 10) }}</h2>
                     <p class="mb-1">Kelas: {{ $s->kelas->nama_kelas ?? 'N/A' }}</p>
-                    <p class="text-red-600 font-semibold">Poin: {{ $s->total_poin }}</p>
+
+                    @if ($s->total_poin > 0)
+                        <span class="text-green-600 font-semibold">+{{ $s->total_poin }}</span>
+                    @elseif ($s->total_poin < 0)
+                        <span class="text-red-600 font-semibold">{{ $s->total_poin }}</span>
+                    @else
+                        <span class="text-gray-600 font-semibold">0</span>
+                    @endif
+                    <div class="mt-2 flex items-center justify-center">
+                        @php
+                            $sp = $s->sp_tertinggi;
+                        @endphp
+                        @if ($sp === 'SP1')
+                            <span class="bg-yellow-500 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow">
+                                SP 1
+                            </span>
+                        @elseif ($sp === 'SP2')
+                            <span class="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow">
+                                SP 2
+                            </span>
+                        @elseif ($sp === 'SP3')
+                            <span class="bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow">
+                                SP 3
+                            </span>
+                        @else
+                            <span class="bg-green-500 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow">
+                                Tidak Ada SP
+                            </span>
+                        @endif
+                    </div>
                 </a>
             @endforeach
         </div>

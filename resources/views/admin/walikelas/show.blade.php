@@ -139,7 +139,8 @@
                         Edit Guru
                     </a>
 
-                    <form action="{{ route('admin.walikelas.destroy', $walikelas) }}" method="POST" class="inline"
+                    <form action="{{ route('admin.walikelas.destroy', $walikelas) }}" method="POST"
+                        class="inline delete-form"
                         onsubmit="return confirmDelete('Yakin ingin menghapus guru ini?', 'Konfirmasi Hapus Guru')">
                         @csrf
                         @method('DELETE')

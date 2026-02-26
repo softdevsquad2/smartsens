@@ -245,7 +245,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" onclick="confirmDeleteAbsen({{ $absen->id_absensi }})"
-                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                            class=" inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                             <i class="fas fa-trash mr-1"></i>
                                             Hapus
                                         </button>

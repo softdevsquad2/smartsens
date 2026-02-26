@@ -127,7 +127,7 @@ class PelanggaranController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Prestasi berhasil direkam.',
+                'message' => 'Pelanggaran berhasil direkam.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson() || $request->ajax()) {

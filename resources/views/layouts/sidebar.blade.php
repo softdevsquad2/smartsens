@@ -1,5 +1,5 @@
 <a href="/admin/dashboard"
-    class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.dashboard') ? 'text-white bg-blue-600' : 'text-gray-300 hover:text-white hover:bg-slate-700 ' }}">
+    class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.admin.dashboard') ? 'text-white bg-blue-600' : 'text-gray-300 hover:text-white hover:bg-slate-700 ' }}">
     <i class="fas fa-tachometer-alt"></i>
     <span>Dashboard</span>
 </a>

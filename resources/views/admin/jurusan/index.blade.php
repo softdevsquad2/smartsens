@@ -112,7 +112,7 @@
                                         Edit
                                     </a>
                                     <form action="{{ route('admin.jurusan.destroy', $j->id_jurusan) }}" method="POST"
-                                        class="inline"
+                                        class="inline delete-form"
                                         onsubmit="return confirmDelete('Yakin ingin menghapus jurusan ini?', 'Konfirmasi Hapus Jurusan')">
                                         @csrf
                                         @method('DELETE')

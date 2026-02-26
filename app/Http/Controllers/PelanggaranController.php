@@ -125,7 +125,7 @@ class PelanggaranController extends Controller
                     ->orWhere('nisn', 'like', '%'.$request->search.'%');
             });
         }
-
+        $query->orderBy('total_poin', 'asc');
         $siswa = $query->paginate($perPage);
 
         return view('pelanggaran.riwayat', compact('siswa'));

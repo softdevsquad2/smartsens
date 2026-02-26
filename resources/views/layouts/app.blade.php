@@ -180,14 +180,16 @@
                     <div class="text-right">
                         @php
                             $user = auth()->user();
-                            $displayName = optional($user->siswa)->nama ?? optional($user->waliKelas)->nama ?? $user->username ?? 'Admin';
+                            $displayName =
+                                optional($user->siswa)->nama ??
+                                (optional($user->waliKelas)->nama ?? ($user->username ?? 'Admin'));
                         @endphp
                         <p class="text-sm font-medium text-gray-900">{{ $displayName }}</p>
                         <p class="text-xs text-gray-500 capitalize">{{ $user->role ?? 'admin' }}</p>
                     </div>
                     {{-- avatar / foto siswa --}}
                     @php $foto = optional($user->siswa)->foto; @endphp
-                    @if($foto)
+                    @if ($foto)
                         <img src="{{ asset('storage/foto/' . $foto) }}" alt="{{ $displayName }}"
                             class="w-8 h-8 rounded-full object-cover border">
                     @else
@@ -204,12 +206,46 @@
         <main class="p-6" style="background-color: #f8f9fa;">
             @yield('content')
         </main>
+        <div id="globalLoader"
+            class="fixed inset-0 z-50 flex items-center justify-center
+           bg-slate-900/80 backdrop-blur-sm transition-opacity duration-300">
+
+            <div class="flex flex-col items-center gap-4">
+                <div
+                    class="w-12 h-12 border-4 border-blue-500
+                    border-t-transparent rounded-full animate-spin">
+                </div>
+                <p class="text-slate-300 text-sm">Memuat...</p>
+            </div>
+        </div>
     </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        // SweetAlert Helper Functions
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const loader = document.getElementById('globalLoader');
+
+            // Saat halaman selesai load → sembunyikan loader
+            window.addEventListener('load', function() {
+                loader.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 300);
+            });
+
+            // Saat form di-submit → tampilkan loader
+            // document.querySelectorAll('form').forEach(form => {
+            //     form.addEventListener('submit', function() {
+            //         loader.style.display = 'flex';
+            //         loader.classList.remove('opacity-0');
+            //     });
+            // });
+
+        });
+
         function showSuccess(message, title = 'Berhasil!') {
             Swal.fire({
                 icon: 'success',
@@ -278,7 +314,18 @@
         function hideLoading() {
             Swal.close();
         }
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // STOP dulu
 
+                confirmDelete('Yakin ingin menghapus data ini?')
+                    .then(isConfirmed => {
+                        if (isConfirmed) {
+                            form.submit(); // baru submit kalau klik Ya
+                        }
+                    });
+            });
+        });
         // Confirm delete function for forms
         function confirmDelete(message, title = 'Konfirmasi Hapus') {
             return showConfirm(message, title, 'Ya, Hapus', 'Batal').then((result) => {

@@ -165,7 +165,7 @@
                                         Edit
                                     </a>
                                     <form action="{{ route('admin.user.destroy', $user->id_user) }}" method="POST"
-                                        class="inline"
+                                        class="inline delete-form"
                                         onsubmit="return confirmDelete('Yakin ingin menghapus user ini?', 'Konfirmasi Hapus User')">
                                         @csrf
                                         @method('DELETE')
