@@ -50,7 +50,7 @@ class UserManageController extends Controller
 
         User::create($userData);
 
-        return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan');
+        return redirect()->route('admin.user.index')->with('success', 'User berhasil ditambahkan');
     }
 
     public function edit(User $user)
@@ -81,13 +81,13 @@ class UserManageController extends Controller
 
         $user->update($userData);
 
-        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui');
+        return redirect()->route('admin.user.index')->with('success', 'User berhasil diperbarui');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return redirect()->route('user.index')->with('success', 'User berhasil dihapus');
+        return redirect()->route('admin.user.index')->with('success', 'User berhasil dihapus');
     }
 }

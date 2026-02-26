@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\WaliKelasTemplateExport;
 use App\Models\Kelas;
 use App\Models\User;
 use App\Models\WaliKelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\WaliKelasTemplateExport;
 
 class WaliKelasManageController extends Controller
 {
@@ -19,12 +19,12 @@ class WaliKelasManageController extends Controller
 
         $waliKelas = WaliKelas::with(['kelas.jurusan', 'user'])
             ->when($search, function ($query) use ($search) {
-                return $query->where('nama', 'like', '%' . $search . '%')
-                    ->orWhere('nip', 'like', '%' . $search . '%');
+                return $query->where('nama', 'like', '%'.$search.'%')
+                    ->orWhere('nip', 'like', '%'.$search.'%');
             })
             ->paginate($perpage);
 
-        return view('admin.walikelas.index', compact('waliKelas', 'search', 'perpage'));
+        return view('admin.admin.walikelas.index', compact('waliKelas', 'search', 'perpage'));
     }
 
     public function create()
@@ -49,13 +49,13 @@ class WaliKelasManageController extends Controller
 
         try {
             $waliKelas = WaliKelas::create($request->all());
-            \Log::info('Guru berhasil dibuat dengan ID: ' . $waliKelas->id_wali_kelas);
+            \Log::info('Guru berhasil dibuat dengan ID: '.$waliKelas->id_wali_kelas);
 
-            return redirect()->route('walikelas.index')->with('success', 'Guru berhasil ditambahkan');
+            return redirect()->route('admin.walikelas.index')->with('success', 'Guru berhasil ditambahkan');
         } catch (\Exception $e) {
-            \Log::error('Error creating guru: ' . $e->getMessage());
+            \Log::error('Error creating guru: '.$e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage())->withInput();
         }
     }
 
@@ -79,19 +79,19 @@ class WaliKelasManageController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             // Kelas opsional untuk guru
-            'id_kelas' => 'nullable|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,' . $walikelas->id_wali_kelas . ',id_wali_kelas',
+            'id_kelas' => 'nullable|exists:tbl_kelas,id_kelas|unique:tbl_wali_kelas,id_kelas,'.$walikelas->id_wali_kelas.',id_wali_kelas',
             'id_user' => 'nullable|exists:tbl_user,id_user',
         ]);
 
         try {
             $walikelas->update($request->all());
-            \Log::info('Guru berhasil diupdate dengan ID: ' . $walikelas->id_wali_kelas);
+            \Log::info('Guru berhasil diupdate dengan ID: '.$walikelas->id_wali_kelas);
 
-            return redirect()->route('walikelas.index')->with('success', 'Guru berhasil diperbarui');
+            return redirect()->route('admin.walikelas.index')->with('success', 'Guru berhasil diperbarui');
         } catch (\Exception $e) {
-            \Log::error('Error updating guru: ' . $e->getMessage());
+            \Log::error('Error updating guru: '.$e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage())->withInput();
         }
     }
 
@@ -99,13 +99,13 @@ class WaliKelasManageController extends Controller
     {
         try {
             $walikelas->delete();
-            \Log::info('Guru berhasil dihapus dengan ID: ' . $walikelas->id_wali_kelas);
+            \Log::info('Guru berhasil dihapus dengan ID: '.$walikelas->id_wali_kelas);
 
-            return redirect()->route('walikelas.index')->with('success', 'Guru berhasil dihapus');
+            return redirect()->route('admin.walikelas.index')->with('success', 'Guru berhasil dihapus');
         } catch (\Exception $e) {
-            \Log::error('Error deleting guru: ' . $e->getMessage());
+            \Log::error('Error deleting guru: '.$e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage());
         }
     }
 
@@ -132,10 +132,10 @@ class WaliKelasManageController extends Controller
         $errors = \App\Imports\WaliKelasImport::$errors;
 
         // Jika ada error, tampilkan ke user
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return back()->with([
                 'success' => "Import selesai dengan catatan!\n\nDitambahkan: $insert guru\nDiperbarui: $update guru",
-                'import_errors' => $errors
+                'import_errors' => $errors,
             ]);
         }
 

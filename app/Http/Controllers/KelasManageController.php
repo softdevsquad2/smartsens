@@ -15,9 +15,9 @@ class KelasManageController extends Controller
 
         $kelas = Kelas::with('jurusan')
             ->when($search, function ($query) use ($search) {
-                return $query->where('nama_kelas', 'like', '%' . $search . '%')
+                return $query->where('nama_kelas', 'like', '%'.$search.'%')
                     ->orWhereHas('jurusan', function ($q) use ($search) {
-                        $q->where('nama_jurusan', 'like', '%' . $search . '%');
+                        $q->where('nama_jurusan', 'like', '%'.$search.'%');
                     });
             })
             ->paginate($perpage);
@@ -41,7 +41,7 @@ class KelasManageController extends Controller
 
         Kelas::create($request->all());
 
-        return redirect()->route('kelas.index')->with('success', 'Kelas berhasil ditambahkan');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil ditambahkan');
     }
 
     public function edit(Kelas $kelas)
@@ -60,13 +60,13 @@ class KelasManageController extends Controller
 
         $kelas->update($request->all());
 
-        return redirect()->route('kelas.index')->with('success', 'Kelas berhasil diperbarui');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil diperbarui');
     }
 
     public function destroy(Kelas $kelas)
     {
         $kelas->delete();
 
-        return redirect()->route('kelas.index')->with('success', 'Kelas berhasil dihapus');
+        return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil dihapus');
     }
 }

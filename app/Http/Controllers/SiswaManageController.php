@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SiswaTemplateExport;
-use App\Imports\SiswaImport;
 use App\Models\Jurusan;
 use App\Models\Kelas;
 use App\Models\Siswa;
@@ -68,7 +67,7 @@ class SiswaManageController extends Controller
         Log::info('Form submission data:', $request->all());
 
         if (! $request->isMethod('post')) {
-            Log::error('Request method is not POST: ' . $request->method());
+            Log::error('Request method is not POST: '.$request->method());
 
             return redirect()->back()->with('error', 'Method tidak valid')->withInput();
         }
@@ -108,7 +107,7 @@ class SiswaManageController extends Controller
                 'foto' => $fotoName,
             ]);
 
-            Log::info('Siswa berhasil dibuat dengan ID: ' . $siswa->id_siswa);
+            Log::info('Siswa berhasil dibuat dengan ID: '.$siswa->id_siswa);
 
             // 2️⃣ Buat akun user otomatis
             User::create([
@@ -119,13 +118,13 @@ class SiswaManageController extends Controller
                 'card_code' => $request->card_code,
             ]);
 
-            Log::info('Akun user berhasil dibuat untuk siswa : ' . $siswa->nama);
+            Log::info('Akun user berhasil dibuat untuk siswa : '.$siswa->nama);
 
-            return redirect()->route('siswa.index')->with('success', 'Siswa dan akun user berhasil ditambahkan!');
+            return redirect()->route('admin.siswa.index')->with('success', 'Siswa dan akun user berhasil ditambahkan!');
         } catch (\Exception $e) {
-            Log::error('Error creating siswa: ' . $e->getMessage());
+            Log::error('Error creating siswa: '.$e->getMessage());
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$e->getMessage())->withInput();
         }
     }
 
@@ -144,8 +143,8 @@ class SiswaManageController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
-            'nisn' => 'required|numeric|unique:tbl_siswa,nisn,' . $siswa->id_siswa . ',id_siswa',
-            'card_code' => 'nullable|numeric|unique:tbl_siswa,card_code,' . $siswa->id_siswa . ',id_siswa',
+            'nisn' => 'required|numeric|unique:tbl_siswa,nisn,'.$siswa->id_siswa.',id_siswa',
+            'card_code' => 'nullable|numeric|unique:tbl_siswa,card_code,'.$siswa->id_siswa.',id_siswa',
             'no_hp_ortu' => 'nullable|string|max:20|regex:/^[0-9+\-\s()]+$/',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'id_kelas' => 'required|exists:tbl_kelas,id_kelas',
@@ -161,9 +160,9 @@ class SiswaManageController extends Controller
             // delete old foto if exists
             if ($siswa->foto) {
                 try {
-                    Storage::disk('public')->delete('foto/' . $siswa->foto);
+                    Storage::disk('public')->delete('foto/'.$siswa->foto);
                 } catch (\Exception $e) {
-                    Log::warning('Gagal menghapus foto lama: ' . $e->getMessage());
+                    Log::warning('Gagal menghapus foto lama: '.$e->getMessage());
                 }
             }
 
@@ -172,14 +171,14 @@ class SiswaManageController extends Controller
 
         $siswa->update($data);
 
-        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil diperbarui');
+        return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil diperbarui');
     }
 
     public function destroy(Siswa $siswa)
     {
         $siswa->delete();
 
-        return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus');
+        return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil dihapus');
     }
 
     /**
@@ -211,10 +210,10 @@ class SiswaManageController extends Controller
         $errors = \App\Imports\SiswaImport::$errors;
 
         // Jika ada error, tampilkan ke user
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return back()->with([
                 'success' => "Import selesai dengan catatan!\n\nDitambahkan: $insert siswa\nDiperbarui: $update siswa",
-                'import_errors' => $errors
+                'import_errors' => $errors,
             ]);
         }
 
@@ -224,11 +223,6 @@ class SiswaManageController extends Controller
         Diperbarui: $update siswa
     ");
     }
-
-
-
-
-
 
     /**
      * Preview import: parse file and show first N rows with validation result.
@@ -244,13 +238,13 @@ class SiswaManageController extends Controller
         $storedPath = $file->store('imports');
 
         try {
-            $rows = Excel::toArray([], storage_path('app/' . $storedPath));
+            $rows = Excel::toArray([], storage_path('app/'.$storedPath));
         } catch (\Exception $e) {
-            return redirect()->route('siswa.index')->with('error', 'Gagal membaca file untuk preview: ' . $e->getMessage());
+            return redirect()->route('admin.siswa.index')->with('error', 'Gagal membaca file untuk preview: '.$e->getMessage());
         }
 
         if (empty($rows) || ! isset($rows[0])) {
-            return redirect()->route('siswa.index')->with('error', 'File kosong atau format tidak dikenali');
+            return redirect()->route('admin.siswa.index')->with('error', 'File kosong atau format tidak dikenali');
         }
 
         $sheet = $rows[0];
