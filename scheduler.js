@@ -25,7 +25,7 @@ const markAbsentTask = cron.schedule('00 18 * * *', async () => {
 });
 
 // Task: Check and mark bolos (students who didn't checkout) at 18:00 AM
-const checkBolosTask = cron.schedule('43 15 * * *', async () => {
+const checkBolosTask = cron.schedule('00 18 * * *', async () => {
   try {
     logger.info('Running: Check Bolos');
     const response = await axios.post(`${API_BASE_URL}/scheduler/check-bolos`, {
