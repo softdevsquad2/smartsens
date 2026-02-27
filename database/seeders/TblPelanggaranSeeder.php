@@ -24,7 +24,7 @@ class TblPelanggaranSeeder extends Seeder
             [
                 'kode' => 'P002',
                 'sub_kode' => '1.2',
-                'nama_pelanggaran' => 'Bolos',
+                'nama_pelanggaran' => 'Tidak Absensi Pulang',
                 'poin_1' => '5',
                 'poin_2' => '10',
                 'poin_3' => '15',

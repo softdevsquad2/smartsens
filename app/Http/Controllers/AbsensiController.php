@@ -496,17 +496,17 @@ class AbsensiController extends Controller
             Log::info('Found '.$siswaBolos->count().' candidate(s) for bolos');
 
             // Get pelanggaran record once
-            $pelanggaranBolos = Pelanggaran::where('nama_pelanggaran', 'Bolos')->first();
+            $pelanggaranBolos = Pelanggaran::where('nama_pelanggaran', 'Tidak Absensi Pulang')->first();
             if (! $pelanggaranBolos) {
-                Log::warning('Pelanggaran "Bolos" tidak ditemukan di database');
+                Log::warning('Pelanggaran "Tidak Absensi Pulang" tidak ditemukan di database');
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Pelanggaran "Bolos" tidak ditemukan di database',
+                    'message' => 'Pelanggaran "Tidak Absensi Pulang" tidak ditemukan di database',
                 ]);
             }
 
-            Log::info('Pelanggaran Bolos id: '.$pelanggaranBolos->id);
+            Log::info('Pelanggaran Tidak Absensi Pulang id: '.$pelanggaranBolos->id);
 
             $countBolos = 0;
 
@@ -523,14 +523,26 @@ class AbsensiController extends Controller
 
                 if (! $rekamBolosSudahAda) {
                     try {
+                        $jumlah = RekamPelanggaran::where('id_siswa', $absensi->id_siswa)
+                            ->where('id_pelanggaran', $pelanggaranBolos->id)
+                            ->count();
+
+                        if ($jumlah == 0) {
+                            $poin = $pelanggaranBolos->poin_1;
+                        } elseif ($jumlah == 1) {
+                            $poin = $pelanggaranBolos->poin_2;
+                        } else {
+                            $poin = $pelanggaranBolos->poin_3;
+                        }
                         // Buat record pelanggaran bolos
-                        $rekam = RekamPelanggaran::create([
+                        RekamPelanggaran::create([
                             'id_siswa' => $absensi->id_siswa,
                             'id_pelanggaran' => $pelanggaranBolos->id,
                             'tanggal_pelanggaran' => Carbon::today(),
                             'foto_pelanggaran' => null,
                             'id_user' => null,
                             'pelapor' => 'system',
+                            'poin_diberikan' => $poin,
                         ]);
 
                         Log::info('Created RekamPelanggaran for siswa '.$absensi->id_siswa);
@@ -538,6 +550,41 @@ class AbsensiController extends Controller
                         // Update status pulang menjadi 'bolos' HANYA JIKA RekamPelanggaran berhasil dibuat
                         $absensi->update([
                             'status_pulang' => 'bolos',
+                        ]);
+
+                        $siswa = Siswa::where('id_siswa', $absensi->id_siswa)
+                            ->lockForUpdate()
+                            ->first();
+
+                        $totalBaru = $siswa->total_poin - $poin;
+
+                        $spBaru = null;
+
+                        if ($totalBaru <= -76) {
+                            $spBaru = 'SP3';
+                        } elseif ($totalBaru <= -51) {
+                            $spBaru = 'SP2';
+                        } elseif ($totalBaru <= -25) {
+                            $spBaru = 'SP1';
+                        }
+
+                        $urutan = [
+                            null => 0,
+                            'SP1' => 1,
+                            'SP2' => 2,
+                            'SP3' => 3,
+                        ];
+
+                        $spFinal = $siswa->sp_tertinggi;
+
+                        if ($urutan[$spBaru] > $urutan[$siswa->sp_tertinggi]) {
+                            $spFinal = $spBaru;
+                        }
+
+                        $siswa->update([
+                            'total_poin' => $totalBaru,
+                            'status_sp' => $spFinal,
+                            'sp_tertinggi' => $spFinal,
                         ]);
 
                         Log::info('Updated status_pulang to bolos for siswa: '.$absensi->id_siswa);
@@ -557,6 +604,7 @@ class AbsensiController extends Controller
                 'success' => true,
                 'message' => "Pengecekan bolos selesai. Total {$countBolos} siswa ditandai bolos.",
                 'total_marked' => $countBolos,
+                'status' => $countBolos,
             ]);
         } catch (\Exception $e) {
             Log::error('Error in checkAndMarkAbsenBolos: '.$e->getMessage());
