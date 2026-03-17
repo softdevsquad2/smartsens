@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Absensi;
 use App\Models\Sholat;
 use App\Models\Siswa;
+use App\Models\Peminjaman;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\RekamPelanggaran;
@@ -56,7 +57,13 @@ class SiswaController extends Controller
             ->whereYear('tanggal', Carbon::now()->year)
             ->get();
 
-        return view('siswa.dashboard', compact('siswa', 'jumlahPoin', 'jumlahPoinPrestasi', 'absensiHariIni', 'absensiBulanIni'));
+        $pinjamanAktif = Peminjaman::with('barang')
+            ->where('id_user', auth()->id())
+            ->where('status', 'dipinjam')
+            ->orderBy('tanggal_pinjam','desc')
+            ->get();
+
+        return view('siswa.dashboard', compact('siswa', 'jumlahPoin', 'jumlahPoinPrestasi', 'absensiHariIni', 'absensiBulanIni', 'pinjamanAktif'));
     }
 
     public function riwayatSholat()

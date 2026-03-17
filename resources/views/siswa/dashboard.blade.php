@@ -41,7 +41,7 @@
 @section('content')
     <!-- Welcome Section -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-app-primary">Selamat Datang, {{ Auth::user()->siswa->nama ?? 'Siswa' }}!</h1>
+        <h1 class="text-3xl font-bold text-app-primary">Selamat Datang!!</h1>
     </div>
 
     @if (session('success'))
@@ -195,8 +195,135 @@
             </div>
         </div>
 
+    </div>
+
+
+
+    <div class="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+
+
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i class="fas fa-boxes mr-2 text-orange-500"></i>
+            Barang yang Dipinjam
+        </h3>
+
+        @if (isset($pinjamanAktif) && $pinjamanAktif->count())
+
+            <!-- ===================== -->
+            <!-- Desktop Table -->
+            <!-- ===================== -->
+            <div class="hidden md:block overflow-x-auto">
+
+                <table class="w-full text-sm text-left text-gray-700">
+
+                    <thead class="bg-gray-100 text-xs uppercase text-gray-600">
+                        <tr>
+                            <th class="px-4 py-3 w-12">#</th>
+                            <th class="px-4 py-3">Nama Barang</th>
+                            <th class="px-4 py-3">Jumlah</th>
+                            <th class="px-4 py-3">Tanggal Pinjam</th>
+                            <th class="px-4 py-3">Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-200">
+
+                        @foreach ($pinjamanAktif as $index => $pinjaman)
+                            <tr class="hover:bg-gray-50 transition">
+
+                                <td class="px-4 py-3">
+                                    {{ $index + 1 }}
+                                </td>
+
+                                <td class="px-4 py-3 font-medium text-gray-900">
+                                    {{ $pinjaman->barang->nama_barang ?? '-' }}
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    {{ $pinjaman->jumlah }}
+                                </td>
+
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {{ $pinjaman->tanggal_pinjam ? date('d M Y H:i', strtotime($pinjaman->tanggal_pinjam)) : '-' }}
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <span
+                                        class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        {{ ucfirst($pinjaman->status) }}
+                                    </span>
+                                </td>
+
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- ===================== -->
+            <!-- Mobile Card -->
+            <!-- ===================== -->
+            <div class="md:hidden space-y-3">
+
+                @foreach ($pinjamanAktif as $index => $pinjaman)
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-gray-500">No</span>
+                            <span class="text-sm font-semibold">{{ $index + 1 }}</span>
+                        </div>
+
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs text-gray-500">Barang</span>
+                            <span class="text-sm font-medium text-gray-900">
+                                {{ $pinjaman->barang->nama_barang ?? '-' }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs text-gray-500">Jumlah</span>
+                            <span class="text-sm">{{ $pinjaman->jumlah }}</span>
+                        </div>
+
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs text-gray-500">Tanggal</span>
+                            <span class="text-sm">
+                                {{ $pinjaman->tanggal_pinjam ? date('d M Y H:i', strtotime($pinjaman->tanggal_pinjam)) : '-' }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Status</span>
+
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                {{ ucfirst($pinjaman->status) }}
+                            </span>
+                        </div>
+
+                    </div>
+                @endforeach
+
+            </div>
+        @else
+            <!-- Empty State -->
+            <div class="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                <i class="fas fa-box-open text-3xl text-gray-400 mb-3"></i>
+
+                <p class="text-sm text-gray-600">
+                    Tidak ada barang yang sedang dipinjam.
+                </p>
+            </div>
+
+        @endif
+
 
     </div>
+
+
 
     <!-- Attendance Status -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
