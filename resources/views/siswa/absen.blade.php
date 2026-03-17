@@ -1069,13 +1069,7 @@
             checkPulangTime();
             setInterval(checkPulangTime, 60000); // Check every minute
 
-            // Auto refresh location every 30 seconds
-            // setInterval(function() {
-            //     // Only auto refresh if location was previously obtained successfully
-            //     if (currentLatitude && currentLongitude) {
-            //         getCurrentLocation();
-            //     }
-            // }, 10000); // 10 seconds
+
         });
     </script>
 @endsection
