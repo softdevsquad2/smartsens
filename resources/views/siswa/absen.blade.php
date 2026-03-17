@@ -80,7 +80,8 @@
     @endif
 
     <!-- Attendance Disabled Notice -->
-    <div id="attendance-disabled-notice" class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4" style="display: none;">
+    <div id="attendance-disabled-notice" class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4"
+        style="display: none;">
         <div class="flex">
             <div class="flex-shrink-0">
                 <i class="fas fa-exclamation-triangle text-yellow-400"></i>
@@ -88,7 +89,8 @@
             <div class="ml-3">
                 <h3 class="text-sm font-medium text-yellow-800">Absensi Dinonaktifkan</h3>
                 <p class="mt-2 text-sm text-yellow-700">
-                    Sistem absensi siswa sedang dinonaktifkan oleh administrator. Silakan hubungi guru atau wali kelas untuk informasi lebih lanjut.
+                    Sistem absensi siswa sedang dinonaktifkan oleh administrator. Silakan hubungi guru atau wali kelas untuk
+                    informasi lebih lanjut.
                 </p>
             </div>
         </div>
@@ -107,7 +109,7 @@
                 <div class="text-sm text-gray-500" id="current-date">--</div>
             </div>
         </div>
-<div id="weekend-notice" class="mt-6 p-4 rounded-lg bg-green-50 border border-green-200" style="display: none;">
+        <div id="weekend-notice" class="mt-6 p-4 rounded-lg bg-green-50 border border-green-200" style="display: none;">
             <h4 class="text-sm font-medium text-green-900 mb-2">
                 <i class="fas fa-sun mr-2"></i>
                 Selamat Hari Libur!
@@ -164,7 +166,8 @@
                     <div class="mb-4">
                         <div class="relative">
                             <i class="fas fa-camera text-6xl text-blue-600"></i>
-                            <div class="absolute -bottom-2 -right-2 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center">
+                            <div
+                                class="absolute -bottom-2 -right-2 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center">
                                 <i class="fas fa-plus text-white text-sm"></i>
                             </div>
                         </div>
@@ -173,7 +176,7 @@
                         Ambil Foto Absensi
                     </h4>
                     <p class="text-sm text-blue-700 text-center">
-                        Klik di sini atau drag foto untuk upload<br/>
+                        Klik di sini atau drag foto untuk upload<br />
                         <span class="text-xs">(JPG, PNG - Max 250KB)</span>
                     </p>
                 </div>
@@ -195,7 +198,8 @@
                         <p class="text-sm text-green-700 font-semibold">
                             <i class="fas fa-check-circle mr-1"></i>Foto berhasil dipilih
                         </p>
-                        <button type="button" onclick="document.getElementById('photo-upload').value = ''; document.getElementById('photo-preview').style.display = 'none'; updateButtonStates();"
+                        <button type="button"
+                            onclick="document.getElementById('photo-upload').value = ''; document.getElementById('photo-preview').style.display = 'none'; updateButtonStates();"
                             class="text-xs text-red-600 hover:text-red-800 mt-2">
                             Ganti foto
                         </button>
@@ -520,69 +524,74 @@
 
             // Fetch both settings and current attendance status
             Promise.all([
-                fetch('/api/settings').then(response => response.json()),
-                fetch('/api/status-absensi').then(response => response.json())
-            ])
-            .then(([settings, status]) => {
-                const schoolLat = parseFloat(settings.school_latitude);
-                const schoolLng = parseFloat(settings.school_longitude);
-                const radius = parseInt(settings.attendance_radius) || 100;
+                    fetch('/api/settings').then(response => response.json()),
+                    fetch('/api/status-absensi').then(response => response.json())
+                ])
+                .then(([settings, status]) => {
+                    const schoolLat = parseFloat(settings.school_latitude);
+                    const schoolLng = parseFloat(settings.school_longitude);
+                    const radius = parseInt(settings.attendance_radius) || 100;
 
-                let distance = 0;
-                if (currentLatitude && currentLongitude) {
-                    distance = calculateDistance(currentLatitude, currentLongitude, schoolLat, schoolLng);
-                }
+                    let distance = 0;
+                    if (currentLatitude && currentLongitude) {
+                        distance = calculateDistance(currentLatitude, currentLongitude, schoolLat, schoolLng);
+                    }
 
-                const isWithinRadius = distance <= radius;
+                    const isWithinRadius = distance <= radius;
 
-                // Check if it's time for pulang
-                const now = new Date();
-                const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString()
-                    .padStart(2, '0');
-                const jamPulang = '{{ \App\Models\Setting::getSetting('jam_pulang') ?? '15:00' }}';
-                const isPulangTime = currentTime >= jamPulang;
-
-                const hasWaktuMasuk = !!status.waktu_masuk;
-                const hasWaktuPulang = !!status.waktu_pulang;
-
-                // Disable Masuk/Pulang buttons if already absen
-                if (isWithinRadius) {
-                    document.getElementById('absenMasukBtn').disabled = hasWaktuMasuk || !hasPhoto;
-                    document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || !hasPhoto || !isPulangTime;
-                    document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk; // cannot mark sakit if already masuk
-                    document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk; // cannot mark izin if already masuk
-                } else {
-                    document.getElementById('absenMasukBtn').disabled = true;
-                    // If already punned (waktu_pulang), keep pulang disabled; otherwise still require pulang time
-                    document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || true;
-                    document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk || !hasPhoto;
-                    document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk || !hasPhoto;
-                }
-            })
-            .catch(error => {
-                console.error('Error updating button states:', error);
-                // Fallback: keep original behavior but still disable if status endpoint unavailable
-                fetch('/api/status-absensi').then(r => r.json()).then(status => {
-                    const hasWaktuMasuk = !!status.waktu_masuk;
-                    const hasWaktuPulang = !!status.waktu_pulang;
+                    // Check if it's time for pulang
                     const now = new Date();
                     const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString()
                         .padStart(2, '0');
                     const jamPulang = '{{ \App\Models\Setting::getSetting('jam_pulang') ?? '15:00' }}';
                     const isPulangTime = currentTime >= jamPulang;
-                    document.getElementById('absenMasukBtn').disabled = hasWaktuMasuk || !hasPhoto;
-                    document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || !hasPhoto || !isPulangTime;
-                    document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk;
-                    document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk;
-                }).catch(err => {
-                    // Last resort: disable buttons if photo missing
-                    const hasPhoto2 = photoInput.files.length > 0;
-                    document.getElementById('absenMasukBtn').disabled = !hasPhoto2;
-                    document.getElementById('absenPulangBtn').disabled = !hasPhoto2;
-                    document.getElementById('absenSakitBtn').disabled = true;
-                    document.getElementById('absenIzinBtn').disabled = true;
+
+                    const hasWaktuMasuk = !!status.waktu_masuk;
+                    const hasWaktuPulang = !!status.waktu_pulang;
+
+                    // Disable Masuk/Pulang buttons if already absen
+                    if (isWithinRadius) {
+                        document.getElementById('absenMasukBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                        document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || !hasPhoto || !
+                            isPulangTime;
+                        document.getElementById('absenSakitBtn').disabled =
+                            hasWaktuMasuk; // cannot mark sakit if already masuk
+                        document.getElementById('absenIzinBtn').disabled =
+                            hasWaktuMasuk; // cannot mark izin if already masuk
+                    } else {
+                        document.getElementById('absenMasukBtn').disabled = true;
+                        // If already punned (waktu_pulang), keep pulang disabled; otherwise still require pulang time
+                        document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || true;
+                        document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                        document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating button states:', error);
+                    // Fallback: keep original behavior but still disable if status endpoint unavailable
+                    fetch('/api/status-absensi').then(r => r.json()).then(status => {
+                        const hasWaktuMasuk = !!status.waktu_masuk;
+                        const hasWaktuPulang = !!status.waktu_pulang;
+                        const now = new Date();
+                        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes()
+                            .toString()
+                            .padStart(2, '0');
+                        const jamPulang = '{{ \App\Models\Setting::getSetting('jam_pulang') ?? '15:00' }}';
+                        const isPulangTime = currentTime >= jamPulang;
+                        document.getElementById('absenMasukBtn').disabled = hasWaktuMasuk || !hasPhoto;
+                        document.getElementById('absenPulangBtn').disabled = hasWaktuPulang || !hasPhoto || !
+                            isPulangTime;
+                        document.getElementById('absenSakitBtn').disabled = hasWaktuMasuk;
+                        document.getElementById('absenIzinBtn').disabled = hasWaktuMasuk;
+                    }).catch(err => {
+                        // Last resort: disable buttons if photo missing
+                        const hasPhoto2 = photoInput.files.length > 0;
+                        document.getElementById('absenMasukBtn').disabled = !hasPhoto2;
+                        document.getElementById('absenPulangBtn').disabled = !hasPhoto2;
+                        document.getElementById('absenSakitBtn').disabled = true;
+                        document.getElementById('absenIzinBtn').disabled = true;
+                    });
                 });
-            });
         }
 
         // Compress image if too large
@@ -599,7 +608,10 @@
 
             img.onload = function() {
                 // Calculate new dimensions (maintain aspect ratio)
-                let { width, height } = img;
+                let {
+                    width,
+                    height
+                } = img;
                 const maxDimension = 1024; // Max width or height
 
                 if (width > height) {
@@ -728,7 +740,8 @@
                             .catch(error => {
                                 hideLoading();
                                 console.error('Error:', error);
-                                showError('Terjadi kesalahan saat absen masuk: ' + error.message, 'Error Sistem');
+                                showError('Terjadi kesalahan saat absen masuk: ' + error.message,
+                                    'Error Sistem');
                             });
                     }
                 });
@@ -792,7 +805,8 @@
                         .catch(error => {
                             hideLoading();
                             console.error('Error:', error);
-                            showError('Terjadi kesalahan saat absen pulang: ' + error.message, 'Error Sistem');
+                            showError('Terjadi kesalahan saat absen pulang: ' + error.message,
+                                'Error Sistem');
                         });
                 }
             });
@@ -856,7 +870,8 @@
                             .catch(error => {
                                 hideLoading();
                                 console.error('Error:', error);
-                                showError('Terjadi kesalahan saat absen sakit: ' + error.message, 'Error Sistem');
+                                showError('Terjadi kesalahan saat absen sakit: ' + error.message,
+                                    'Error Sistem');
                             });
                     }
                 });
@@ -920,7 +935,8 @@
                             .catch(error => {
                                 hideLoading();
                                 console.error('Error:', error);
-                                showError('Terjadi kesalahan saat absen izin: ' + error.message, 'Error Sistem');
+                                showError('Terjadi kesalahan saat absen izin: ' + error.message,
+                                    'Error Sistem');
                             });
                     }
                 });
@@ -1014,7 +1030,8 @@
             const now = new Date();
             const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
             // console.log('CHECK WEEKEND JALAN, dayOfWeek =', dayOfWeek);
-            if (dayOfWeek === 0 || dayOfWeek == 6) {
+            // if (dayOfWeek === 0 || dayOfWeek == 6) {
+            if (dayOfWeek === 0 || dayOfWeek == 5) {
                 isWeekend = true;
                 // It's weekend - disable all attendance buttons and show notice
                 document.getElementById('absenMasukBtn').disabled = true;
