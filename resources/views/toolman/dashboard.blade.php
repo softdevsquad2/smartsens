@@ -7,6 +7,18 @@
 
         <h1 class="text-3xl font-bold mb-6">Dashboard Toolman</h1>
 
+        @if (session('success'))
+            <div class="bg-green-100 border border-green-300 text-green-700 px-4 py-2 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded mb-4">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Statistik -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -32,6 +44,25 @@
             <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-purple-500">
                 <h3 class="text-gray-600">Admin / Toolman</h3>
                 <p class="text-3xl font-bold">{{ $totalUser }}</p>
+            </div>
+
+            <!-- Token Pengembalian -->
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500">
+                <h3 class="text-gray-600">Token Kembali (sekali pakai)</h3>
+                @if ($token)
+                    <p class="text-3xl font-bold">{{ $token }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Token aktif, berlaku 15 menit.</p>
+                @else
+                    <p class="text-3xl font-bold text-gray-400">-</p>
+                    <p class="text-sm text-gray-500 mt-1">Klik tombol buat token di bawah.</p>
+                @endif
+
+                <form method="POST" action="{{ route('toolman.generateToken') }}" class="mt-3">
+                    @csrf
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
+                        Generate Token Sekali Pakai
+                    </button>
+                </form>
             </div>
 
         </div>

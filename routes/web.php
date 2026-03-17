@@ -11,7 +11,6 @@ use App\Http\Controllers\KelasManageController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\PiketController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ScanController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SiswaManageController;
@@ -86,6 +85,8 @@ Route::post('/pinjam/update-qty', [BarangController::class, 'updateQty'])->name(
 Route::post('/pinjam/kembali/process', [BarangController::class, 'processKembalikan'])->name('pinjam.kembalikan.proses');
 
 Route::get('/pinjam/kembali', [BarangController::class, 'kembalikan'])->name('pinjam.kembali');
+
+Route::post('/toolman/token/generate', [ToolmanController::class, 'generateReturnToken'])->name('toolman.generateToken');
 
 Route::get('/peminjaman', [BarangController::class, 'scanPageKembali'])->name('kembali.scan');
 

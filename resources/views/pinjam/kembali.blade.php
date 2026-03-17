@@ -63,6 +63,16 @@
                     @endforeach
                 </div>
 
+                <!-- Input token -->
+                <div class="bg-white p-4 rounded-xl shadow mb-5">
+                    <h3 class="text-gray-700 font-semibold mb-2">Kode Token</h3>
+                    <p class="text-sm text-gray-500 mb-3">Minta toolman menghasilkan token sekali pakai di dashboard, lalu
+                        masukkan di sini sebelum mengembalikan.</p>
+                    <input type="text" name="token" value="{{ old('token') }}" placeholder="Masukkan kode token"
+                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-300"
+                        required>
+                </div>
+
                 <!-- Tombol kembalikan -->
                 <button type="submit"
                     class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">

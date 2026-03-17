@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Barang;
 use App\Models\Peminjaman;
-use App\Models\Siswa;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
@@ -18,10 +18,12 @@ class BarangController extends Controller
     {
         return view('pinjam.kembali.cari-siswa');
     }
+
     public function cariSiswaPagePinjam()
     {
         return view('pinjam.pinjam.cari-siswa');
     }
+
     public function cariSiswaResult(Request $request)
     {
         $keyword = $request->input('q');
@@ -36,9 +38,9 @@ class BarangController extends Controller
             ->select('tbl_siswa.*', 'tbl_user.*', 'tbl_kelas.nama_kelas')
             ->get();
 
-
         return view('pinjam.kembali.hasil-cari', compact('siswa', 'keyword'));
     }
+
     public function cariSiswaResultPinjam(Request $request)
     {
         $keyword = $request->input('q');
@@ -60,6 +62,7 @@ class BarangController extends Controller
     {
         // session()->forget('cart');
         $barang = Barang::all();
+
         return view('pinjam.index', compact('barang'));
     }
 
@@ -71,7 +74,7 @@ class BarangController extends Controller
         $id = $request->id_barang;
 
         $barang = Barang::find($id);
-        if (!$barang) {
+        if (! $barang) {
             return back()->with('error', 'Barang tidak ditemukan');
         }
 
@@ -81,11 +84,11 @@ class BarangController extends Controller
             $cart[$id]['jumlah']++;
         } else {
             $cart[$id] = [
-                "id_barang" => $barang->id_barang,
-                "nama_barang" => $barang->nama_barang,
-                "jumlah" => 1,
-                "stok" => $barang->stok,
-                "gambar" => $barang->gambar
+                'id_barang' => $barang->id_barang,
+                'nama_barang' => $barang->nama_barang,
+                'jumlah' => 1,
+                'stok' => $barang->stok,
+                'gambar' => $barang->gambar,
             ];
         }
 
@@ -101,6 +104,7 @@ class BarangController extends Controller
     {
         session()->forget('peminjam_id');
         $cart = session('cart', []);
+
         return view('pinjam.cart', compact('cart'));
     }
 
@@ -116,8 +120,10 @@ class BarangController extends Controller
             return redirect()->route('pinjam.index')
                 ->with('error', 'Keranjang kosong!');
         }
+
         return view('pinjam.pilih', compact('cart'));
     }
+
     public function checkout(Request $request)
     {
         // Simpan id siswa ke session
@@ -133,7 +139,7 @@ class BarangController extends Controller
         }
         $peminjam = session('peminjam_id') ?? session('id_siswa');
 
-        if (!$peminjam) {
+        if (! $peminjam) {
             // dd('Saya Tidak Tau Anda Siapa!');
             return redirect()->route('pinjam.scan');
         }
@@ -144,7 +150,6 @@ class BarangController extends Controller
 
         return view('pinjam.checkout', compact('cart'));
     }
-
 
     // ===============================
     //  PROSES CHECKOUT
@@ -159,7 +164,7 @@ class BarangController extends Controller
         $cart = session('cart', []);
         $id_user = session('peminjam_id') ?? $idSiswa;
 
-        if (!$id_user) {
+        if (! $id_user) {
             return redirect()->route('pinjam.pilih')
                 ->with('error', 'Saya Tidak Tau Anda Siapa!');
         }
@@ -212,17 +217,21 @@ class BarangController extends Controller
     public function scanPage()
     {
         session()->forget('peminjam_id');
+
         return view('pinjam.scan');
     }
+
     public function scanPageKembali()
     {
         session()->forget('peminjam_id');
+
         return view('pinjam.scanKembali');
     }
+
     public function kembalikanPinjam()
     {
 
-        return view("pinjam.pilihscan");
+        return view('pinjam.pilihscan');
     }
 
     // ===============================
@@ -236,7 +245,7 @@ class BarangController extends Controller
         // {"nis_siswa":"0076548998","id_kelas":"55"}
         $data = json_decode($json);
 
-        if (!$data || !isset($data->nis_siswa)) {
+        if (! $data || ! isset($data->nis_siswa)) {
             return back()->with('error', 'Format QR tidak valid!');
         }
 
@@ -252,7 +261,7 @@ class BarangController extends Controller
             )
             ->first();
         // dd($siswa);
-        if (!$siswa) {
+        if (! $siswa) {
             return back()->with('error', 'Siswa tidak ditemukan dalam database!');
         }
 
@@ -260,8 +269,9 @@ class BarangController extends Controller
         session(['peminjam_id' => $siswa->id_user]);
 
         return redirect()->route('pinjam.checkout')
-            ->with('success', 'Siswa diverifikasi: ' . $siswa->nama);
+            ->with('success', 'Siswa diverifikasi: '.$siswa->nama);
     }
+
     public function scanProcessBack(Request $request)
     {
         $json = $request->qr;
@@ -270,7 +280,7 @@ class BarangController extends Controller
         // {"nis_siswa":"0076548998","id_kelas":"55"}
         $data = json_decode($json);
 
-        if (!$data || !isset($data->nis_siswa)) {
+        if (! $data || ! isset($data->nis_siswa)) {
             return back()->with('error', 'Format QR tidak valid!');
         }
 
@@ -286,7 +296,7 @@ class BarangController extends Controller
             )
             ->first();
         // dd($siswa);
-        if (!$siswa) {
+        if (! $siswa) {
             return back()->with('error', 'Siswa tidak ditemukan dalam database!');
         }
 
@@ -296,12 +306,13 @@ class BarangController extends Controller
         return redirect()->route('pinjam.kembali');
         // $this->kembalikan();
     }
+
     public function kembalikan(Request $request)
     {
         $idSiswa = $request->id ?? session('id_siswa');
         $id_user = session('peminjam_id') ?? $idSiswa;
         // dd($id_user);
-        if (!$id_user) {
+        if (! $id_user) {
             return redirect()->route('kembali.pilih')
                 ->with('error', 'Saya tidak mengetahui anda!');
         }
@@ -314,7 +325,7 @@ class BarangController extends Controller
             ->get();
 
         $siswa = $peminjaman->first()->siswa ?? null;
-        $user  = $peminjaman->first()->user ?? null;
+        $user = $peminjaman->first()->user ?? null;
         // dd($peminjaman);
 
         if ($peminjaman->isEmpty()) {
@@ -324,18 +335,42 @@ class BarangController extends Controller
 
         return view('pinjam.kembali', compact('peminjaman', 'siswa', 'user'));
     }
+
     public function processKembalikan(Request $request)
     {
-        // Validasi: harus pilih minimal 1 barang
+        // Validasi: harus pilih minimal 1 barang dan token
         $request->validate([
             'barang' => 'required|array',
+            'token' => 'required|string',
         ], [
-            'barang.required' => 'Pilih minimal satu barang yang ingin dikembalikan.'
+            'barang.required' => 'Pilih minimal satu barang yang ingin dikembalikan.',
+            'token.required' => 'Kode token pengembalian wajib diisi.',
         ]);
+
+        $storedToken = Cache::get('kembali_token');
+        $tokenCreatedAt = Cache::get('kembali_token_created_at');
+
+        if (! $storedToken) {
+            return back()->with('error', 'Token tidak ditemukan atau telah kedaluwarsa. Mintalah toolman membuat token baru.');
+        }
+
+        if ($request->token !== $storedToken) {
+            return back()->with('error', 'Kode token tidak valid. Mintalah toolman membuat token baru.');
+        }
+
+        if ($tokenCreatedAt && Carbon::parse($tokenCreatedAt)->diffInMinutes(now()) >= 15) {
+            Cache::forget('kembali_token');
+            Cache::forget('kembali_token_created_at');
+
+            return back()->with('error', 'Token telah kadaluwarsa. Mintalah toolman membuat token baru.');
+        }
+
+        Cache::forget('kembali_token');
+        Cache::forget('kembali_token_created_at');
 
         $id_user = session('peminjam_id') ?? session('id_siswa');
 
-        if (!$id_user) {
+        if (! $id_user) {
             return redirect()->route('pinjam.scan')
                 ->with('error', 'Scan QR NISN siswa terlebih dahulu!');
         }
@@ -375,6 +410,7 @@ class BarangController extends Controller
         return redirect()->route('pinjam.index')
             ->with('success', 'Barang terpilih berhasil dikembalikan!');
     }
+
     public function updateQty(Request $request)
     {
         $cart = session()->get('cart', []);
@@ -382,17 +418,17 @@ class BarangController extends Controller
         $id = $request->id_barang;
         $action = $request->action;
 
-        if (!isset($cart[$id])) {
+        if (! isset($cart[$id])) {
             return back()->with('error', 'Barang tidak ditemukan.');
         }
 
         // Tambah
-        if ($action === "plus") {
+        if ($action === 'plus') {
             $cart[$id]['jumlah'] += 1;
         }
 
         // Kurangi
-        if ($action === "minus" && $cart[$id]['jumlah'] > 1) {
+        if ($action === 'minus' && $cart[$id]['jumlah'] > 1) {
             $cart[$id]['jumlah'] -= 1;
         }
 
@@ -400,10 +436,12 @@ class BarangController extends Controller
 
         return back()->with('success', 'Jumlah diperbarui.');
     }
+
     public function scanCardPage()
     {
         return view('pinjam.scan-card');
     }
+
     public function scanCard()
     {
         return view('pinjam.card');

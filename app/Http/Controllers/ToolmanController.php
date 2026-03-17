@@ -2,28 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Siswa;
 use App\Models\Barang;
 use App\Models\Kelas;
 use App\Models\Peminjaman;
+use App\Models\Siswa;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 // use PDF;
-use Barryvdh\DomPDF\Facade\Pdf;
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class ToolmanController extends Controller
 {
     public function dashboard()
     {
+        $token = Cache::get('kembali_token');
+        $tokenCreatedAt = Cache::get('kembali_token_created_at');
+        $isExpired = false;
+
+        if ($token && $tokenCreatedAt) {
+            $isExpired = Carbon::parse($tokenCreatedAt)->diffInMinutes(now()) >= 15;
+
+            if ($isExpired) {
+                Cache::forget('kembali_token');
+                Cache::forget('kembali_token_created_at');
+                $token = null;
+            }
+        }
+
         return view('toolman.dashboard', [
-            "totalBarang" => Barang::count(),
-            "dipinjam" => Peminjaman::where('status', 'dipinjam')->count(),
-            "totalSiswa" => Siswa::count(),
-            "totalUser" => User::where('role', 'toolman')->count()
+            'totalBarang' => Barang::count(),
+            'dipinjam' => Peminjaman::where('status', 'dipinjam')->count(),
+            'totalSiswa' => Siswa::count(),
+            'totalUser' => User::where('role', 'toolman')->count(),
+            'token' => $token,
+            'tokenExpired' => $isExpired,
         ]);
+    }
+
+    public function generateReturnToken(Request $request)
+    {
+        $token = random_int(100000, 999999);
+
+        Cache::put('kembali_token', (string) $token, now()->addMinutes(15));
+        Cache::put('kembali_token_created_at', now()->toDateTimeString(), now()->addMinutes(15));
+
+        return redirect()->route('toolman.dashboard')
+            ->with('success', "Token pengembalian berhasil dibuat: {$token}. Token berlaku 15 menit dan hanya sekali pakai.");
     }
 
     public function barang(Request $request)
@@ -38,7 +66,7 @@ class ToolmanController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         $peminjamans = Peminjaman::with(['siswa', 'barang'])
-        
+
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -102,12 +130,11 @@ class ToolmanController extends Controller
         $peminjamans = $query->get();
 
         $pdf = PDF::loadView('toolman.export_php', [
-            'peminjamans' => $peminjamans
+            'peminjamans' => $peminjamans,
         ])->setPaper('A4', 'portrait'); // opsional
 
         return $pdf->download('riwayat_peminjaman.pdf');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -151,7 +178,7 @@ class ToolmanController extends Controller
     {
         $barang = Barang::find($id);
 
-        if (!$barang) {
+        if (! $barang) {
             return response()->json(['success' => false, 'message' => 'Barang tidak ditemukan'], 404);
         }
 
@@ -162,7 +189,7 @@ class ToolmanController extends Controller
     {
         $barang = Barang::find($id);
 
-        if (!$barang) {
+        if (! $barang) {
             return redirect()->back()->with('error', 'Barang tidak ditemukan');
         }
 
@@ -179,7 +206,6 @@ class ToolmanController extends Controller
         //     'size' => $request->file('gambar')->getSize(),
         //     'extension' => $request->file('gambar')->getClientOriginalExtension(),
         // ]);
-
 
         // Redirect manual jika gambar lebih dari 2MB
         if ($request->hasFile('gambar')) {
@@ -203,12 +229,11 @@ class ToolmanController extends Controller
         return redirect()->back()->with('success', 'Barang berhasil diupdate.');
     }
 
-
     public function destroy($id)
     {
         $barang = Barang::find($id);
 
-        if (!$barang) {
+        if (! $barang) {
             return redirect()->back()->with('error', 'Barang tidak ditemukan.');
         }
 
